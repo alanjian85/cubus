@@ -1,10 +1,12 @@
 #include <bgfx/bgfx.h>
 #include <bgfx/platform.h>
 #include <bx/bx.h>
+#include <fmt/format.h>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_syswm.h>
 
-#include "Game.h"
+#include "cephalon_config.h"
+#include "game.h"
 using namespace cephalon;
 
 namespace {
@@ -30,7 +32,7 @@ void init() {
     SDL_Init(0);
 
     window = SDL_CreateWindow(
-        "Cephalon", 
+        fmt::format("Cephalon {}.{}.{}", CEPHALON_VERSION_MAJOR, CEPHALON_VERSION_MINOR, CEPHALON_VERSION_PATCH).c_str(),
         SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 
         kWidth, kHeight, 
         SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE

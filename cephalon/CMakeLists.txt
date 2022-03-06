@@ -1,6 +1,8 @@
+configure_file(cephalon_config.h.in cephalon_config.h)
+
 set(CEPHALON_SRCS
     src/main.cc
-    src/Game.h)
+    src/game.h)
 add_executable(cephalon ${CEPHALON_SRCS})
 
 find_package(SDL2 REQUIRED)
@@ -14,5 +16,6 @@ target_link_libraries(cephalon
 )
 
 target_include_directories(cephalon PRIVATE
+    ${CMAKE_CURRENT_BINARY_DIR}
     ${SDL2_INCLUDE_DIRS}
 )
