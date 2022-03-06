@@ -57,8 +57,10 @@ void init() {
     bgfx::renderFrame();
     bgfx::init(init);
 
-    bgfx::setViewClear(0, BGFX_CLEAR_COLOR, 0x223344ff);
+    bgfx::setViewClear(0, BGFX_CLEAR_COLOR, 0x000000ff);
     bgfx::setViewRect(0, 0, 0, kWidth, kHeight);
+
+    game.start();
 }
 
 void mainLoop() {
