@@ -147,7 +147,8 @@ function( shaderc_parse ARG_OUT )
 endfunction()
 
 function( add_bgfx_shader TARGET )
-    list(SUBLIST ARGV 1 -1 FILES)
+    list( SUBLIST ARGV 1 -1 FILES )
+	set( OUTPUT_LIST "" )
     foreach (FILE ${FILES})
         get_filename_component( FILENAME "${FILE}" NAME_WE )
         string( SUBSTRING "${FILENAME}" 0 2 TYPE )
@@ -221,22 +222,31 @@ function( add_bgfx_shader TARGET )
                 shaderc_parse( SPIRV ${COMMON} LINUX PROFILE spirv OUTPUT ${SPIRV_OUTPUT} )
                 list( APPEND OUTPUTS "SPIRV" )
                 set( OUTPUTS_PRETTY "${OUTPUTS_PRETTY}SPIRV" )
+				set( OUTPUT_FILES "" )
                 set( COMMANDS "" )
             endif()
 
             foreach( OUT ${OUTPUTS} )
+				list( APPEND OUTPUT_FILES ${${OUT}_OUTPUT} )
                 list( APPEND COMMANDS COMMAND shaderc ${${OUT}} )
                 get_filename_component( OUT_DIR ${${OUT}_OUTPUT} DIRECTORY )
                 file( MAKE_DIRECTORY ${OUT_DIR} )
             endforeach()
 
             file( RELATIVE_PATH PRINT_NAME ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/${FILE} )
-            add_custom_command(TARGET ${TARGET} POST_BUILD
+            add_custom_command(
                 MAIN_DEPENDENCY
                 ${FILE}
+				OUTPUT
+				${OUTPUT_FILES}
                 ${COMMANDS}
                 COMMENT "Compiling shader ${PRINT_NAME} for ${OUTPUTS_PRETTY}"
             )
+
+			list( APPEND OUTPUT_LIST ${OUTPUT_FILES} )
         endif()
     endforeach()
+
+	add_custom_target( bgfx_shader_${TARGET} ALL DEPENDS ${OUTPUT_LIST} )
+    add_dependencies( ${TARGET} bgfx_shader_${TARGET} )
 endfunction()
