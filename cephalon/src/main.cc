@@ -51,13 +51,14 @@ void init() {
 #elif BX_PLATFORM_WINDOWS
     init.platformData.nwh = wmi.info.win.window;
 #endif
+init.type = bgfx::RendererType::OpenGL;
     init.resolution.width = kWidth;
     init.resolution.height = kHeight;
     init.resolution.reset = BGFX_RESET_VSYNC;
     bgfx::renderFrame();
     bgfx::init(init);
 
-    bgfx::setViewClear(0, BGFX_CLEAR_COLOR, 0x000000ff);
+    bgfx::setViewClear(0, BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH, 0x334d4dff);
     bgfx::setViewRect(0, 0, 0, kWidth, kHeight);
 
     game.start();

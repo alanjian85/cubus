@@ -5,6 +5,8 @@ configure_file(cephalon_config.h.in cephalon_config.h)
 set(CEPHALON_SRCS
     src/main.cc
     src/game.h
+    src/bgfx_utils.cc
+    src/bgfx_utils.h
 )
 add_executable(cephalon ${CEPHALON_SRCS})
 
