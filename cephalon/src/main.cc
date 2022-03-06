@@ -71,6 +71,18 @@ void mainLoop() {
                 case SDL_QUIT:
                     quit = true;
                     break;
+                case SDL_KEYDOWN:
+                    if (event.key.keysym.sym == SDLK_ESCAPE)
+                        quit = true;
+                    break;
+                case SDL_WINDOWEVENT:
+                    switch (event.window.event) {
+                        case SDL_WINDOWEVENT_RESIZED:
+                            bgfx::reset(event.window.data1, event.window.data2, BGFX_RESET_VSYNC);
+                            bgfx::setViewRect(0, 0, 0, event.window.data1, event.window.data2);
+                            break;
+                    }
+                    break;
             }
         }
 
