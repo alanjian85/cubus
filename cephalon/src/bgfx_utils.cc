@@ -6,7 +6,7 @@
 #include <bx/bx.h>
 #include <bx/string.h>
 
-bgfx::ShaderHandle cephalon::loadShader(const char* name) {
+bgfx::ShaderHandle cephalon::LoadShader(const char* name) {
     char filePath[512];
     const char* shaderPath = "???";
 
@@ -44,8 +44,8 @@ bgfx::ShaderHandle cephalon::loadShader(const char* name) {
     return handle;
 }
 
-bgfx::ProgramHandle cephalon::loadProgram(const char* vs, const char* fs) {
-    auto vsh = loadShader(vs);
-    auto fsh = loadShader(fs);
+bgfx::ProgramHandle cephalon::LoadProgram(const char* vs, const char* fs) {
+    auto vsh = LoadShader(vs);
+    auto fsh = LoadShader(fs);
     return bgfx::createProgram(vsh, fsh, true);
 }

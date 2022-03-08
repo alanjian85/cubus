@@ -19,7 +19,7 @@ namespace cephalon {
             .end();
             vbh_ = bgfx::createVertexBuffer(bgfx::copy(vertices, sizeof(vertices)), layout_);
 
-            program_ = loadProgram("vs_shader", "fs_shader");
+            program_ = LoadProgram("vs_shader", "fs_shader");
         }
 
         void update(float delta) {

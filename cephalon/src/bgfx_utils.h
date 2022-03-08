@@ -4,9 +4,9 @@
 #include <bgfx/bgfx.h>
 
 namespace cephalon {
-    bgfx::ShaderHandle loadShader(const char* name);
+    bgfx::ShaderHandle LoadShader(const char* name);
 
-    bgfx::ProgramHandle loadProgram(const char* vs, const char* fs);
+    bgfx::ProgramHandle LoadProgram(const char* vs, const char* fs);
 }
 
 #endif // CEPHALON_BGFX_UTILS_H_

@@ -51,7 +51,6 @@ void init() {
 #elif BX_PLATFORM_WINDOWS
     init.platformData.nwh = wmi.info.win.window;
 #endif
-init.type = bgfx::RendererType::OpenGL;
     init.resolution.width = kWidth;
     init.resolution.height = kHeight;
     init.resolution.reset = BGFX_RESET_VSYNC;
