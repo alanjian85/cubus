@@ -9,6 +9,7 @@
 #include "camera.h"
 #include "cephalon_config.h"
 #include "game.h"
+#include "input.h"
 using namespace cephalon;
 
 namespace {
@@ -55,7 +56,6 @@ void init() {
 #elif BX_PLATFORM_WINDOWS
     init.platformData.nwh = wmi.info.win.window;
 #endif
-    init.type = bgfx::RendererType::OpenGL;
     init.resolution.width = kWidth;
     init.resolution.height = kHeight;
     init.resolution.reset = BGFX_RESET_VSYNC;
@@ -73,6 +73,8 @@ void mainLoop() {
     bool quit = false;
     float last_time = 0.0f;
     while (!quit) {
+        Input::update();
+
         SDL_Event event;
         while (SDL_PollEvent(&event)) {
             switch (event.type) {
@@ -91,6 +93,10 @@ void mainLoop() {
                             break;
                     }
                     break;
+                case SDL_MOUSEMOTION:
+                    Input::setRelativeMouseX(event.motion.xrel);
+                    Input::setRelativeMouseY(event.motion.yrel);
+                    break;
             }
         }
 
@@ -98,7 +104,6 @@ void mainLoop() {
         float delta = current_time - last_time;
         last_time = current_time;
 
-        Input::update();
         game.update(delta);
 
         bgfx::touch(0);
