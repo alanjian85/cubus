@@ -3,11 +3,15 @@ include(BgfxShader)
 configure_file(cephalon_config.h.in cephalon_config.h)
 
 set(CEPHALON_SRCS
-    src/main.cc
+    src/blocks/air.h
+    src/blocks/block.h
+    src/blocks/block.cc
+    src/blocks/dirt.h
     src/game.h
     src/game.cc
     src/input.cc
     src/input.h
+    src/main.cc
     src/utils.cc
     src/utils.h
     src/camera.h
