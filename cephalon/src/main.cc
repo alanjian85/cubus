@@ -64,12 +64,13 @@ void init() {
     bgfx::setViewClear(0, BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH, 0x334d4dff);
     bgfx::setViewRect(0, 0, 0, kWidth, kHeight);
 
-    game.start(kWidth, kHeight);
+    Input::init(window);
+    game.init(kWidth, kHeight);
 }
 
 void mainLoop() {
     bool quit = false;
-    float lastTime = 0.0f;
+    float last_time = 0.0f;
     while (!quit) {
         SDL_Event event;
         while (SDL_PollEvent(&event)) {
@@ -92,9 +93,11 @@ void mainLoop() {
             }
         }
 
-        float currentTime = SDL_GetTicks() / 1000.0f;
-        float delta = currentTime - lastTime;
-        lastTime = currentTime;
+        float current_time = SDL_GetTicks() / 1000.0f;
+        float delta = current_time - last_time;
+        last_time = current_time;
+
+        Input::update();
         game.update(delta);
 
         bgfx::touch(0);

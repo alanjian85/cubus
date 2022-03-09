@@ -1,13 +1,16 @@
 #ifndef CEPHALON_GAME_H_
 #define CEPHALON_GAME_H_
 
+#include <iostream>
+
 #include "camera.h"
+#include "input.h"
 #include "utils.h"
 
 namespace cephalon {
     class Game {
     public:
-        void start(int width, int height) {
+        void init(int width, int height) {
             camera_.setPosition(bx::Vec3(0.0f, 0.0f, -3.0f));
             camera_.setAspect(static_cast<float>(width) / height);
 
@@ -28,6 +31,15 @@ namespace cephalon {
 
         void update(float delta) {
             camera_.update();
+            const auto camera_speed = 2.5f;
+            if (Input::getKey(Key::kW))
+                camera_.setPosition(bx::add(camera_.getPosition(), bx::mul(camera_.getDirection(), camera_speed * delta)));
+            if (Input::getKey(Key::kS))
+                camera_.setPosition(bx::sub(camera_.getPosition(), bx::mul(camera_.getDirection(), camera_speed * delta)));
+            if (Input::getKey(Key::kA))
+                camera_.setPosition(bx::sub(camera_.getPosition(), bx::mul(camera_.getRight(), camera_speed * delta)));
+            if (Input::getKey(Key::kD))
+                camera_.setPosition(bx::add(camera_.getPosition(), bx::mul(camera_.getRight(), camera_speed * delta)));
         }
 
         void render() {
