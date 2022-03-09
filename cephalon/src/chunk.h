@@ -2,11 +2,29 @@
 #define CEPHALON_CHUNK_H_
 
 #include <cassert>
+#include <cstdint>
 #include <vector>
+
+#include <bgfx/bgfx.h>
+#include <bx/math.h>
 
 #include "blocks/block.h"
 
 namespace cephalon {
+    struct Vertex {
+        static bgfx::VertexLayout layout;
+
+        static void init() {
+            layout.begin()
+                .add(bgfx::Attrib::Position, 3, bgfx::AttribType::Float)
+                .add(bgfx::Attrib::Color0, 4, bgfx::AttribType::Uint8, true)
+            .end();
+        }
+
+        bx::Vec3 position;
+        std::uint32_t color;
+    };
+
     class Chunk {
     public:
         static constexpr int kChunkSizeX = 16;
@@ -46,12 +64,23 @@ namespace cephalon {
             assert(z >= 0 && z < kChunkSizeZ);
             return *blocks_[z * kChunkSizeX * kChunkSizeY + y * kChunkSizeX + x];
         }
+
+        auto getVertexBuffer() const {
+            return vbh_;
+        }
+
+        auto getIndexBuffer() const {
+            return ibh_;
+        }
     private:
         int x_;
         int y_;
         int z_;
 
         std::vector<const Block*> blocks_;
+
+        bgfx::VertexBufferHandle vbh_;
+        bgfx::IndexBufferHandle ibh_;
     };
 }
 

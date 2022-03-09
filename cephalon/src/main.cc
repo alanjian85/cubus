@@ -66,6 +66,7 @@ void init() {
     bgfx::setViewRect(0, 0, 0, kWidth, kHeight);
 
     Input::init(window);
+    Vertex::init();
     game.init(kWidth, kHeight);
 }
 

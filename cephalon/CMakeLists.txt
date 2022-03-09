@@ -9,6 +9,7 @@ set(CEPHALON_SRCS
     src/blocks/dirt.h
     src/camera.h
     src/chunk.h
+    src/chunk.cc
     src/game.h
     src/game.cc
     src/input.cc
