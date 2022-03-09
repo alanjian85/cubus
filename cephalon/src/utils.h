@@ -1,5 +1,5 @@
-#ifndef CEPHALON_BGFX_UTILS_H_
-#define CEPHALON_BGFX_UTILS_H_
+#ifndef CEPHALON_UTILS_H_
+#define CEPHALON_UTILS_H_
 
 #include <bgfx/bgfx.h>
 

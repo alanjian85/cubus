@@ -1,10 +1,12 @@
 #include <bgfx/bgfx.h>
 #include <bgfx/platform.h>
 #include <bx/bx.h>
+#include <bx/math.h>
 #include <fmt/format.h>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_syswm.h>
 
+#include "camera.h"
 #include "cephalon_config.h"
 #include "game.h"
 using namespace cephalon;
@@ -38,6 +40,8 @@ void init() {
         SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE
     );
 
+    SDL_SetRelativeMouseMode(SDL_TRUE);
+
     SDL_SysWMinfo wmi;
     SDL_VERSION(&wmi.version);
     SDL_GetWindowWMInfo(window, &wmi);
@@ -60,7 +64,7 @@ void init() {
     bgfx::setViewClear(0, BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH, 0x334d4dff);
     bgfx::setViewRect(0, 0, 0, kWidth, kHeight);
 
-    game.start();
+    game.start(kWidth, kHeight);
 }
 
 void mainLoop() {

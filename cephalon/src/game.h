@@ -1,12 +1,16 @@
 #ifndef CEPHALON_GAME_H_
 #define CEPHALON_GAME_H_
 
-#include "bgfx_utils.h"
+#include "camera.h"
+#include "utils.h"
 
 namespace cephalon {
     class Game {
     public:
-        void start() {
+        void start(int width, int height) {
+            camera_.setPosition(bx::Vec3(0.0f, 0.0f, -3.0f));
+            camera_.setAspect(static_cast<float>(width) / height);
+
             float vertices[] = {
                 -0.5f, -0.5f, 0.0f,  1.0f, 0.0f, 0.0f, 1.0f,
                  0.5f, -0.5f, 0.0f,  0.0f, 1.0f, 0.0f, 1.0f,
@@ -23,10 +27,11 @@ namespace cephalon {
         }
 
         void update(float delta) {
-
+            camera_.update();
         }
 
         void render() {
+            bgfx::setViewTransform(0, camera_.getView(), camera_.getProj());
             bgfx::setVertexBuffer(0, vbh_);
             bgfx::submit(0, program_);
         }
@@ -35,6 +40,8 @@ namespace cephalon {
         bgfx::VertexBufferHandle vbh_;
 
         bgfx::ProgramHandle program_;
+    
+        PerspectiveCamera camera_;
     };
 }
 
