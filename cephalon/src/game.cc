@@ -17,6 +17,8 @@ void Game::init(int width, int height) {
     .end();
     vbh_ = bgfx::createVertexBuffer(bgfx::copy(vertices, sizeof(vertices)), layout_);
     program_ = LoadProgram("vs_shader", "fs_shader");
+
+    chunk_.setBlock(0, 0, 0, blocks::kDirt);
 }
 
 void Game::update(float delta) {

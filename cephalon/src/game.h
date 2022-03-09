@@ -2,6 +2,7 @@
 #define CEPHALON_GAME_H_
 
 #include "camera.h"
+#include "chunk.h"
 #include "utils.h"
 
 namespace cephalon {
@@ -18,6 +19,8 @@ namespace cephalon {
 
         bgfx::ProgramHandle program_;
     
+        Chunk chunk_;
+
         PerspectiveCamera camera_;
     };
 }

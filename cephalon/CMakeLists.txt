@@ -7,6 +7,8 @@ set(CEPHALON_SRCS
     src/blocks/block.h
     src/blocks/block.cc
     src/blocks/dirt.h
+    src/camera.h
+    src/chunk.h
     src/game.h
     src/game.cc
     src/input.cc
@@ -14,7 +16,6 @@ set(CEPHALON_SRCS
     src/main.cc
     src/utils.cc
     src/utils.h
-    src/camera.h
 )
 add_executable(cephalon ${CEPHALON_SRCS})
 
