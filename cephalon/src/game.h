@@ -1,8 +1,6 @@
 #ifndef CEPHALON_GAME_H_
 #define CEPHALON_GAME_H_
 
-#include <iostream>
-
 #include "camera.h"
 #include "input.h"
 #include "utils.h"
