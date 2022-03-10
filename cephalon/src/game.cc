@@ -8,7 +8,9 @@ void Game::init(int width, int height) {
     camera_.setAspect(static_cast<float>(width) / height);
 
     chunks_program_ = LoadProgram("vs_chunks", "fs_chunks");
-    chunk_.setBlock(0, 0, 0, blocks::kDirt);
+
+    chunk_ = std::make_unique<Chunk>(0, 0, 0);
+    chunk_->setBlock(0, 0, 0, blocks::kDirt);
 }
 
 void Game::update(float delta) {
@@ -36,12 +38,12 @@ void Game::update(float delta) {
     if (camera_.getPitch() < -89.0f)
         camera_.setPitch(-89.0f);
 
-    chunk_.update();
+    chunk_->update();
 }
 
 void Game::render() {
     bgfx::setViewTransform(0, camera_.getView(), camera_.getProj());
-    bgfx::setVertexBuffer(0, chunk_.getVertexBuffer());
-    bgfx::setIndexBuffer(chunk_.getIndexBuffer());
+    bgfx::setVertexBuffer(0, chunk_->getVertexBuffer());
+    bgfx::setIndexBuffer(chunk_->getIndexBuffer());
     bgfx::submit(0, chunks_program_);
 }

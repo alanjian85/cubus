@@ -28,10 +28,10 @@ void Chunk::setBlock(int x, int y, int z, const Block& block) {
     assert(x >= 0 && x < kChunkSizeX);
     assert(y >= 0 && y < kChunkSizeY);
     assert(z >= 0 && z < kChunkSizeZ);
-    auto& dest = blocks_[z * kChunkSizeX * kChunkSizeY + y * kChunkSizeX + x];
-    if (dest != &block) {
+    auto index = z * kChunkSizeX * kChunkSizeY + y * kChunkSizeX + x;
+    if (blocks_[index] != &block) {
         dirty_ = true;
-        dest = &block;
+        blocks_[index] = &block;
     }
 }
 
@@ -47,10 +47,27 @@ const Block& Chunk::getBlock(int x, int y, int z) const {
 
 void Chunk::update() {
     if (dirty_) {
-        Vertex vertices[1];
-        std::uint16_t indices[1];
+        std::vector<Vertex> vertices;
+        std::vector<std::uint16_t> indices;
 
-        vbh_ = bgfx::createVertexBuffer(bgfx::copy(vertices, sizeof(vertices)), Vertex::layout);
-        ibh_ = bgfx::createIndexBuffer(bgfx::copy(indices, sizeof(indices)));
+        for (int x = 0; x < kChunkSizeX; x++) {
+            for (int y = 0; y < kChunkSizeY; y++) {
+                for (int z = 0; z < kChunkSizeZ; ++z) {
+                    auto block = blocks_[z * kChunkSizeX * kChunkSizeY + y * kChunkSizeX + x];
+                    updateBlock(block, vertices, indices);
+                }
+            }
+        }
+
+        vbh_ = bgfx::createVertexBuffer(bgfx::copy(vertices.data(), vertices.size() * sizeof(Vertex)), Vertex::layout);
+        ibh_ = bgfx::createIndexBuffer(bgfx::copy(indices.data(), indices.size() * sizeof(std::uint16_t)));
+
+        dirty_ = false;
+    }
+}
+
+void Chunk::updateBlock(const Block* block, std::vector<Vertex>& vertices, std::vector<std::uint16_t>& indices) {
+    if (!block->isAir()) {
+        
     }
 }

@@ -1,6 +1,8 @@
 #ifndef CEPHALON_GAME_H_
 #define CEPHALON_GAME_H_
 
+#include <memory>
+
 #include "camera.h"
 #include "chunk.h"
 #include "utils.h"
@@ -16,7 +18,7 @@ namespace cephalon {
     private:        
         bgfx::ProgramHandle chunks_program_;
     
-        Chunk chunk_;
+        std::unique_ptr<Chunk> chunk_;
 
         PerspectiveCamera camera_;
     };
