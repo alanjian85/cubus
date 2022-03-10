@@ -11,11 +11,13 @@ void Game::init(int width, int height) {
 
     chunk_ = std::make_unique<Chunk>(0, 0, 0);
     chunk_->setBlock(0, 0, 0, blocks::kDirt);
+    chunk_->setBlock(1, 1, 1, blocks::kDirt);
+    chunk_->setBlock(2, 2, 2, blocks::kDirt);
 }
 
 void Game::update(float delta) {
     camera_.update();
-    const auto camera_speed = 2.5f;
+    const auto camera_speed = 5.0f;
     if (Input::getKey(Key::kW))
         camera_.setPosition(bx::add(camera_.getPosition(), bx::mul(camera_.getDirection(), camera_speed * delta)));
     if (Input::getKey(Key::kS))

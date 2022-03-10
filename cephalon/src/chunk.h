@@ -24,7 +24,7 @@ namespace cephalon {
         float x;
         float y;
         float z;
-        std::uint32_t color;
+        std::uint32_t agbr;
     };
 
     class Chunk {
