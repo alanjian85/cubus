@@ -24,9 +24,6 @@ void Chunk::setPosition(int x, int y, int z) {
 }
 
 void Chunk::setBlock(int x, int y, int z, const Block& block) {
-    x -= x_;
-    y -= y_;
-    z -= z_;
     assert(x >= 0 && x < kChunkSizeX);
     assert(y >= 0 && y < kChunkSizeY);
     assert(z >= 0 && z < kChunkSizeZ);
@@ -38,9 +35,6 @@ void Chunk::setBlock(int x, int y, int z, const Block& block) {
 }
 
 const Block& Chunk::getBlock(int x, int y, int z) const {
-    x -= x_;
-    y -= y_;
-    z -= z_;
     assert(x >= 0 && x < kChunkSizeX);
     assert(y >= 0 && y < kChunkSizeY);
     assert(z >= 0 && z < kChunkSizeZ);
@@ -55,48 +49,127 @@ void Chunk::update() {
         for (int i = 0; i < kChunkSizeX; i++) {
             for (int j = 0; j < kChunkSizeY; j++) {
                 for (int k = 0; k < kChunkSizeZ; ++k) {
-                    auto index = i * kChunkSizeX * kChunkSizeY + j * kChunkSizeX + k;
-                    if (!blocks_[index]->isAir()) {
-                        auto color = blocks_[index]->getColor();
+                    auto& block = getBlock(i, j, k);
+                    if (!block.isAir()) {
+                        auto color = block.getColor();
                         
                         auto x = static_cast<float>(x_ + i);
                         auto y = static_cast<float>(y_ + j);
                         auto z = static_cast<float>(z_ + k);
 
-                        Vertex block_vertices[] = {
-                            { x    , y    , z    , color },
-                            { x    , y    , z + 1, color },
-                            { x    , y + 1, z    , color },
-                            { x    , y + 1, z + 1, color },
-                            { x + 1, y    , z    , color },
-                            { x + 1, y    , z + 1, color },
-                            { x + 1, y + 1, z    , color },
-                            { x + 1, y + 1, z + 1, color }
-                        };
+                        // right
+                        if (i == kChunkSizeX - 1 || getBlock(i + 1, j, k).isAir()) {
+                            Vertex block_vertices[] = {
+                                { x + 1, y    , z    , color },
+                                { x + 1, y    , z + 1, color },
+                                { x + 1, y + 1, z    , color },
+                                { x + 1, y + 1, z + 1, color }
+                            };
 
-                        auto index_base = static_cast<int>(vertices.size());
-                        int block_indices[] = {
-                            index_base + 5, index_base + 7, index_base + 6,
-                            index_base + 5, index_base + 6, index_base + 4,
+                            auto index_base = static_cast<int>(vertices.size());
+                            int block_indices[] = {
+                                index_base + 1, index_base + 3, index_base + 2,
+                                index_base + 1, index_base + 2, index_base + 0
+                            };
 
-                            index_base + 0, index_base + 2, index_base + 3,
-                            index_base + 0, index_base + 3, index_base + 1,
+                            vertices.insert(vertices.cend(), std::cbegin(block_vertices), std::cend(block_vertices));
+                            indices.insert(indices.cend(), std::cbegin(block_indices), std::cend(block_indices));
+                        }
 
-                            index_base + 6, index_base + 7, index_base + 3,
-                            index_base + 6, index_base + 3, index_base + 2,
+                        // left
+                        if (i == 0 || getBlock(i - 1, j, k).isAir()) {
+                            Vertex block_vertices[] = {
+                                { x    , y    , z    , color },
+                                { x    , y    , z + 1, color },
+                                { x    , y + 1, z    , color },
+                                { x    , y + 1, z + 1, color }
+                            };
 
-                            index_base + 5, index_base + 4, index_base + 0,
-                            index_base + 5, index_base + 0, index_base + 1,
+                            auto index_base = static_cast<int>(vertices.size());
+                            int block_indices[] = {
+                                index_base + 0, index_base + 2, index_base + 3,
+                                index_base + 0, index_base + 3, index_base + 1,
+                            };
 
-                            index_base + 3, index_base + 7, index_base + 5,
-                            index_base + 1, index_base + 3, index_base + 5,
+                            vertices.insert(vertices.cend(), std::cbegin(block_vertices), std::cend(block_vertices));
+                            indices.insert(indices.cend(), std::cbegin(block_indices), std::cend(block_indices));
+                        }
 
-                            index_base + 4, index_base + 6, index_base + 2,
-                            index_base + 4, index_base + 2, index_base + 0
-                        };
+                        // top
+                        if (j == kChunkSizeY - 1 || getBlock(i, j + 1, k).isAir()) {
+                            Vertex block_vertices[] = {
+                                { x    , y + 1, z    , color },
+                                { x    , y + 1, z + 1, color },
+                                { x + 1, y + 1, z    , color },
+                                { x + 1, y + 1, z + 1, color }
+                            };
 
-                        vertices.insert(vertices.cend(), std::cbegin(block_vertices), std::cend(block_vertices));
-                        indices.insert(indices.cend(), std::cbegin(block_indices), std::cend(block_indices));
+                            auto index_base = static_cast<int>(vertices.size());
+                            int block_indices[] = {
+                                index_base + 2, index_base + 3, index_base + 1,
+                                index_base + 2, index_base + 1, index_base + 0,
+                            };
+
+                            vertices.insert(vertices.cend(), std::cbegin(block_vertices), std::cend(block_vertices));
+                            indices.insert(indices.cend(), std::cbegin(block_indices), std::cend(block_indices));
+                        }
+
+                        // bottom
+                        if (j == 0 || getBlock(i, j - 1, k).isAir()) {
+                            Vertex block_vertices[] = {
+                                { x    , y    , z    , color },
+                                { x    , y    , z + 1, color },
+                                { x + 1, y    , z    , color },
+                                { x + 1, y    , z + 1, color },
+                            };
+
+                            auto index_base = static_cast<int>(vertices.size());
+                            int block_indices[] = {
+                                index_base + 3, index_base + 2, index_base + 0,
+                                index_base + 3, index_base + 0, index_base + 1,
+                            };
+
+                            vertices.insert(vertices.cend(), std::cbegin(block_vertices), std::cend(block_vertices));
+                            indices.insert(indices.cend(), std::cbegin(block_indices), std::cend(block_indices));
+                        }
+
+                        // back
+                        if (k == kChunkSizeZ - 1 || getBlock(i, j, k + 1).isAir()) {
+                            Vertex block_vertices[] = {
+                                { x    , y    , z + 1, color },
+                                { x    , y + 1, z + 1, color },
+                                { x + 1, y    , z + 1, color },
+                                { x + 1, y + 1, z + 1, color }
+                            };
+
+                            auto index_base = static_cast<int>(vertices.size());
+                            int block_indices[] = {
+                                index_base + 1, index_base + 3, index_base + 2,
+                                index_base + 0, index_base + 1, index_base + 2,
+                            };
+
+                            vertices.insert(vertices.cend(), std::cbegin(block_vertices), std::cend(block_vertices));
+                            indices.insert(indices.cend(), std::cbegin(block_indices), std::cend(block_indices));
+                        }
+
+                        // front
+                        if (k == 0 || getBlock(i, j, k - 1).isAir()) {
+                            Vertex block_vertices[] = {
+                                { x    , y    , z    , color },
+                                { x    , y + 1, z    , color },
+                                { x + 1, y    , z    , color },
+                                { x + 1, y + 1, z    , color },
+                            };
+
+                            auto index_base = static_cast<int>(vertices.size());
+                            int block_indices[] = {
+                                index_base + 2, index_base + 3, index_base + 1,
+                                index_base + 2, index_base + 1, index_base + 0
+                            };
+
+                            vertices.insert(vertices.cend(), std::cbegin(block_vertices), std::cend(block_vertices));
+                            indices.insert(indices.cend(), std::cbegin(block_indices), std::cend(block_indices));
+                        }
                     }
                 }
             }

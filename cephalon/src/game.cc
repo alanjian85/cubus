@@ -10,9 +10,13 @@ void Game::init(int width, int height) {
     chunks_program_ = LoadProgram("vs_chunks", "fs_chunks");
 
     chunk_ = std::make_unique<Chunk>(0, 0, 0);
-    chunk_->setBlock(0, 0, 0, blocks::kDirt);
-    chunk_->setBlock(1, 1, 1, blocks::kDirt);
-    chunk_->setBlock(2, 2, 2, blocks::kDirt);
+    for (int x = 0; x < 3; ++x) {
+        for (int y = 0; y < 3; ++y) {
+            for (int z = 0; z < 3; ++z) {
+                chunk_->setBlock(x, y, z, blocks::kDirt);
+            }
+        }
+    }
 }
 
 void Game::update(float delta) {
