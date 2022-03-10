@@ -13,7 +13,10 @@ void Game::init(int width, int height) {
     for (int x = 0; x < 3; ++x) {
         for (int y = 0; y < 3; ++y) {
             for (int z = 0; z < 3; ++z) {
-                chunk_->setBlock(x, y, z, blocks::kDirt);
+                if (x % 2 == 0 && y % 2 == 0 && z % 2 == 0)
+                    chunk_->setBlock(x, y, z, blocks::kDirt);
+                else
+                    chunk_->setBlock(x, y, z, blocks::kStone);
             }
         }
     }

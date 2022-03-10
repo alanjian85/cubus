@@ -3,3 +3,4 @@ using namespace cephalon;
 
 const Air blocks::kAir;
 const Dirt blocks::kDirt;
+const Stone blocks::kStone;
