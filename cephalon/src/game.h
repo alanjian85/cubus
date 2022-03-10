@@ -13,11 +13,8 @@ namespace cephalon {
         void update(float delta);
 
         void render();
-    private:
-        bgfx::VertexLayout layout_;
-        bgfx::VertexBufferHandle vbh_;
-
-        bgfx::ProgramHandle program_;
+    private:        
+        bgfx::ProgramHandle chunks_program_;
     
         Chunk chunk_;
 

@@ -6,18 +6,8 @@ using namespace cephalon;
 void Game::init(int width, int height) {
     camera_.setPosition(bx::Vec3(0.0f, 0.0f, -3.0f));
     camera_.setAspect(static_cast<float>(width) / height);
-    float vertices[] = {
-        -0.5f, -0.5f, 0.0f,  1.0f, 0.0f, 0.0f, 1.0f,
-         0.5f, -0.5f, 0.0f,  0.0f, 1.0f, 0.0f, 1.0f,
-         0.0f,  0.5f, 0.0f,  0.0f, 0.0f, 1.0f, 1.0f
-    };
-    layout_.begin()
-        .add(bgfx::Attrib::Position, 3, bgfx::AttribType::Float)
-        .add(bgfx::Attrib::Color0, 4, bgfx::AttribType::Float)
-    .end();
-    vbh_ = bgfx::createVertexBuffer(bgfx::copy(vertices, sizeof(vertices)), layout_);
-    program_ = LoadProgram("vs_shader", "fs_shader");
 
+    chunks_program_ = LoadProgram("vs_chunks", "fs_chunks");
     chunk_.setBlock(0, 0, 0, blocks::kDirt);
 }
 
@@ -45,10 +35,13 @@ void Game::update(float delta) {
         camera_.setPitch(89.0f);
     if (camera_.getPitch() < -89.0f)
         camera_.setPitch(-89.0f);
+
+    chunk_.update();
 }
 
 void Game::render() {
     bgfx::setViewTransform(0, camera_.getView(), camera_.getProj());
-    bgfx::setVertexBuffer(0, vbh_);
-    bgfx::submit(0, program_);
+    bgfx::setVertexBuffer(0, chunk_.getVertexBuffer());
+    bgfx::setIndexBuffer(chunk_.getIndexBuffer());
+    bgfx::submit(0, chunks_program_);
 }

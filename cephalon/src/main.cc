@@ -62,7 +62,7 @@ void init() {
     bgfx::renderFrame();
     bgfx::init(init);
 
-    bgfx::setViewClear(0, BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH, 0x334d4dff);
+    bgfx::setViewClear(0, BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH, 0x87ceebff);
     bgfx::setViewRect(0, 0, 0, kWidth, kHeight);
 
     Input::init(window);
