@@ -47,3 +47,7 @@ void Game::render() {
     bgfx::setIndexBuffer(chunk_->getIndexBuffer());
     bgfx::submit(0, chunks_program_);
 }
+
+void Game::cleanup() {
+    chunk_.reset();
+}

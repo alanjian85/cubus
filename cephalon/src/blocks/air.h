@@ -5,7 +5,11 @@ namespace cephalon {
     class Air : public Block {
     public:
         virtual bool isAir() const override { 
-            return false;
+            return true;
+        }
+
+        virtual std::uint32_t getColor() const override {
+            return 0x00000000;
         }
     };
 }

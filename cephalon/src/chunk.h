@@ -60,8 +60,6 @@ namespace cephalon {
             bgfx::destroy(ibh_);
         }
     private:
-        void updateBlock(const Block* block, std::vector<Vertex>& vertices, std::vector<std::uint16_t>& indices);
-
         int x_;
         int y_;
         int z_;

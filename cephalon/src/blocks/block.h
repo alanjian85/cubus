@@ -1,6 +1,8 @@
 #ifndef CEPHALON_BLOCK_H_
 #define CEPHALON_BLOCK_H_
 
+#include <cstdint>
+
 namespace cephalon {
     class Block {
     public:
@@ -9,6 +11,8 @@ namespace cephalon {
         virtual bool isAir() const {
             return false;
         }
+
+        virtual std::uint32_t getColor() const = 0;
     };
 }
 

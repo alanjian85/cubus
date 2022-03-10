@@ -15,6 +15,8 @@ namespace cephalon {
         void update(float delta);
 
         void render();
+
+        void cleanup();
     private:        
         bgfx::ProgramHandle chunks_program_;
     

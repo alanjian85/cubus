@@ -114,6 +114,7 @@ void mainLoop() {
 }
 
 void cleanup() {
+    game.cleanup();
     bgfx::shutdown();
     SDL_DestroyWindow(window);
     SDL_Quit();
