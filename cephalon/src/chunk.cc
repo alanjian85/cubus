@@ -12,6 +12,8 @@ Chunk::Chunk(int x, int y, int z)
     z_ = z;
     dirty_ = true;
     blocks_.resize(kChunkSizeX * kChunkSizeY * kChunkSizeZ, &blocks::kAir);
+    vertex_buffer_ = bgfx::createDynamicVertexBuffer(1, Vertex::layout, BGFX_BUFFER_ALLOW_RESIZE);
+    index_buffer_ = bgfx::createDynamicIndexBuffer(1, BGFX_BUFFER_ALLOW_RESIZE);
 }
 
 void Chunk::setPosition(int x, int y, int z) {
@@ -175,9 +177,8 @@ void Chunk::update() {
             }
         }
 
-        vbh_ = bgfx::createVertexBuffer(bgfx::copy(vertices.data(), vertices.size() * sizeof(Vertex)), Vertex::layout);
-        ibh_ = bgfx::createIndexBuffer(bgfx::copy(indices.data(), indices.size() * sizeof(std::uint16_t)));
-
+        bgfx::update(vertex_buffer_, 0, bgfx::copy(vertices.data(), vertices.size() * sizeof(Vertex)));
+        bgfx::update(index_buffer_, 0, bgfx::copy(indices.data(), indices.size() * sizeof(std::uint16_t)));
         dirty_ = false;
     }
 }

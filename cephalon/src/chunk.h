@@ -46,18 +46,18 @@ namespace cephalon {
         const Block& getBlock(int x, int y, int z) const;
 
         auto getVertexBuffer() const {
-            return vbh_;
+            return vertex_buffer_;
         }
 
         auto getIndexBuffer() const {
-            return ibh_;
+            return index_buffer_;
         }
 
         void update();
 
         ~Chunk() {
-            bgfx::destroy(vbh_);
-            bgfx::destroy(ibh_);
+            bgfx::destroy(vertex_buffer_);
+            bgfx::destroy(index_buffer_);
         }
     private:
         int x_;
@@ -67,8 +67,8 @@ namespace cephalon {
         bool dirty_;
         std::vector<const Block*> blocks_;
 
-        bgfx::VertexBufferHandle vbh_;
-        bgfx::IndexBufferHandle ibh_;
+        bgfx::DynamicVertexBufferHandle vertex_buffer_;
+        bgfx::DynamicIndexBufferHandle index_buffer_;
     };
 }
 
