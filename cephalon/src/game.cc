@@ -9,14 +9,13 @@ void Game::init(int width, int height) {
 
     chunks_program_ = LoadProgram("vs_chunks", "fs_chunks");
 
-    chunk_ = std::make_unique<Chunk>(Vec3i{0, 0, 0});
     for (int x = 0; x < 3; ++x) {
         for (int y = 0; y < 3; ++y) {
             for (int z = 0; z < 3; ++z) {
                 if (x % 2 == 0 && y % 2 == 0 && z % 2 == 0)
-                    chunk_->setBlock({x, y, z}, blocks::kDirt);
+                    world_.setBlock({x, y, z}, blocks::kDirt);
                 else
-                    chunk_->setBlock({x, y, z}, blocks::kStone);
+                    world_.setBlock({x, y, z}, blocks::kStone);
             }
         }
     }
@@ -47,16 +46,14 @@ void Game::update(float delta) {
     if (camera_.getPitch() < -89.0f)
         camera_.setPitch(-89.0f);
 
-    chunk_->update();
+    world_.update();
 }
 
 void Game::render() {
     bgfx::setViewTransform(0, camera_.getView(), camera_.getProj());
-    bgfx::setVertexBuffer(0, chunk_->getVertexBuffer());
-    bgfx::setIndexBuffer(chunk_->getIndexBuffer());
-    bgfx::submit(0, chunks_program_);
+    world_.render(chunks_program_);
 }
 
 void Game::cleanup() {
-    chunk_.reset();
+
 }

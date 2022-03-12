@@ -18,6 +18,8 @@ set(CEPHALON_SRCS
     src/main.cc
     src/utils.cc
     src/utils.h
+    src/world.cc
+    src/world.h
 )
 add_executable(cephalon ${CEPHALON_SRCS})
 

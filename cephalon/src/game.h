@@ -19,9 +19,8 @@ namespace cephalon {
         void cleanup();
     private:        
         bgfx::ProgramHandle chunks_program_;
-    
-        std::unique_ptr<Chunk> chunk_;
 
+        World world_;
         PerspectiveCamera camera_;
     };
 }

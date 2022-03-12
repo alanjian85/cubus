@@ -10,8 +10,12 @@ namespace cephalon {
     struct Vec3i {
         int x;
         int y;
-        int z;
+        int z;            
     };
+
+    inline bool operator==(Vec3i lhs, Vec3i rhs) {
+        return lhs.x == rhs.x && lhs.y == rhs.y && lhs.z == rhs.z;
+    }
 
     bgfx::ShaderHandle LoadShader(const char* name);
 
