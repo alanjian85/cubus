@@ -21,6 +21,8 @@ namespace cephalon {
             keyboard_state_ = SDL_GetKeyboardState(nullptr);
             relative_x_ = 0;
             relative_y_ = 0;
+            mouse_left_ = false;
+            mouse_right_ = false;
         }
 
         static bool getKey(Key key) {
@@ -42,11 +44,29 @@ namespace cephalon {
         static int getRelativeMouseY() {
             return relative_y_;
         }
+
+        static void mousePressLeft() {
+            mouse_left_ = true;
+        }
+
+        static bool getMouseLeft() {
+            return mouse_left_;
+        }
+
+        static void mousePressRight() {
+            mouse_right_ = true;
+        }
+
+        static bool getMouseRight() {
+            return mouse_right_;
+        }
     private:
         static SDL_Window* window_;
         static const Uint8* keyboard_state_;
         static int relative_x_;
         static int relative_y_;
+        static bool mouse_left_;
+        static bool mouse_right_;
     };
 }
 

@@ -8,6 +8,10 @@
 #include <bx/math.h>
 
 namespace cephalon {
+    inline float get(bx::Vec3 vec, int index) {
+        return index == 0 ? vec.x : index == 1 ? vec.y : vec.z;
+    }
+
     struct Vec3i {
         Vec3i() = default;
 
@@ -27,6 +31,10 @@ namespace cephalon {
             x = vec.x;
             y = vec.y;
             z = vec.z;
+        }
+
+        int operator[](int i) const {
+            return i == 0 ? x : i == 1 ? y : z;
         }
 
         int x;

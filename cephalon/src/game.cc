@@ -1,6 +1,8 @@
 #include "game.h"
 using namespace cephalon;
 
+#include <iostream>
+
 #include "input.h"
 
 Game::Game(int width, int height) {
@@ -17,6 +19,7 @@ Game::Game(int width, int height) {
                 chunk.setBlock(Vec3i(x, 0, z), blocks::kDirt);
             }
         }
+        chunk.setBlock(Vec3i(0, 2, 0), blocks::kStone);
     });
 }
 
@@ -47,7 +50,14 @@ void Game::update(float delta) {
 
     world_.update(camera_.position);
 
-    auto bounding_boxes = world_.getBoundingBoxes(AABB(camera_.position - Vec3i(2), camera_.position + Vec3i(2)));
+    auto bounding_boxes = world_.getBoundingBoxes(AABB(camera_.position - Vec3i(Config::kDestroyDistance), camera_.position + Vec3i(Config::kDestroyDistance)));
+    for (auto bounding_box : bounding_boxes) {
+        if (bounding_box.intersect(camera_.position, camera_.direction, 0.0f, Config::kDestroyDistance)) {
+            if (Input::getMouseLeft()) {
+                world_.setBlock(bounding_box.min, blocks::kAir);
+            }
+        }
+    }
 }
 
 void Game::render() {
