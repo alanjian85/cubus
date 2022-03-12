@@ -9,14 +9,14 @@ void Game::init(int width, int height) {
 
     chunks_program_ = LoadProgram("vs_chunks", "fs_chunks");
 
-    chunk_ = std::make_unique<Chunk>(0, 0, 0);
+    chunk_ = std::make_unique<Chunk>(Position{0, 0, 0});
     for (int x = 0; x < 3; ++x) {
         for (int y = 0; y < 3; ++y) {
             for (int z = 0; z < 3; ++z) {
                 if (x % 2 == 0 && y % 2 == 0 && z % 2 == 0)
-                    chunk_->setBlock(x, y, z, blocks::kDirt);
+                    chunk_->setBlock({x, y, z}, blocks::kDirt);
                 else
-                    chunk_->setBlock(x, y, z, blocks::kStone);
+                    chunk_->setBlock({x, y, z}, blocks::kStone);
             }
         }
     }

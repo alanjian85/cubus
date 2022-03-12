@@ -9,6 +9,7 @@
 #include <bx/math.h>
 
 #include "blocks/block.h"
+#include "utils.h"
 
 namespace cephalon {
     struct Vertex {
@@ -33,17 +34,17 @@ namespace cephalon {
         static constexpr int kChunkSizeY = 16;
         static constexpr int kChunkSizeZ = 16;
 
-        Chunk(int x = 0, int y = 0, int z = 0);
+        Chunk(Position pos = { 0, 0, 0 });
 
         Chunk(const Chunk&) = delete;
 
         Chunk& operator=(const Chunk&) = delete;
 
-        void setPosition(int x, int y, int z);
+        void setPos(Position pos);
 
-        void setBlock(int x, int y, int z, const Block& block);
+        void setBlock(Position pos, const Block& block);
 
-        const Block& getBlock(int x, int y, int z) const;
+        const Block& getBlock(Position pos) const;
 
         auto getVertexBuffer() const {
             return vertex_buffer_;
@@ -60,9 +61,7 @@ namespace cephalon {
             bgfx::destroy(index_buffer_);
         }
     private:
-        int x_;
-        int y_;
-        int z_;
+        Position pos_;
 
         bool dirty_;
         std::vector<const Block*> blocks_;
