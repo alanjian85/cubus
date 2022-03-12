@@ -48,7 +48,9 @@ std::vector<AABB> World::getBoundingBoxes(AABB range) {
     for (auto x = range.min.x; x <= range.max.x; ++x) {
         for (auto y = range.min.y; y <= range.max.y; ++y) {
             for (auto z = range.min.z; z <= range.max.z; ++z) {
-                result.push_back(getBlock(Vec3i(x, y, z)).getBoundingBox(Vec3i(x, y, z)));
+                auto block = getBlock(Vec3i(x, y, z));
+                if (block)
+                    result.push_back(block->getBoundingBox(Vec3i(x, y, z)));
             }
         }
     }

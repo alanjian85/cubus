@@ -5,6 +5,12 @@
 
 namespace cephalon {
     struct AABB {
+        AABB() = default;
+        AABB(Vec3i min_, Vec3i max_) {
+            min = min_;
+            max = max_;
+        }
+
         Vec3i min;
         Vec3i max;
     };

@@ -11,6 +11,12 @@ namespace cephalon {
     struct Vec3i {
         Vec3i() = default;
 
+        constexpr Vec3i(int i)
+            : x(i), y(i), z(i)
+        {
+
+        }
+
         constexpr Vec3i(int x_, int y_, int z_)
             : x(x_), y(y_), z(z_)
         {
@@ -34,6 +40,14 @@ namespace cephalon {
 
     inline Vec3i operator+(Vec3i lhs, Vec3i rhs) {
         return Vec3i(lhs.x + rhs.x, lhs.y + rhs.y, lhs.z + rhs.z);
+    }
+
+    inline Vec3i operator-(Vec3i lhs, Vec3i rhs) {
+        return Vec3i(lhs.x - rhs.x, lhs.y - rhs.y, lhs.z - rhs.z);
+    }
+
+    inline Vec3i operator%(Vec3i lhs, Vec3i rhs) {
+        return Vec3i(lhs.x % rhs.x, lhs.y % rhs.y, lhs.z % rhs.z);
     }
 
     bgfx::ShaderHandle LoadShader(const char* name);

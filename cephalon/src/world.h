@@ -13,27 +13,31 @@ namespace cephalon {
     class World {
     public:
         static Vec3i getChunkOffset(Vec3i pos) {
-            return { pos.x / Chunk::kChunkSize.x, 0, pos.z / Chunk::kChunkSize.z };
+            return Vec3i(pos.x / Chunk::kChunkSize.x, 0, pos.z / Chunk::kChunkSize.z);
         }
 
         static Vec3i getChunkPos(Vec3i pos) {
-            return { pos.x % Chunk::kChunkSize.x, pos.y % Chunk::kChunkSize.y, pos.z % Chunk::kChunkSize.z };
+            return (pos % Chunk::kChunkSize + Chunk::kChunkSize) % Chunk::kChunkSize;
         }
 
         void setGenerator(std::function<void(Vec3i, Chunk&)> generator) {
             generator_ = generator;
         }
 
-        Chunk& getChunk(Vec3i pos) {
-            return chunks_[getChunkOffset(pos)];
-        }
-
         void setBlock(Vec3i pos, const Block& block) {
-            getChunk(pos).setBlock(getChunkPos(pos), block);
+            auto it = chunks_.find(getChunkOffset(pos));
+            if (it != chunks_.cend())
+                it->second.setBlock(getChunkPos(pos), block);
+            else
+                outside_blocks_[pos] = &block;
         }
 
-        const Block& getBlock(Vec3i pos) {
-            return getChunk(pos).getBlock(getChunkPos(pos));
+        const Block* getBlock(Vec3i pos) const {
+            auto it = chunks_.find(getChunkOffset(pos));
+            if (it != chunks_.cend())
+                return &it->second.getBlock(getChunkPos(pos));
+            else
+                return nullptr;
         }
 
         void update(bx::Vec3 playerPos);
@@ -43,6 +47,7 @@ namespace cephalon {
         std::vector<AABB> getBoundingBoxes(AABB range);
     private:
         std::unordered_map<Vec3i, Chunk> chunks_;
+        std::unordered_map<Vec3i, const Block*> outside_blocks_;
         std::function<void(Vec3i, Chunk&)> generator_;
     };
 }

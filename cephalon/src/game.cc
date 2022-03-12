@@ -13,8 +13,8 @@ Game::Game(int width, int height) {
     world_.setGenerator([](Vec3i pos, Chunk& chunk) {
         for (int x = 0; x < Chunk::kChunkSize.x; ++x) {
             for (int z = 0; z < Chunk::kChunkSize.x; ++z) {
-                chunk.setBlock({x, 1, z}, blocks::kGrass);
-                chunk.setBlock({x, 0, z}, blocks::kDirt);
+                chunk.setBlock(Vec3i(x, 1, z), blocks::kGrass);
+                chunk.setBlock(Vec3i(x, 0, z), blocks::kDirt);
             }
         }
     });
@@ -46,6 +46,8 @@ void Game::update(float delta) {
         camera_.pitch = -89.0f;
 
     world_.update(camera_.position);
+
+    auto bounding_boxes = world_.getBoundingBoxes(AABB(camera_.position - Vec3i(2), camera_.position + Vec3i(2)));
 }
 
 void Game::render() {
