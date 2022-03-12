@@ -7,22 +7,10 @@ bgfx::VertexLayout Vertex::layout;
 
 Chunk::Chunk(Vec3i pos)
 {
-    pos_.x = pos.x;
-    pos_.y = pos.y;
-    pos_.z = pos.z;
     dirty_ = true;
     blocks_.resize(kChunkSize.x * kChunkSize.y * kChunkSize.z, &blocks::kAir);
     vertex_buffer_ = bgfx::createDynamicVertexBuffer(1, Vertex::layout, BGFX_BUFFER_ALLOW_RESIZE);
     index_buffer_ = bgfx::createDynamicIndexBuffer(1, BGFX_BUFFER_ALLOW_RESIZE);
-}
-
-void Chunk::setPos(Vec3i pos) {
-    if (pos_.x != pos.x || pos_.y != pos.y || pos_.z != pos.z) {
-        pos_.x = pos.x;
-        pos_.y = pos.y;
-        pos_.z = pos.z;
-        dirty_ = true;
-    }
 }
 
 void Chunk::setBlock(Vec3i pos, const Block& block) {
@@ -48,24 +36,24 @@ void Chunk::update() {
         std::vector<Vertex> vertices;
         std::vector<std::uint16_t> indices;
 
-        for (int i = 0; i < kChunkSize.x; i++) {
-            for (int j = 0; j < kChunkSize.y; j++) {
-                for (int k = 0; k < kChunkSize.z; ++k) {
-                    auto& block = getBlock({i, j, k});
+        for (int x = 0; x < kChunkSize.x; ++x) {
+            for (int y = 0; y < kChunkSize.y; ++y) {
+                for (int z = 0; z < kChunkSize.z; ++z) {
+                    auto& block = getBlock({x, y, z});
                     if (!block.isAir()) {
                         auto color = block.getColor();
-                        
-                        auto x = static_cast<float>(pos_.x + i);
-                        auto y = static_cast<float>(pos_.y + j);
-                        auto z = static_cast<float>(pos_.z + k);
+
+                        auto fx = static_cast<float>(x);
+                        auto fy = static_cast<float>(y);
+                        auto fz = static_cast<float>(z);
 
                         // right
-                        if (i == kChunkSize.x - 1 || getBlock({i + 1, j, k}).isAir()) {
+                        if (x == kChunkSize.x - 1 || getBlock({x + 1, y, z}).isAir()) {
                             Vertex block_vertices[] = {
-                                { x + 1, y    , z    , color },
-                                { x + 1, y    , z + 1, color },
-                                { x + 1, y + 1, z    , color },
-                                { x + 1, y + 1, z + 1, color }
+                                { fx + 1, fy    , fz    , color },
+                                { fx + 1, fy    , fz + 1, color },
+                                { fx + 1, fy + 1, fz    , color },
+                                { fx + 1, fy + 1, fz + 1, color }
                             };
 
                             auto index_base = static_cast<int>(vertices.size());
@@ -79,12 +67,12 @@ void Chunk::update() {
                         }
 
                         // left
-                        if (i == 0 || getBlock({i - 1, j, k}).isAir()) {
+                        if (x == 0 || getBlock({x - 1, y, z}).isAir()) {
                             Vertex block_vertices[] = {
-                                { x    , y    , z    , color },
-                                { x    , y    , z + 1, color },
-                                { x    , y + 1, z    , color },
-                                { x    , y + 1, z + 1, color }
+                                { fx    , fy    , fz    , color },
+                                { fx    , fy    , fz + 1, color },
+                                { fx    , fy + 1, fz    , color },
+                                { fx    , fy + 1, fz + 1, color }
                             };
 
                             auto index_base = static_cast<int>(vertices.size());
@@ -98,12 +86,12 @@ void Chunk::update() {
                         }
 
                         // top
-                        if (j == kChunkSize.y - 1 || getBlock({i, j + 1, k}).isAir()) {
+                        if (y == kChunkSize.y - 1 || getBlock({x, y + 1, z}).isAir()) {
                             Vertex block_vertices[] = {
-                                { x    , y + 1, z    , color },
-                                { x    , y + 1, z + 1, color },
-                                { x + 1, y + 1, z    , color },
-                                { x + 1, y + 1, z + 1, color }
+                                { fx    , fy + 1, fz    , color },
+                                { fx    , fy + 1, fz + 1, color },
+                                { fx + 1, fy + 1, fz    , color },
+                                { fx + 1, fy + 1, fz + 1, color }
                             };
 
                             auto index_base = static_cast<int>(vertices.size());
@@ -117,12 +105,12 @@ void Chunk::update() {
                         }
 
                         // bottom
-                        if (j == 0 || getBlock({i, j - 1, k}).isAir()) {
+                        if (y == 0 || getBlock({x, y - 1, z}).isAir()) {
                             Vertex block_vertices[] = {
-                                { x    , y    , z    , color },
-                                { x    , y    , z + 1, color },
-                                { x + 1, y    , z    , color },
-                                { x + 1, y    , z + 1, color },
+                                { fx    , fy    , fz    , color },
+                                { fx    , fy    , fz + 1, color },
+                                { fx + 1, fy    , fz    , color },
+                                { fx + 1, fy    , fz + 1, color },
                             };
 
                             auto index_base = static_cast<int>(vertices.size());
@@ -136,12 +124,12 @@ void Chunk::update() {
                         }
 
                         // back
-                        if (k == kChunkSize.z - 1 || getBlock({i, j, k + 1}).isAir()) {
+                        if (z == kChunkSize.z - 1 || getBlock({x, y, z + 1}).isAir()) {
                             Vertex block_vertices[] = {
-                                { x    , y    , z + 1, color },
-                                { x    , y + 1, z + 1, color },
-                                { x + 1, y    , z + 1, color },
-                                { x + 1, y + 1, z + 1, color }
+                                { fx    , fy    , fz + 1, color },
+                                { fx    , fy + 1, fz + 1, color },
+                                { fx + 1, fy    , fz + 1, color },
+                                { fx + 1, fy + 1, fz + 1, color }
                             };
 
                             auto index_base = static_cast<int>(vertices.size());
@@ -155,12 +143,12 @@ void Chunk::update() {
                         }
 
                         // front
-                        if (k == 0 || getBlock({i, j, k - 1}).isAir()) {
+                        if (z == 0 || getBlock({x, y, z - 1}).isAir()) {
                             Vertex block_vertices[] = {
-                                { x    , y    , z    , color },
-                                { x    , y + 1, z    , color },
-                                { x + 1, y    , z    , color },
-                                { x + 1, y + 1, z    , color },
+                                { fx    , fy    , fz    , color },
+                                { fx    , fy + 1, fz    , color },
+                                { fx + 1, fy    , fz    , color },
+                                { fx + 1, fy + 1, fz    , color },
                             };
 
                             auto index_base = static_cast<int>(vertices.size());

@@ -9,9 +9,9 @@ Game::Game(int width, int height) {
 
     chunks_program_ = LoadProgram("vs_chunks", "fs_chunks");
 
-    for (int x = 0; x < 3; ++x) {
-        for (int y = 0; y < 3; ++y) {
-            for (int z = 0; z < 3; ++z) {
+    for (int x = 0; x < 50; ++x) {
+        for (int y = 0; y < 50; ++y) {
+            for (int z = 0; z < 50; ++z) {
                 if (x % 2 == 0 && y % 2 == 0 && z % 2 == 0)
                     world_.setBlock({x, y, z}, blocks::kDirt);
                 else
