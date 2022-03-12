@@ -10,13 +10,13 @@
 namespace cephalon {
     class Game {
     public:
-        void init(int width, int height);
+        Game(int width, int height);
 
         void update(float delta);
 
         void render();
 
-        void cleanup();
+        ~Game();
     private:        
         bgfx::ProgramHandle chunks_program_;
 

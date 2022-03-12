@@ -3,7 +3,7 @@ using namespace cephalon;
 
 #include "input.h"
 
-void Game::init(int width, int height) {
+Game::Game(int width, int height) {
     camera_.setPosition(bx::Vec3(0.0f, 0.0f, -3.0f));
     camera_.setAspect(static_cast<float>(width) / height);
 
@@ -54,6 +54,6 @@ void Game::render() {
     world_.render(chunks_program_);
 }
 
-void Game::cleanup() {
-
+Game::~Game() {
+    bgfx::destroy(chunks_program_);
 }
