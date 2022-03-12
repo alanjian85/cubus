@@ -41,6 +41,7 @@ target_link_libraries(cephalon
 )
 
 target_include_directories(cephalon PRIVATE
+    src
     ${CMAKE_CURRENT_BINARY_DIR}
     ${SDL2_INCLUDE_DIRS}
 )

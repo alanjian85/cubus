@@ -4,7 +4,8 @@ using namespace cephalon;
 #include "input.h"
 
 Game::Game(int width, int height) {
-    camera_.position = { 0.0f, 0.0f, -3.0f };
+    camera_.position = { 0.0f, 3.0f, 0.0f };
+    camera_.pitch = -15.0f;
     camera_.aspect = static_cast<float>(width) / height;
 
     chunks_program_ = LoadProgram("vs_chunks", "fs_chunks");

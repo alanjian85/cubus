@@ -4,11 +4,7 @@ using namespace cephalon;
 #include <iostream>
 
 void World::update(bx::Vec3 playerPos) {
-    auto playerOffset = getChunkOffset({
-        static_cast<int>(playerPos.x), 
-        static_cast<int>(playerPos.y), 
-        static_cast<int>(playerPos.z)
-    });
+    auto playerOffset = getChunkOffset(playerPos);
 
     for (auto i = chunks_.begin(); i != chunks_.end();) {
         auto& [pos, chunk] = *i;
@@ -24,9 +20,9 @@ void World::update(bx::Vec3 playerPos) {
     int loadCount = 0;
     for (int x = playerOffset.x - Config::kViewDistance; x <= playerOffset.x + Config::kViewDistance; ++x) {
         for (int z = playerOffset.z - Config::kViewDistance; z <= playerOffset.z + Config::kViewDistance; ++z) {
-            if (chunks_.find({x, 0, z}) == chunks_.cend() && loadCount < Config::kChunkLoadLimit)
+            if (chunks_.find(Vec3i(x, 0, z)) == chunks_.cend() && loadCount < Config::kChunkLoadLimit)
             {
-                generator_({x, 0, z}, chunks_[{x, 0, z}]);
+                generator_(Vec3i(x, 0, z), chunks_[Vec3i(x, 0, z)]);
                 ++loadCount;
             }
         }
@@ -45,4 +41,16 @@ void World::render(bgfx::ProgramHandle program) {
         }
         chunk.render(program);
     }
+}
+
+std::vector<AABB> World::getBoundingBoxes(AABB range) {
+    std::vector<AABB> result;
+    for (auto x = range.min.x; x <= range.max.x; ++x) {
+        for (auto y = range.min.y; y <= range.max.y; ++y) {
+            for (auto z = range.min.z; z <= range.max.z; ++z) {
+                result.push_back(getBlock(Vec3i(x, y, z)).getBoundingBox(Vec3i(x, y, z)));
+            }
+        }
+    }
+    return result;
 }

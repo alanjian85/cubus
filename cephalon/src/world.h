@@ -2,7 +2,9 @@
 #define CEPHALON_WORLD_H_
 
 #include <unordered_map>
+#include <vector>
 
+#include "aabb.h"
 #include "chunk.h"
 #include "config.h"
 #include "utils.h"
@@ -37,6 +39,8 @@ namespace cephalon {
         void update(bx::Vec3 playerPos);
 
         void render(bgfx::ProgramHandle program);
+
+        std::vector<AABB> getBoundingBoxes(AABB range);
     private:
         std::unordered_map<Vec3i, Chunk> chunks_;
         std::function<void(Vec3i, Chunk&)> generator_;

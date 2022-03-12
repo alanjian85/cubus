@@ -5,9 +5,24 @@
 #include <functional>
 
 #include <bgfx/bgfx.h>
+#include <bx/math.h>
 
 namespace cephalon {
     struct Vec3i {
+        Vec3i() = default;
+
+        constexpr Vec3i(int x_, int y_, int z_)
+            : x(x_), y(y_), z(z_)
+        {
+
+        }
+
+        Vec3i(bx::Vec3 vec) {
+            x = vec.x;
+            y = vec.y;
+            z = vec.z;
+        }
+
         int x;
         int y;
         int z;            
@@ -15,6 +30,10 @@ namespace cephalon {
 
     inline bool operator==(Vec3i lhs, Vec3i rhs) {
         return lhs.x == rhs.x && lhs.y == rhs.y && lhs.z == rhs.z;
+    }
+
+    inline Vec3i operator+(Vec3i lhs, Vec3i rhs) {
+        return Vec3i(lhs.x + rhs.x, lhs.y + rhs.y, lhs.z + rhs.z);
     }
 
     bgfx::ShaderHandle LoadShader(const char* name);
