@@ -7,6 +7,7 @@ set(CEPHALON_SRCS
     src/blocks/block.h
     src/blocks/block.cc
     src/blocks/dirt.h
+    src/blocks/grass.h
     src/blocks/stone.h
     src/camera.h
     src/chunk.h

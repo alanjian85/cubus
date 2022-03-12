@@ -32,7 +32,7 @@ namespace cephalon {
     public:
         static constexpr Vec3i kChunkSize = { 16, 16, 16 };
 
-        Chunk(Vec3i pos = { 0, 0, 0 });
+        Chunk();
 
         Chunk(const Chunk&) = delete;
 
@@ -42,15 +42,20 @@ namespace cephalon {
 
         const Block& getBlock(Vec3i pos) const;
 
-        auto getVertexBuffer() const {
-            return vertex_buffer_;
-        }
-
-        auto getIndexBuffer() const {
-            return index_buffer_;
+        bool isEmpty() const {
+            for (auto block : blocks_)
+                if (!block->isAir())
+                    return false;
+            return true;
         }
 
         void update();
+
+        void render(bgfx::ProgramHandle program) {
+            bgfx::setVertexBuffer(0, vertex_buffer_);
+            bgfx::setIndexBuffer(index_buffer_);
+            bgfx::submit(0, program);
+        }
 
         ~Chunk() {
             bgfx::destroy(vertex_buffer_);

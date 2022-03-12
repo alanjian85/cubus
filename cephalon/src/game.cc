@@ -9,21 +9,21 @@ Game::Game(int width, int height) {
 
     chunks_program_ = LoadProgram("vs_chunks", "fs_chunks");
 
-    for (int x = 0; x < 50; ++x) {
-        for (int y = 0; y < 50; ++y) {
-            for (int z = 0; z < 50; ++z) {
-                if (x % 2 == 0 && y % 2 == 0 && z % 2 == 0)
-                    world_.setBlock({x, y, z}, blocks::kDirt);
-                else
-                    world_.setBlock({x, y, z}, blocks::kStone);
+    world_.setGenerator([](Vec3i pos, Chunk& chunk) {
+        if (pos.y == 0) {
+            for (int x = 0; x < Chunk::kChunkSize.x; ++x) {
+                for (int z = 0; z < Chunk::kChunkSize.x; ++z) {
+                    chunk.setBlock({x, 1, z}, blocks::kGrass);
+                    chunk.setBlock({x, 0, z}, blocks::kDirt);
+                }
             }
         }
-    }
+    });
 }
 
 void Game::update(float delta) {
     camera_.update();
-    const auto camera_speed = 5.0f;
+    const auto camera_speed = 15.0f;
     if (Input::getKey(Key::kW))
         camera_.setPosition(bx::add(camera_.getPosition(), bx::mul(camera_.getDirection(), camera_speed * delta)));
     if (Input::getKey(Key::kS))
@@ -33,7 +33,7 @@ void Game::update(float delta) {
     if (Input::getKey(Key::kD))
         camera_.setPosition(bx::add(camera_.getPosition(), bx::mul(camera_.getRight(), camera_speed * delta)));
 
-    const auto mouseSensitivity = 0.2f;
+    const auto mouseSensitivity = 0.3f;
 
     auto xoffset = Input::getRelativeMouseX() * mouseSensitivity;
     auto yoffset = Input::getRelativeMouseY() * mouseSensitivity;
@@ -46,7 +46,7 @@ void Game::update(float delta) {
     if (camera_.getPitch() < -89.0f)
         camera_.setPitch(-89.0f);
 
-    world_.update();
+    world_.update(camera_.getPosition());
 }
 
 void Game::render() {

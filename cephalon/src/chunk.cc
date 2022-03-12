@@ -5,7 +5,7 @@ using namespace cephalon;
 
 bgfx::VertexLayout Vertex::layout;
 
-Chunk::Chunk(Vec3i pos)
+Chunk::Chunk()
 {
     dirty_ = true;
     blocks_.resize(kChunkSize.x * kChunkSize.y * kChunkSize.z, &blocks::kAir);
@@ -165,8 +165,10 @@ void Chunk::update() {
             }
         }
 
-        bgfx::update(vertex_buffer_, 0, bgfx::copy(vertices.data(), vertices.size() * sizeof(Vertex)));
-        bgfx::update(index_buffer_, 0, bgfx::copy(indices.data(), indices.size() * sizeof(std::uint16_t)));
+        if (!vertices.empty()) {
+            bgfx::update(vertex_buffer_, 0, bgfx::copy(vertices.data(), vertices.size() * sizeof(Vertex)));
+            bgfx::update(index_buffer_, 0, bgfx::copy(indices.data(), indices.size() * sizeof(std::uint16_t)));
+        }
         dirty_ = false;
     }
 }

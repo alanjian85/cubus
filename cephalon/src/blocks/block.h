@@ -18,12 +18,14 @@ namespace cephalon {
 
 #include "air.h"
 #include "dirt.h"
+#include "grass.h"
 #include "stone.h"
 
 namespace cephalon {
     namespace blocks {
         extern const Air kAir;
         extern const Dirt kDirt;
+        extern const Grass kGrass;
         extern const Stone kStone;
     }
 }
