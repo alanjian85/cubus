@@ -7,7 +7,7 @@ bgfx::VertexLayout Vertex::layout;
 
 Chunk::Chunk()
 {
-    dirty_ = true;
+    dirty_ = false;
     blocks_.resize(kChunkSize.x * kChunkSize.y * kChunkSize.z, &blocks::kAir);
     vertex_buffer_ = bgfx::createDynamicVertexBuffer(0u, Vertex::layout, BGFX_BUFFER_ALLOW_RESIZE);
     index_buffer_ = bgfx::createDynamicIndexBuffer(0u, BGFX_BUFFER_ALLOW_RESIZE);
@@ -31,7 +31,7 @@ const Block& Chunk::getBlock(Vec3i pos) const {
     return *blocks_[pos.z * kChunkSize.x * kChunkSize.y + pos.y * kChunkSize.x + pos.x];
 }
 
-void Chunk::updateMesh() {
+void Chunk::rebuild() {
     if (dirty_) {
         std::vector<Vertex> vertices;
         std::vector<std::uint16_t> indices;

@@ -24,8 +24,7 @@ void World::update(bx::Vec3 playerPos) {
     int loadCount = 0;
     for (int x = playerOffset.x - Config::kViewDistance; x <= playerOffset.x + Config::kViewDistance; ++x) {
         for (int z = playerOffset.z - Config::kViewDistance; z <= playerOffset.z + Config::kViewDistance; ++z) {
-            if (chunks_.find({x, 0, z}) == chunks_.cend() &&
-                loadCount < Config::kMaxLoadCount)
+            if (chunks_.find({x, 0, z}) == chunks_.cend() && loadCount < Config::kChunkLoadLimit)
             {
                 generator_({x, 0, z}, chunks_[{x, 0, z}]);
                 ++loadCount;
@@ -35,11 +34,15 @@ void World::update(bx::Vec3 playerPos) {
 }
 
 void World::render(bgfx::ProgramHandle program) {
+    int rebuildCount = 0;
     for (auto& [pos, chunk] : chunks_) {
         float transform[16];
         bx::mtxTranslate(transform, pos.x * Chunk::kChunkSize.x, pos.y * Chunk::kChunkSize.y, pos.z * Chunk::kChunkSize.z);
         bgfx::setTransform(transform);
-        chunk.updateMesh();
+        if (chunk.needRebuild() && rebuildCount < Config::kChunkRebuildLimit) {
+            chunk.rebuild();
+            ++rebuildCount;
+        }
         chunk.render(program);
     }
 }

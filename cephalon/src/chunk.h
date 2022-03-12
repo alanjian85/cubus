@@ -42,7 +42,11 @@ namespace cephalon {
 
         const Block& getBlock(Vec3i pos) const;
 
-        void updateMesh();
+        bool needRebuild() const {
+            return dirty_;
+        }
+
+        void rebuild();
 
         void render(bgfx::ProgramHandle program);
 
