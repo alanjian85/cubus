@@ -7,7 +7,7 @@
 #include <bgfx/bgfx.h>
 
 namespace cephalon {
-    struct Position {
+    struct Vec3i {
         int x;
         int y;
         int z;
@@ -20,11 +20,11 @@ namespace cephalon {
 
 namespace std {
     template <>
-    struct hash<cephalon::Position> {
-        size_t operator()(cephalon::Position pos) const {
-            return ((hash<int>()(pos.x) 
-                ^ (hash<int>()(pos.y) << 1)) >> 1)
-                ^ (hash<int>()(pos.z) << 1);
+    struct hash<cephalon::Vec3i> {
+        size_t operator()(cephalon::Vec3i vec) const {
+            return ((hash<int>()(vec.x) 
+                ^ (hash<int>()(vec.y) << 1)) >> 1)
+                ^ (hash<int>()(vec.z) << 1);
         }
     };
 }

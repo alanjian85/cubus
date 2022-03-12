@@ -30,21 +30,19 @@ namespace cephalon {
 
     class Chunk {
     public:
-        static constexpr int kChunkSizeX = 16;
-        static constexpr int kChunkSizeY = 16;
-        static constexpr int kChunkSizeZ = 16;
+        static constexpr Vec3i kChunkSize = { 16, 16, 16 };
 
-        Chunk(Position pos = { 0, 0, 0 });
+        Chunk(Vec3i pos = { 0, 0, 0 });
 
         Chunk(const Chunk&) = delete;
 
         Chunk& operator=(const Chunk&) = delete;
 
-        void setPos(Position pos);
+        void setPos(Vec3i pos);
 
-        void setBlock(Position pos, const Block& block);
+        void setBlock(Vec3i pos, const Block& block);
 
-        const Block& getBlock(Position pos) const;
+        const Block& getBlock(Vec3i pos) const;
 
         auto getVertexBuffer() const {
             return vertex_buffer_;
@@ -61,7 +59,7 @@ namespace cephalon {
             bgfx::destroy(index_buffer_);
         }
     private:
-        Position pos_;
+        Vec3i pos_;
 
         bool dirty_;
         std::vector<const Block*> blocks_;

@@ -4,8 +4,8 @@
 #include <memory>
 
 #include "camera.h"
-#include "chunk.h"
 #include "utils.h"
+#include "world.h"
 
 namespace cephalon {
     class Game {
