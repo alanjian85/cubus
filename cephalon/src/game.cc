@@ -10,12 +10,10 @@ Game::Game(int width, int height) {
     chunks_program_ = LoadProgram("vs_chunks", "fs_chunks");
 
     world_.setGenerator([](Vec3i pos, Chunk& chunk) {
-        if (pos.y == 0) {
-            for (int x = 0; x < Chunk::kChunkSize.x; ++x) {
-                for (int z = 0; z < Chunk::kChunkSize.x; ++z) {
-                    chunk.setBlock({x, 1, z}, blocks::kGrass);
-                    chunk.setBlock({x, 0, z}, blocks::kDirt);
-                }
+        for (int x = 0; x < Chunk::kChunkSize.x; ++x) {
+            for (int z = 0; z < Chunk::kChunkSize.x; ++z) {
+                chunk.setBlock({x, 1, z}, blocks::kGrass);
+                chunk.setBlock({x, 0, z}, blocks::kDirt);
             }
         }
     });

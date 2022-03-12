@@ -8,7 +8,7 @@ namespace cephalon {
     class PerspectiveCamera {
     public:
         PerspectiveCamera(bx::Vec3 position = bx::Vec3(0.0f), float yaw = 90.0f, float pitch = 0.0f, 
-                          float fov = 45.0f, float aspect = 0.0f, float near = 0.1f, float far = 100.0f)
+                          float fov = 45.0f, float aspect = 0.0f, float near = 0.1f, float far = 1000.0f)
             : position_(position), direction_(0.0f), right_(0.0f)
         {
             yaw_ = yaw;

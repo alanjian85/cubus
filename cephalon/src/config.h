@@ -4,7 +4,7 @@
 namespace cephalon {
     class Config {
     public:
-        static constexpr int kViewDistance = 2;
+        static constexpr int kViewDistance = 10;
         static constexpr int kMaxLoadCount = 4;
     };
 }
