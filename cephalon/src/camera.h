@@ -5,90 +5,32 @@
 #include <bx/math.h>
 
 namespace cephalon {
-    class PerspectiveCamera {
-    public:
-        PerspectiveCamera(bx::Vec3 position = bx::Vec3(0.0f), float yaw = 90.0f, float pitch = 0.0f, 
-                          float fov = 45.0f, float aspect = 0.0f, float near = 0.1f, float far = 1000.0f)
-            : position_(position), direction_(0.0f), right_(0.0f)
-        {
-            yaw_ = yaw;
-            pitch_ = pitch;
-
-            fov_ = fov;
-            aspect_ = aspect;
-            near_ = near;
-            far_ = far;
-        }
-
-        void setPosition(bx::Vec3 position) {
-            position_ = position;
-        }
-
-        bx::Vec3 getPosition() const {
-            return position_;
-        }
-
-        void setYaw(float yaw) {
-            yaw_ = yaw;
-        }
-
-        float getYaw() const {
-            return yaw_;
-        }
-
-        void setPitch(float pitch) {
-            pitch_ = pitch;
-        }
-
-        float getPitch() const {
-            return pitch_;
-        }
-
-        void setAspect(float aspect) {
-            aspect_ = aspect;
-        }
-
+    struct PerspectiveCamera {
         void update() {
-            direction_ = bx::Vec3(
-                bx::cos(bx::toRad(yaw_)) * bx::cos(bx::toRad(pitch_)),
-                bx::sin(bx::toRad(pitch_)),
-                bx::sin(bx::toRad(yaw_)) * bx::cos(bx::toRad(pitch_))
+            direction = bx::Vec3(
+                bx::cos(bx::toRad(yaw)) * bx::cos(bx::toRad(pitch)),
+                bx::sin(bx::toRad(pitch)),
+                bx::sin(bx::toRad(yaw)) * bx::cos(bx::toRad(pitch))
             );
-            right_ = bx::normalize(bx::cross(bx::Vec3(0.0f, 1.0f, 0.0f), direction_));
-            bx::mtxLookAt(view_, position_, bx::add(position_, direction_));
-            bx::mtxProj(proj_, fov_, aspect_, near_, far_, bgfx::getCaps()->homogeneousDepth);
+            right = bx::normalize(bx::cross(bx::Vec3(0.0f, 1.0f, 0.0f), direction));
+            bx::mtxLookAt(view, position, bx::add(position, direction));
+            bx::mtxProj(proj, fov, aspect, near, far, bgfx::getCaps()->homogeneousDepth);
         }
 
-        auto getDirection() const {
-            return direction_;
-        }
+        bx::Vec3 position { 0.0f, 0.0f, 0.0f };
 
-        auto getRight() const {
-            return right_;
-        }
+        float yaw = 90.0f;
+        float pitch = 0.0f;
 
-        auto getView() const {
-            return view_;
-        }
+        float fov = 45.0f;
+        float aspect;
+        float near = 0.1f;
+        float far = 1000.0f;
 
-        auto getProj() const {
-            return proj_;
-        }
-    private:
-        bx::Vec3 position_;
-
-        float yaw_;
-        float pitch_;
-
-        float fov_;
-        float aspect_;
-        float near_;
-        float far_;
-
-        bx::Vec3 direction_;
-        bx::Vec3 right_;
-        float view_[16];
-        float proj_[16];
+        bx::Vec3 direction { 0.0f };
+        bx::Vec3 right { 0.0f };
+        float view[16];
+        float proj[16];
     };
 }
 
