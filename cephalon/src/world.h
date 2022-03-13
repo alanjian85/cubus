@@ -1,6 +1,7 @@
 #ifndef CEPHALON_WORLD_H_
 #define CEPHALON_WORLD_H_
 
+#include <cmath>
 #include <unordered_map>
 #include <vector>
 
@@ -13,7 +14,10 @@ namespace cephalon {
     class World {
     public:
         static Vec3i getChunkOffset(Vec3i pos) {
-            return Vec3i(pos.x / Chunk::kChunkSize.x, 0, pos.z / Chunk::kChunkSize.z);
+            return Vec3i(
+                std::floor(static_cast<float>(pos.x) / Chunk::kChunkSize.x),
+                0,
+                std::floor(static_cast<float>(pos.z) / Chunk::kChunkSize.z));
         }
 
         static Vec3i getChunkPos(Vec3i pos) {
