@@ -44,7 +44,7 @@ namespace cephalon {
 
         void render(bgfx::ProgramHandle program);
 
-        std::vector<AABB> getBoundingBoxes(AABB range);
+        std::vector<std::pair<Vec3i, AABB>> getBoundingBoxes(AABB range);
     private:
         std::unordered_map<Vec3i, Chunk> chunks_;
         std::unordered_map<Vec3i, const Block*> outside_blocks_;
