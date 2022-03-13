@@ -71,16 +71,6 @@ Game::Game(int width, int height) {
 
     outline_vertex_buffer_ = bgfx::createVertexBuffer(bgfx::copy(vertices, sizeof(vertices)), outline_layout_);
     outline_index_buffer_ = bgfx::createIndexBuffer(bgfx::copy(indices, sizeof(indices)));
-
-    world_.setGenerator([](Vec3i pos, Chunk& chunk) {
-        for (int x = 0; x < Chunk::kChunkSize.x; ++x) {
-            for (int z = 0; z < Chunk::kChunkSize.x; ++z) {
-                chunk.setBlock(Vec3i(x, 1, z), blocks::kGrass);
-                chunk.setBlock(Vec3i(x, 0, z), blocks::kDirt);
-            }
-        }
-        chunk.setBlock(Vec3i(0, 2, 0), blocks::kStone);
-    });
 }
 
 void Game::update(float delta) {

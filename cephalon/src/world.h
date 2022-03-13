@@ -8,6 +8,7 @@
 #include "aabb.h"
 #include "chunk.h"
 #include "config.h"
+#include "generator.h"
 #include "utils.h"
 
 namespace cephalon {
@@ -24,10 +25,6 @@ namespace cephalon {
             return (pos % Chunk::kChunkSize + Chunk::kChunkSize) % Chunk::kChunkSize;
         }
 
-        void setGenerator(std::function<void(Vec3i, Chunk&)> generator) {
-            generator_ = generator;
-        }
-
         void setBlock(Vec3i pos, const Block& block) {
             blocks_[pos] = &block;
             auto it = chunks_.find(getChunkOffset(pos));
@@ -36,11 +33,11 @@ namespace cephalon {
         }
 
         const Block* getBlock(Vec3i pos) const {
-            auto it = chunks_.find(getChunkOffset(pos));
-            if (it != chunks_.cend())
-                return &it->second.getBlock(getChunkPos(pos));
+            auto it = blocks_.find(pos);
+            if (it != blocks_.cend())
+                return it->second;
             else
-                return nullptr;
+                return &generator_(pos);
         }
 
         void update(bx::Vec3 playerPos);
@@ -49,9 +46,11 @@ namespace cephalon {
 
         std::vector<std::pair<Vec3i, AABB>> getBoundingBoxes(AABB range);
     private:
+        void loadChunk(Vec3i offset, Chunk& chunk);
+
         std::unordered_map<Vec3i, Chunk> chunks_;
         std::unordered_map<Vec3i, const Block*> blocks_;
-        std::function<void(Vec3i, Chunk&)> generator_;
+        Generator generator_;
     };
 }
 

@@ -22,13 +22,7 @@ void World::update(bx::Vec3 playerPos) {
         for (int z = playerOffset.z - Config::kViewDistance; z <= playerOffset.z + Config::kViewDistance; ++z) {
             if (chunks_.find(Vec3i(x, 0, z)) == chunks_.cend() && loadCount < Config::kChunkLoadLimit)
             {
-                auto& chunk = chunks_[Vec3i(x, 0, z)];
-                generator_(Vec3i(x, 0, z), chunk);
-                for (auto [pos, block] : blocks_) {
-                    if (getChunkOffset(pos) == Vec3i(x, 0, z)) {
-                        chunk.setBlock(getChunkPos(pos), *block);
-                    }
-                }
+                loadChunk(Vec3i(x, 0, z), chunks_[Vec3i(x, 0, z)]);
                 ++loadCount;
             }
         }
@@ -61,4 +55,20 @@ std::vector<std::pair<Vec3i, AABB>> World::getBoundingBoxes(AABB range) {
         }
     }
     return result;
+}
+
+void World::loadChunk(Vec3i offset, Chunk& chunk) {
+    for (int x = 0; x < Chunk::kChunkSize.x; ++x) {
+        for (int y = 0; y < Chunk::kChunkSize.y; ++y) {
+            for (int z = 0; z < Chunk::kChunkSize.z; ++z) {
+                auto pos = offset * Chunk::kChunkSize + Vec3i(x, y, z);
+                chunk.setBlock(Vec3i(x, y, z), generator_(Vec3i(x, y, z)));
+            }
+        }
+    }
+    for (auto [pos, block] : blocks_) {
+        if (getChunkOffset(pos) == offset) {
+            chunk.setBlock(getChunkPos(pos), *block);
+        }
+    }
 }
