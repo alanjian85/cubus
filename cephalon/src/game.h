@@ -19,9 +19,17 @@ namespace cephalon {
         ~Game();
     private:        
         bgfx::ProgramHandle chunks_program_;
+        bgfx::ProgramHandle outline_program_;
+
+        bgfx::VertexLayout outline_layout_;
+        bgfx::VertexBufferHandle outline_vertex_buffer_;
+        bgfx::IndexBufferHandle outline_index_buffer_;
 
         World world_;
         PerspectiveCamera camera_;
+
+        bool intersect_;
+        Vec3i lookat_pos_;
     };
 }
 
