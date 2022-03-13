@@ -54,6 +54,10 @@ namespace cephalon {
         return Vec3i(lhs.x - rhs.x, lhs.y - rhs.y, lhs.z - rhs.z);
     }
 
+    inline Vec3i operator*(Vec3i lhs, Vec3i rhs) {
+        return Vec3i(lhs.x * rhs.x, lhs.y * rhs.y, lhs.z * rhs.z);
+    }
+
     inline Vec3i operator%(Vec3i lhs, Vec3i rhs) {
         return Vec3i(lhs.x % rhs.x, lhs.y % rhs.y, lhs.z % rhs.z);
     }

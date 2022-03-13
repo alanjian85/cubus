@@ -24,7 +24,7 @@ void World::update(bx::Vec3 playerPos) {
             {
                 auto& chunk = chunks_[Vec3i(x, 0, z)];
                 generator_(Vec3i(x, 0, z), chunk);
-                for (auto [pos, block] : outside_blocks_) {
+                for (auto [pos, block] : blocks_) {
                     if (getChunkOffset(pos) == Vec3i(x, 0, z)) {
                         chunk.setBlock(getChunkPos(pos), *block);
                     }

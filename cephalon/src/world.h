@@ -29,11 +29,10 @@ namespace cephalon {
         }
 
         void setBlock(Vec3i pos, const Block& block) {
+            blocks_[pos] = &block;
             auto it = chunks_.find(getChunkOffset(pos));
             if (it != chunks_.cend())
                 it->second.setBlock(getChunkPos(pos), block);
-            else
-                outside_blocks_[pos] = &block;
         }
 
         const Block* getBlock(Vec3i pos) const {
@@ -51,7 +50,7 @@ namespace cephalon {
         std::vector<std::pair<Vec3i, AABB>> getBoundingBoxes(AABB range);
     private:
         std::unordered_map<Vec3i, Chunk> chunks_;
-        std::unordered_map<Vec3i, const Block*> outside_blocks_;
+        std::unordered_map<Vec3i, const Block*> blocks_;
         std::function<void(Vec3i, Chunk&)> generator_;
     };
 }
