@@ -126,13 +126,14 @@ void Game::render() {
     if (intersect_) {
         float transform[16];
         bx::mtxSRT(transform,
-            1.1f, 1.1f, 1.1f,
+            1.001f, 1.001f, 1.001f,
             0, 0, 0,
-            lookat_pos_.x, lookat_pos_.y, lookat_pos_.z
+            lookat_pos_.x - 0.001, lookat_pos_.y + 0.001, lookat_pos_.z - 0.001
         );
         bgfx::setTransform(transform);
         bgfx::setVertexBuffer(0, outline_vertex_buffer_);
         bgfx::setIndexBuffer(outline_index_buffer_);
+        bgfx::setState(BGFX_STATE_WRITE_RGB | BGFX_STATE_BLEND_FUNC(BGFX_STATE_BLEND_SRC_ALPHA, BGFX_STATE_BLEND_INV_SRC_ALPHA));
         bgfx::submit(0, outline_program_);
     }
 }

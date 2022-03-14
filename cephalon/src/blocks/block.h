@@ -9,7 +9,7 @@
 namespace cephalon {
     class Block {
     public:
-        virtual ~Block() = default;
+        virtual ~Block() noexcept = default;
 
         virtual bool isAir() const {
             return false;

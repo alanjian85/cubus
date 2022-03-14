@@ -42,6 +42,7 @@ int main(int argc, char **argv) {
     init.resolution.width = width;
     init.resolution.height = height;
     init.resolution.reset = BGFX_RESET_VSYNC;
+    init.type = bgfx::RendererType::OpenGL;
     bgfx::renderFrame();
     bgfx::init(init);
 

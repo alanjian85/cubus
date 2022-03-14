@@ -48,7 +48,7 @@ void Chunk::rebuild() {
                         auto fz = static_cast<float>(z);
 
                         // right
-                        if (x == kChunkSize.x - 1 || getBlock({x + 1, y, z}).isAir()) {
+                        if (x == kChunkSize.x - 1 || getBlock(Vec3i(x + 1, y, z)).isAir()) {
                             Vertex block_vertices[] = {
                                 { fx + 1, fy    , fz    , color },
                                 { fx + 1, fy    , fz + 1, color },
@@ -67,7 +67,7 @@ void Chunk::rebuild() {
                         }
 
                         // left
-                        if (x == 0 || getBlock({x - 1, y, z}).isAir()) {
+                        if (x == 0 || getBlock(Vec3i(x - 1, y, z)).isAir()) {
                             Vertex block_vertices[] = {
                                 { fx    , fy    , fz    , color },
                                 { fx    , fy    , fz + 1, color },
@@ -86,7 +86,7 @@ void Chunk::rebuild() {
                         }
 
                         // top
-                        if (y == kChunkSize.y - 1 || getBlock({x, y + 1, z}).isAir()) {
+                        if (y == kChunkSize.y - 1 || getBlock(Vec3i(x, y + 1, z)).isAir()) {
                             Vertex block_vertices[] = {
                                 { fx    , fy + 1, fz    , color },
                                 { fx    , fy + 1, fz + 1, color },
@@ -105,7 +105,7 @@ void Chunk::rebuild() {
                         }
 
                         // bottom
-                        if (y == 0 || getBlock({x, y - 1, z}).isAir()) {
+                        if (y == 0 || getBlock(Vec3i(x, y - 1, z)).isAir()) {
                             Vertex block_vertices[] = {
                                 { fx    , fy    , fz    , color },
                                 { fx    , fy    , fz + 1, color },
@@ -124,7 +124,7 @@ void Chunk::rebuild() {
                         }
 
                         // back
-                        if (z == kChunkSize.z - 1 || getBlock({x, y, z + 1}).isAir()) {
+                        if (z == kChunkSize.z - 1 || getBlock(Vec3i(x, y, z + 1)).isAir()) {
                             Vertex block_vertices[] = {
                                 { fx    , fy    , fz + 1, color },
                                 { fx    , fy + 1, fz + 1, color },
@@ -143,7 +143,7 @@ void Chunk::rebuild() {
                         }
 
                         // front
-                        if (z == 0 || getBlock({x, y, z - 1}).isAir()) {
+                        if (z == 0 || getBlock(Vec3i(x, y, z - 1)).isAir()) {
                             Vertex block_vertices[] = {
                                 { fx    , fy    , fz    , color },
                                 { fx    , fy + 1, fz    , color },
