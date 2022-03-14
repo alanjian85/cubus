@@ -18,9 +18,9 @@ void World::update(bx::Vec3 playerPos) {
     }
     
     int loadCount = 0;
-    for (int x = playerOffset.x - Config::kViewDistance; x <= playerOffset.x + Config::kViewDistance; ++x) {
-        for (int z = playerOffset.z - Config::kViewDistance; z <= playerOffset.z + Config::kViewDistance; ++z) {
-            if (chunks_.find(Vec3i(x, 0, z)) == chunks_.cend() && loadCount < Config::kChunkLoadLimit)
+    for (auto x = playerOffset.x - Config::kViewDistance; x <= playerOffset.x + Config::kViewDistance; ++x) {
+        for (auto z = playerOffset.z - Config::kViewDistance; z <= playerOffset.z + Config::kViewDistance; ++z) {
+            if (loadCount < Config::kChunkLoadLimit && chunks_.find(Vec3i(x, 0, z)) == chunks_.cend())
             {
                 loadChunk(Vec3i(x, 0, z), chunks_[Vec3i(x, 0, z)]);
                 ++loadCount;
@@ -33,7 +33,7 @@ void World::render(bgfx::ProgramHandle program) {
     int rebuildCount = 0;
     for (auto& [pos, chunk] : chunks_) {
         float transform[16];
-        bx::mtxTranslate(transform, pos.x * Chunk::kChunkSize.x, pos.y * Chunk::kChunkSize.y, pos.z * Chunk::kChunkSize.z);
+        bx::mtxTranslate(transform, pos.x * Chunk::kChunkSize.x, 0, pos.z * Chunk::kChunkSize.z);
         bgfx::setTransform(transform);
         if (chunk.needRebuild() && rebuildCount < Config::kChunkRebuildLimit) {
             chunk.rebuild();
@@ -44,13 +44,16 @@ void World::render(bgfx::ProgramHandle program) {
 }
 
 std::vector<std::pair<Vec3i, AABB>> World::getBoundingBoxes(AABB range) {
+    range.min.y = std::max(range.min.y, 0);
+    range.max.y = std::min(range.max.y, Chunk::kChunkSize.y);
+
     std::vector<std::pair<Vec3i, AABB>> result;
     for (auto x = range.min.x; x <= range.max.x; ++x) {
         for (auto y = range.min.y; y <= range.max.y; ++y) {
             for (auto z = range.min.z; z <= range.max.z; ++z) {
-                auto block = getBlock(Vec3i(x, y, z));
-                if (block && !block->isAir())
-                    result.emplace_back(Vec3i(x, y, z), block->getBoundingBox(Vec3i(x, y, z)));
+                auto& block = getBlock(Vec3i(x, y, z));
+                if (!block.isAir())
+                    result.emplace_back(Vec3i(x, y, z), block.getBoundingBox(Vec3i(x, y, z)));
             }
         }
     }

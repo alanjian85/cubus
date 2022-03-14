@@ -127,13 +127,18 @@ void Game::render() {
         float transform[16];
         bx::mtxSRT(transform,
             1.001f, 1.001f, 1.001f,
-            0, 0, 0,
-            lookat_pos_.x - 0.001, lookat_pos_.y + 0.001, lookat_pos_.z - 0.001
+            0.0f, 0.0f, 0.0f,
+            lookat_pos_.x, lookat_pos_.y, lookat_pos_.z
         );
         bgfx::setTransform(transform);
         bgfx::setVertexBuffer(0, outline_vertex_buffer_);
         bgfx::setIndexBuffer(outline_index_buffer_);
-        bgfx::setState(BGFX_STATE_WRITE_RGB | BGFX_STATE_BLEND_FUNC(BGFX_STATE_BLEND_SRC_ALPHA, BGFX_STATE_BLEND_INV_SRC_ALPHA));
+        bgfx::setState(
+            BGFX_STATE_WRITE_RGB       | 
+            BGFX_STATE_WRITE_Z         | 
+            BGFX_STATE_DEPTH_TEST_LESS |
+            BGFX_STATE_BLEND_FUNC(BGFX_STATE_BLEND_SRC_ALPHA, BGFX_STATE_BLEND_INV_SRC_ALPHA)
+        );
         bgfx::submit(0, outline_program_);
     }
 }

@@ -18,7 +18,8 @@ namespace cephalon {
             return Vec3i(
                 std::floor(static_cast<float>(pos.x) / Chunk::kChunkSize.x),
                 0,
-                std::floor(static_cast<float>(pos.z) / Chunk::kChunkSize.z));
+                std::floor(static_cast<float>(pos.z) / Chunk::kChunkSize.z)
+            );
         }
 
         static Vec3i getChunkPos(Vec3i pos) {
@@ -32,12 +33,12 @@ namespace cephalon {
                 it->second.setBlock(getChunkPos(pos), block);
         }
 
-        const Block* getBlock(Vec3i pos) const {
+        const Block& getBlock(Vec3i pos) const {
             auto it = blocks_.find(pos);
             if (it != blocks_.cend())
-                return it->second;
+                return *it->second;
             else
-                return &generator_(pos);
+                return generator_(pos);
         }
 
         void update(bx::Vec3 playerPos);

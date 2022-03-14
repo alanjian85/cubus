@@ -10,12 +10,7 @@ namespace cephalon {
         const Block& operator()(Vec3i pos) const {
             if (pos.y == 0)
                 return blocks::kStone;
-            else if (pos.y == 1)
-                return blocks::kDirt;
-            else if (pos.y == 2)
-                return blocks::kGrass;
-            else
-                return blocks::kAir;
+            return blocks::kAir;
         }
     };
 }
