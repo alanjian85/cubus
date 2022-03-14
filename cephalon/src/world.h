@@ -14,7 +14,7 @@
 namespace cephalon {
     class World {
     public:
-        static Vec3i getChunkOffset(Vec3i pos) {
+        static Vec3i getRegion(Vec3i pos) {
             return Vec3i(
                 std::floor(static_cast<float>(pos.x) / Chunk::kChunkSize.x),
                 0,
@@ -28,7 +28,7 @@ namespace cephalon {
 
         void setBlock(Vec3i pos, const Block& block) {
             blocks_[pos] = &block;
-            auto it = chunks_.find(getChunkOffset(pos));
+            auto it = chunks_.find(getRegion(pos));
             if (it != chunks_.cend())
                 it->second.setBlock(getChunkPos(pos), block);
         }
@@ -47,7 +47,7 @@ namespace cephalon {
 
         std::vector<std::pair<Vec3i, AABB>> getBoundingBoxes(AABB range);
     private:
-        void loadChunk(Vec3i offset, Chunk& chunk);
+        void loadChunk(Vec3i region, Chunk& chunk);
 
         std::unordered_map<Vec3i, Chunk> chunks_;
         std::unordered_map<Vec3i, const Block*> blocks_;

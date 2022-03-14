@@ -13,23 +13,14 @@
 
 namespace cephalon {
     struct Vertex {
-        static bgfx::VertexLayout layout;
-
-        static void init() {
-            layout.begin()
-                .add(bgfx::Attrib::Position, 3, bgfx::AttribType::Float)
-                .add(bgfx::Attrib::Color0, 4, bgfx::AttribType::Uint8, true)
-            .end();
-        }
-
-        float x;
-        float y;
-        float z;
+        bx::Vec3 pos;
         std::uint32_t agbr;
     };
 
     class Chunk {
     public:
+        static void init();
+
         static constexpr Vec3i kChunkSize = { 16, 256, 16 };
 
         Chunk();
@@ -42,7 +33,7 @@ namespace cephalon {
 
         const Block& getBlock(Vec3i pos) const;
 
-        bool needRebuild() const {
+        bool isDirty() const {
             return dirty_;
         }
 
@@ -55,6 +46,8 @@ namespace cephalon {
             bgfx::destroy(index_buffer_);
         }
     private:
+        static bgfx::VertexLayout layout_;
+
         bool dirty_;
         std::vector<const Block*> blocks_;
 

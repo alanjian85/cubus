@@ -3,13 +3,20 @@ using namespace cephalon;
 
 #include <iterator>
 
-bgfx::VertexLayout Vertex::layout;
+bgfx::VertexLayout Chunk::layout_;
+
+void Chunk::init() {
+    layout_.begin()
+        .add(bgfx::Attrib::Position, 3, bgfx::AttribType::Float)
+        .add(bgfx::Attrib::Color0, 4, bgfx::AttribType::Uint8, true)
+    .end();
+}
 
 Chunk::Chunk()
 {
     dirty_ = false;
     blocks_.resize(kChunkSize.x * kChunkSize.y * kChunkSize.z, &blocks::kAir);
-    vertex_buffer_ = bgfx::createDynamicVertexBuffer(0u, Vertex::layout, BGFX_BUFFER_ALLOW_RESIZE);
+    vertex_buffer_ = bgfx::createDynamicVertexBuffer(0u, layout_, BGFX_BUFFER_ALLOW_RESIZE);
     index_buffer_ = bgfx::createDynamicIndexBuffer(0u, BGFX_BUFFER_ALLOW_RESIZE);
 }
 
@@ -46,10 +53,10 @@ void Chunk::rebuild() {
                         // right
                         if (x == kChunkSize.x - 1 || getBlock(Vec3i(x + 1, y, z)).isAir()) {
                             Vertex block_vertices[] = {
-                                { x + 0.5f, y - 0.5f, z - 0.5f, color },
-                                { x + 0.5f, y - 0.5f, z + 0.5f, color },
-                                { x + 0.5f, y + 0.5f, z - 0.5f, color },
-                                { x + 0.5f, y + 0.5f, z + 0.5f, color }
+                                { bx::Vec3(x + 0.5f, y - 0.5f, z - 0.5f), color },
+                                { bx::Vec3(x + 0.5f, y - 0.5f, z + 0.5f), color },
+                                { bx::Vec3(x + 0.5f, y + 0.5f, z - 0.5f), color },
+                                { bx::Vec3(x + 0.5f, y + 0.5f, z + 0.5f), color }
                             };
 
                             auto index_base = static_cast<int>(vertices.size());
@@ -65,10 +72,10 @@ void Chunk::rebuild() {
                         // left
                         if (x == 0 || getBlock(Vec3i(x - 1, y, z)).isAir()) {
                             Vertex block_vertices[] = {
-                                { x - 0.5f, y - 0.5f, z - 0.5f, color },
-                                { x - 0.5f, y - 0.5f, z + 0.5f, color },
-                                { x - 0.5f, y + 0.5f, z - 0.5f, color },
-                                { x - 0.5f, y + 0.5f, z + 0.5f, color }
+                                { bx::Vec3(x - 0.5f, y - 0.5f, z - 0.5f), color },
+                                { bx::Vec3(x - 0.5f, y - 0.5f, z + 0.5f), color },
+                                { bx::Vec3(x - 0.5f, y + 0.5f, z - 0.5f), color },
+                                { bx::Vec3(x - 0.5f, y + 0.5f, z + 0.5f), color }
                             };
 
                             auto index_base = static_cast<int>(vertices.size());
@@ -84,10 +91,10 @@ void Chunk::rebuild() {
                         // top
                         if (y == kChunkSize.y - 1 || getBlock(Vec3i(x, y + 1, z)).isAir()) {
                             Vertex block_vertices[] = {
-                                { x - 0.5f, y + 0.5f, z - 0.5f, color },
-                                { x - 0.5f, y + 0.5f, z + 0.5f, color },
-                                { x + 0.5f, y + 0.5f, z - 0.5f, color },
-                                { x + 0.5f, y + 0.5f, z + 0.5f, color }
+                                { bx::Vec3(x - 0.5f, y + 0.5f, z - 0.5f), color },
+                                { bx::Vec3(x - 0.5f, y + 0.5f, z + 0.5f), color },
+                                { bx::Vec3(x + 0.5f, y + 0.5f, z - 0.5f), color },
+                                { bx::Vec3(x + 0.5f, y + 0.5f, z + 0.5f), color }
                             };
 
                             auto index_base = static_cast<int>(vertices.size());
@@ -103,10 +110,10 @@ void Chunk::rebuild() {
                         // bottom
                         if (y == 0 || getBlock(Vec3i(x, y - 1, z)).isAir()) {
                             Vertex block_vertices[] = {
-                                { x - 0.5f, y - 0.5f, z - 0.5f, color },
-                                { x - 0.5f, y - 0.5f, z + 0.5f, color },
-                                { x + 0.5f, y - 0.5f, z - 0.5f, color },
-                                { x + 0.5f, y - 0.5f, z + 0.5f, color }
+                                { bx::Vec3(x - 0.5f, y - 0.5f, z - 0.5f), color },
+                                { bx::Vec3(x - 0.5f, y - 0.5f, z + 0.5f), color },
+                                { bx::Vec3(x + 0.5f, y - 0.5f, z - 0.5f), color },
+                                { bx::Vec3(x + 0.5f, y - 0.5f, z + 0.5f), color }
                             };
 
                             auto index_base = static_cast<int>(vertices.size());
@@ -122,10 +129,10 @@ void Chunk::rebuild() {
                         // back
                         if (z == kChunkSize.z - 1 || getBlock(Vec3i(x, y, z + 1)).isAir()) {
                             Vertex block_vertices[] = {
-                                { x - 0.5f, y - 0.5f, z + 0.5f, color },
-                                { x - 0.5f, y + 0.5f, z + 0.5f, color },
-                                { x + 0.5f, y - 0.5f, z + 0.5f, color },
-                                { x + 0.5f, y + 0.5f, z + 0.5f, color }
+                                { bx::Vec3(x - 0.5f, y - 0.5f, z + 0.5f), color },
+                                { bx::Vec3(x - 0.5f, y + 0.5f, z + 0.5f), color },
+                                { bx::Vec3(x + 0.5f, y - 0.5f, z + 0.5f), color },
+                                { bx::Vec3(x + 0.5f, y + 0.5f, z + 0.5f), color }
                             };
 
                             auto index_base = static_cast<int>(vertices.size());
@@ -141,10 +148,10 @@ void Chunk::rebuild() {
                         // front
                         if (z == 0 || getBlock(Vec3i(x, y, z - 1)).isAir()) {
                             Vertex block_vertices[] = {
-                                { x - 0.5f, y - 0.5f, z - 0.5f, color },
-                                { x - 0.5f, y + 0.5f, z - 0.5f, color },
-                                { x + 0.5f, y - 0.5f, z - 0.5f, color },
-                                { x + 0.5f, y + 0.5f, z - 0.5f, color }
+                                { bx::Vec3(x - 0.5f, y - 0.5f, z - 0.5f), color },
+                                { bx::Vec3(x - 0.5f, y + 0.5f, z - 0.5f), color },
+                                { bx::Vec3(x + 0.5f, y - 0.5f, z - 0.5f), color },
+                                { bx::Vec3(x + 0.5f, y + 0.5f, z - 0.5f), color }
                             };
 
                             auto index_base = static_cast<int>(vertices.size());

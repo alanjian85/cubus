@@ -49,7 +49,7 @@ int main(int argc, char **argv) {
     bgfx::setViewRect(0, 0, 0, width, height);
 
     Input::init(window);
-    Vertex::init();
+    Chunk::init();
 
     {
         Game game(width, height);

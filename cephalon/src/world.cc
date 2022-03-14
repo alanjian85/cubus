@@ -4,12 +4,12 @@ using namespace cephalon;
 #include <iostream>
 
 void World::update(bx::Vec3 playerPos) {
-    auto playerOffset = getChunkOffset(playerPos);
+    auto playerRegion = getRegion(playerPos);
 
     for (auto i = chunks_.begin(); i != chunks_.end();) {
-        auto& [pos, chunk] = *i;
-        if (std::abs(playerOffset.x - pos.x) > Config::kViewDistance ||
-            std::abs(playerOffset.z - pos.z) > Config::kViewDistance)
+        auto& [region, chunk] = *i;
+        if (std::abs(playerRegion.x - region.x) > Config::kViewDistance ||
+            std::abs(playerRegion.z - region.z) > Config::kViewDistance)
         {
             chunks_.erase(i++);
         } else {
@@ -18,8 +18,8 @@ void World::update(bx::Vec3 playerPos) {
     }
     
     int loadCount = 0;
-    for (auto x = playerOffset.x - Config::kViewDistance; x <= playerOffset.x + Config::kViewDistance; ++x) {
-        for (auto z = playerOffset.z - Config::kViewDistance; z <= playerOffset.z + Config::kViewDistance; ++z) {
+    for (auto x = playerRegion.x - Config::kViewDistance; x <= playerRegion.x + Config::kViewDistance; ++x) {
+        for (auto z = playerRegion.z - Config::kViewDistance; z <= playerRegion.z + Config::kViewDistance; ++z) {
             if (loadCount < Config::kChunkLoadLimit && chunks_.find(Vec3i(x, 0, z)) == chunks_.cend())
             {
                 loadChunk(Vec3i(x, 0, z), chunks_[Vec3i(x, 0, z)]);
@@ -35,7 +35,7 @@ void World::render(bgfx::ProgramHandle program) {
         float transform[16];
         bx::mtxTranslate(transform, pos.x * Chunk::kChunkSize.x, 0, pos.z * Chunk::kChunkSize.z);
         bgfx::setTransform(transform);
-        if (chunk.needRebuild() && rebuildCount < Config::kChunkRebuildLimit) {
+        if (chunk.isDirty() && rebuildCount < Config::kChunkRebuildLimit) {
             chunk.rebuild();
             ++rebuildCount;
         }
@@ -60,17 +60,17 @@ std::vector<std::pair<Vec3i, AABB>> World::getBoundingBoxes(AABB range) {
     return result;
 }
 
-void World::loadChunk(Vec3i offset, Chunk& chunk) {
+void World::loadChunk(Vec3i region, Chunk& chunk) {
     for (int x = 0; x < Chunk::kChunkSize.x; ++x) {
         for (int y = 0; y < Chunk::kChunkSize.y; ++y) {
             for (int z = 0; z < Chunk::kChunkSize.z; ++z) {
-                auto pos = offset * Chunk::kChunkSize + Vec3i(x, y, z);
+                auto pos = region * Chunk::kChunkSize + Vec3i(x, y, z);
                 chunk.setBlock(Vec3i(x, y, z), generator_(Vec3i(x, y, z)));
             }
         }
     }
     for (auto [pos, block] : blocks_) {
-        if (getChunkOffset(pos) == offset) {
+        if (getRegion(pos) == region) {
             chunk.setBlock(getChunkPos(pos), *block);
         }
     }
