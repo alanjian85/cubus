@@ -79,14 +79,11 @@ int main(int argc, char **argv) {
                         }
                         break;
                     case SDL_MOUSEMOTION:
-                        Input::setRelativeMouseX(event.motion.xrel);
-                        Input::setRelativeMouseY(event.motion.yrel);
+                        game.onCursorMove(event.motion.xrel, event.motion.yrel);
                         break;
                     case SDL_MOUSEBUTTONDOWN:
                         if (event.button.button == SDL_BUTTON_LEFT)
-                            Input::mousePressLeft();
-                        else if (event.button.button == SDL_BUTTON_RIGHT)
-                            Input::mousePressRight();
+                            game.onMouseLeftClick();
                 }
             }
 

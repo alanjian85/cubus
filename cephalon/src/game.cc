@@ -11,9 +11,9 @@ Game::Game(int width, int height) {
     camera_.aspect = static_cast<float>(width) / height;
 
     chunks_program_ = LoadProgram("vs_chunks", "fs_chunks");
-    outline_program_ = LoadProgram("vs_outline", "fs_outline");
+    focus_program_ = LoadProgram("vs_outline", "fs_outline");
 
-    outline_layout_.begin()
+    focus_layout_.begin()
         .add(bgfx::Attrib::Position, 3, bgfx::AttribType::Float)
     .end();
 
@@ -69,8 +69,8 @@ Game::Game(int width, int height) {
         22, 21, 20
     };
 
-    outline_vertex_buffer_ = bgfx::createVertexBuffer(bgfx::copy(vertices, sizeof(vertices)), outline_layout_);
-    outline_index_buffer_ = bgfx::createIndexBuffer(bgfx::copy(indices, sizeof(indices)));
+    focus_vertex_buffer_ = bgfx::createVertexBuffer(bgfx::copy(vertices, sizeof(vertices)), focus_layout_);
+    focus_index_buffer_ = bgfx::createIndexBuffer(bgfx::copy(indices, sizeof(indices)));
 }
 
 void Game::update(float delta) {
@@ -85,10 +85,28 @@ void Game::update(float delta) {
     if (Input::getKey(Key::kD))
         camera_.pos = bx::add(camera_.pos, bx::mul(camera_.right, camera_speed * delta));
 
+    world_.update(camera_.pos);
+
+    auto bounding_boxes = world_.getBoundingBoxes(AABB(
+        camera_.pos - Vec3i(Config::kDestroyDistance),
+        camera_.pos + Vec3i(Config::kDestroyDistance)
+    ));
+    auto nearest = Config::kDestroyDistance;
+    focus_ = false;
+    for (auto [pos, bounding_box] : bounding_boxes) {
+        if (bounding_box.intersect(camera_.pos, camera_.dir, 0.1f, nearest)) {
+            focus_ = true;
+            nearest = bx::length(bx::sub(bx::Vec3(pos.x, pos.y, pos.z), camera_.pos));
+            focus_pos_ = pos;
+        }
+    }
+}
+
+void Game::onCursorMove(float relative_x, float relative_y) {
     const auto mouseSensitivity = 0.3f;
 
-    auto xoffset = Input::getRelativeMouseX() * mouseSensitivity;
-    auto yoffset = Input::getRelativeMouseY() * mouseSensitivity;
+    auto xoffset = relative_x * mouseSensitivity;
+    auto yoffset = relative_y * mouseSensitivity;
 
     camera_.yaw -= xoffset;
     camera_.pitch -= yoffset;
@@ -97,25 +115,11 @@ void Game::update(float delta) {
         camera_.pitch = 89.0f;
     if (camera_.pitch < -89.0f)
         camera_.pitch = -89.0f;
+}
 
-    world_.update(camera_.pos);
-
-    auto bounding_boxes = world_.getBoundingBoxes(AABB(
-        camera_.pos - Vec3i(Config::kDestroyDistance),
-        camera_.pos + Vec3i(Config::kDestroyDistance)
-    ));
-    auto nearest = Config::kDestroyDistance;
-    intersect_ = false;
-    for (auto [pos, bounding_box] : bounding_boxes) {
-        if (bounding_box.intersect(camera_.pos, camera_.dir, 0.1f, nearest)) {
-            intersect_ = true;
-            nearest = bx::length(bx::sub(bx::Vec3(pos.x, pos.y, pos.z), camera_.pos));
-            lookat_pos_ = pos;
-        }
-    }
-
-    if (intersect_ && Input::getMouseLeft()) {
-        world_.setBlock(lookat_pos_, blocks::kAir);
+void Game::onMouseLeftClick() {
+    if (focus_) {
+        world_.setBlock(focus_pos_, blocks::kAir);
     }
 }
 
@@ -123,29 +127,29 @@ void Game::render() {
     bgfx::setViewTransform(0, camera_.view, camera_.proj);
     world_.render(chunks_program_);
 
-    if (intersect_) {
+    if (focus_) {
         float transform[16];
         bx::mtxSRT(transform,
             1.001f, 1.001f, 1.001f,
             0.0f, 0.0f, 0.0f,
-            lookat_pos_.x, lookat_pos_.y, lookat_pos_.z
+            focus_pos_.x, focus_pos_.y, focus_pos_.z
         );
         bgfx::setTransform(transform);
-        bgfx::setVertexBuffer(0, outline_vertex_buffer_);
-        bgfx::setIndexBuffer(outline_index_buffer_);
+        bgfx::setVertexBuffer(0, focus_vertex_buffer_);
+        bgfx::setIndexBuffer(focus_index_buffer_);
         bgfx::setState(
             BGFX_STATE_WRITE_RGB       | 
             BGFX_STATE_WRITE_Z         | 
             BGFX_STATE_DEPTH_TEST_LESS |
             BGFX_STATE_BLEND_FUNC(BGFX_STATE_BLEND_SRC_ALPHA, BGFX_STATE_BLEND_INV_SRC_ALPHA)
         );
-        bgfx::submit(0, outline_program_);
+        bgfx::submit(0, focus_program_);
     }
 }
 
 Game::~Game() {
     bgfx::destroy(chunks_program_);
-    bgfx::destroy(outline_program_);
-    bgfx::destroy(outline_vertex_buffer_);
-    bgfx::destroy(outline_index_buffer_);
+    bgfx::destroy(focus_program_);
+    bgfx::destroy(focus_vertex_buffer_);
+    bgfx::destroy(focus_index_buffer_);
 }

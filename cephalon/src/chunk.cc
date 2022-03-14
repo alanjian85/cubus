@@ -106,7 +106,7 @@ void Chunk::rebuild() {
                                 { x - 0.5f, y - 0.5f, z - 0.5f, color },
                                 { x - 0.5f, y - 0.5f, z + 0.5f, color },
                                 { x + 0.5f, y - 0.5f, z - 0.5f, color },
-                                { x + 0.5f, y - 0.5f, z + 0.5f, color },
+                                { x + 0.5f, y - 0.5f, z + 0.5f, color }
                             };
 
                             auto index_base = static_cast<int>(vertices.size());
@@ -144,7 +144,7 @@ void Chunk::rebuild() {
                                 { x - 0.5f, y - 0.5f, z - 0.5f, color },
                                 { x - 0.5f, y + 0.5f, z - 0.5f, color },
                                 { x + 0.5f, y - 0.5f, z - 0.5f, color },
-                                { x + 0.5f, y + 0.5f, z - 0.5f, color },
+                                { x + 0.5f, y + 0.5f, z - 0.5f, color }
                             };
 
                             auto index_base = static_cast<int>(vertices.size());

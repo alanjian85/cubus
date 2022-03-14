@@ -14,22 +14,26 @@ namespace cephalon {
 
         void update(float delta);
 
+        void onCursorMove(float relative_x, float relative_y);
+
+        void onMouseLeftClick();
+
         void render();
 
         ~Game();
     private:        
         bgfx::ProgramHandle chunks_program_;
-        bgfx::ProgramHandle outline_program_;
+        bgfx::ProgramHandle focus_program_;
 
-        bgfx::VertexLayout outline_layout_;
-        bgfx::VertexBufferHandle outline_vertex_buffer_;
-        bgfx::IndexBufferHandle outline_index_buffer_;
+        bgfx::VertexLayout focus_layout_;
+        bgfx::VertexBufferHandle focus_vertex_buffer_;
+        bgfx::IndexBufferHandle focus_index_buffer_;
+
+        bool focus_;
+        Vec3i focus_pos_;
 
         World world_;
         PerspectiveCamera camera_;
-
-        bool intersect_;
-        Vec3i lookat_pos_;
     };
 }
 
