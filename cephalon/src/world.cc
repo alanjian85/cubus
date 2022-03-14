@@ -1,8 +1,6 @@
 #include "world.h"
 using namespace cephalon;
 
-#include <iostream>
-
 void World::update(bx::Vec3 playerPos) {
     auto playerRegion = getRegion(playerPos);
 

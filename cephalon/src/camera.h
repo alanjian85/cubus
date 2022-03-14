@@ -22,7 +22,7 @@ namespace cephalon {
         float yaw = 90.0f;
         float pitch = 0.0f;
 
-        float fov = 35.0f;
+        float fov = 45.0f;
         float aspect;
         float near = 0.1f;
         float far = 1000.0f;

@@ -1,8 +1,6 @@
 #include "game.h"
 using namespace cephalon;
 
-#include <iostream>
-
 #include "input.h"
 
 Game::Game(int width, int height) {
