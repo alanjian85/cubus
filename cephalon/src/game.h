@@ -22,7 +22,6 @@ namespace cephalon {
 
         ~Game();
     private:        
-        bgfx::ProgramHandle chunks_program_;
         bgfx::ProgramHandle focus_program_;
         bgfx::UniformHandle u_color_;
 

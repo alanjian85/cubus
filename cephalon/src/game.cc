@@ -8,8 +8,7 @@ Game::Game(int width, int height) {
     camera_.pitch = -15.0f;
     camera_.aspect = static_cast<float>(width) / height;
 
-    chunks_program_ = LoadProgram("vs_chunks", "fs_chunks");
-    focus_program_ = LoadProgram("vs_focus", "fs_focus");
+    focus_program_ = LoadProgram("vs_outline", "fs_outline");
 
     u_color_ = bgfx::createUniform("u_color", bgfx::UniformType::Vec4);
 
@@ -125,7 +124,7 @@ void Game::onMouseLeftClick() {
 
 void Game::render() {
     bgfx::setViewTransform(0, camera_.view, camera_.proj);
-    world_.render(chunks_program_);
+    world_.render();
 
     if (focus_) {
         auto t = SDL_GetTicks() / 1000.0f;
@@ -152,7 +151,6 @@ void Game::render() {
 }
 
 Game::~Game() {
-    bgfx::destroy(chunks_program_);
     bgfx::destroy(focus_program_);
     bgfx::destroy(focus_vertex_buffer_);
     bgfx::destroy(focus_index_buffer_);

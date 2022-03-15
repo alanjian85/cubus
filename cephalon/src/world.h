@@ -43,7 +43,7 @@ namespace cephalon {
 
         void update(bx::Vec3 playerPos);
 
-        void render(bgfx::ProgramHandle program);
+        void render();
 
         std::vector<std::pair<Vec3i, AABB>> getBoundingBoxes(AABB range);
     private:

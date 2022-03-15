@@ -20,6 +20,8 @@ namespace cephalon {
     class Chunk {
     public:
         static void init();
+        
+        static void cleanup();
 
         static constexpr Vec3i kChunkSize = { 16, 256, 16 };
 
@@ -39,7 +41,7 @@ namespace cephalon {
 
         void rebuild();
 
-        void render(bgfx::ProgramHandle program);
+        void render();
 
         ~Chunk() {
             bgfx::destroy(vertex_buffer_);
@@ -47,6 +49,7 @@ namespace cephalon {
         }
     private:
         static bgfx::VertexLayout layout_;
+        static bgfx::ProgramHandle program_;
 
         bool dirty_;
         std::vector<const Block*> blocks_;

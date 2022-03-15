@@ -3,13 +3,21 @@ using namespace cephalon;
 
 #include <iterator>
 
+#include "utils.h"
+
 bgfx::VertexLayout Chunk::layout_;
+bgfx::ProgramHandle Chunk::program_;
 
 void Chunk::init() {
     layout_.begin()
         .add(bgfx::Attrib::Position, 3, bgfx::AttribType::Float)
         .add(bgfx::Attrib::Color0, 4, bgfx::AttribType::Uint8, true)
     .end();
+    program_ = LoadProgram("vs_chunks", "fs_chunks");
+}
+
+void Chunk::cleanup() {
+    bgfx::destroy(program_);
 }
 
 Chunk::Chunk()
@@ -174,8 +182,8 @@ void Chunk::rebuild() {
     dirty_ = false;
 }
 
-void Chunk::render(bgfx::ProgramHandle program) {
+void Chunk::render() {
     bgfx::setVertexBuffer(0, vertex_buffer_);
     bgfx::setIndexBuffer(index_buffer_);
-    bgfx::submit(0, program);
+    bgfx::submit(0, program_);
 }

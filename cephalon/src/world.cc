@@ -27,7 +27,7 @@ void World::update(bx::Vec3 playerPos) {
     }
 }
 
-void World::render(bgfx::ProgramHandle program) {
+void World::render() {
     int rebuildCount = 0;
     for (auto& [pos, chunk] : chunks_) {
         float transform[16];
@@ -37,7 +37,7 @@ void World::render(bgfx::ProgramHandle program) {
             chunk.rebuild();
             ++rebuildCount;
         }
-        chunk.render(program);
+        chunk.render();
     }
 }
 

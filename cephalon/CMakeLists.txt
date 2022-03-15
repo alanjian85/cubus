@@ -27,8 +27,8 @@ add_executable(cephalon ${CEPHALON_SRCS})
 set(CEPHALON_SHADERS
     shaders/vs_chunks.sc
     shaders/fs_chunks.sc
-    shaders/vs_focus.sc
-    shaders/fs_focus.sc
+    shaders/vs_outline.sc
+    shaders/fs_outline.sc
 )
 add_bgfx_shader(cephalon ${CEPHALON_SHADERS})
 
