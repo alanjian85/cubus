@@ -99,6 +99,7 @@ int main(int argc, char **argv) {
         }
     }
 
+    Chunk::cleanup();
     bgfx::shutdown();
     SDL_DestroyWindow(window);
     SDL_Quit();

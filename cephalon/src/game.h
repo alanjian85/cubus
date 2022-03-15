@@ -4,6 +4,7 @@
 #include <memory>
 
 #include "camera.h"
+#include "outline.h"
 #include "utils.h"
 #include "world.h"
 
@@ -19,18 +20,10 @@ namespace cephalon {
         void onMouseLeftClick();
 
         void render();
-
-        ~Game();
-    private:        
-        bgfx::ProgramHandle focus_program_;
-        bgfx::UniformHandle u_color_;
-
-        bgfx::VertexLayout focus_layout_;
-        bgfx::VertexBufferHandle focus_vertex_buffer_;
-        bgfx::IndexBufferHandle focus_index_buffer_;
-
-        bool focus_;
-        Vec3i focus_pos_;
+    private:
+        bool intersect_;
+        Vec3i intersect_pos_;
+        Outline outline_;
 
         World world_;
         PerspectiveCamera camera_;

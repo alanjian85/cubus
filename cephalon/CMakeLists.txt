@@ -17,6 +17,8 @@ set(CEPHALON_SRCS
     src/input.cc
     src/input.h
     src/main.cc
+    src/outline.h
+    src/outline.cc
     src/utils.cc
     src/utils.h
     src/world.cc

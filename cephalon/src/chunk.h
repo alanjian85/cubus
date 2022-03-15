@@ -31,6 +31,8 @@ namespace cephalon {
 
         Chunk& operator=(const Chunk&) = delete;
 
+        ~Chunk() noexcept;
+
         void setBlock(Vec3i pos, const Block& block);
 
         const Block& getBlock(Vec3i pos) const;
@@ -42,11 +44,6 @@ namespace cephalon {
         void rebuild();
 
         void render();
-
-        ~Chunk() {
-            bgfx::destroy(vertex_buffer_);
-            bgfx::destroy(index_buffer_);
-        }
     private:
         static bgfx::VertexLayout layout_;
         static bgfx::ProgramHandle program_;

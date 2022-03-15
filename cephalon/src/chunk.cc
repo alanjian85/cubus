@@ -28,6 +28,11 @@ Chunk::Chunk()
     index_buffer_ = bgfx::createDynamicIndexBuffer(0u, BGFX_BUFFER_ALLOW_RESIZE);
 }
 
+Chunk::~Chunk() noexcept {
+    bgfx::destroy(vertex_buffer_);
+    bgfx::destroy(index_buffer_);
+}
+
 void Chunk::setBlock(Vec3i pos, const Block& block) {
     assert(pos.x >= 0 && pos.x < kChunkSize.x);
     assert(pos.y >= 0 && pos.y < kChunkSize.y);
