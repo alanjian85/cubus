@@ -66,6 +66,7 @@ Outline::Outline() {
     index_buffer_ = bgfx::createIndexBuffer(bgfx::copy(indices, sizeof(indices)));
 
     u_color_ = bgfx::createUniform("u_color", bgfx::UniformType::Vec4);
+    first_index_ = 0;
 }
 
 Outline::~Outline() noexcept {
@@ -75,7 +76,27 @@ Outline::~Outline() noexcept {
     bgfx::destroy(u_color_);
 }
 
-void Outline::update(Vec3i pos) {
+void Outline::update(bx::Vec3 playerPos, Vec3i pos) {
+    auto dir = bx::normalize(bx::sub(playerPos, pos));
+    if (std::abs(dir.x) > std::abs(dir.y) && std::abs(dir.x) > std::abs(dir.z)) {
+        if (dir.x > 0)
+            first_index_ = 0; // right
+        else
+            first_index_ = 6; // left
+    }
+    if (std::abs(dir.y) > std::abs(dir.x) && std::abs(dir.y) > std::abs(dir.z)) {
+        if (dir.y > 0)
+            first_index_ = 12; // top
+        else
+            first_index_ = 18; // bottom
+    }
+    if (std::abs(dir.z) > std::abs(dir.x) && std::abs(dir.z) > std::abs(dir.y)) {
+        if (dir.z > 0)
+            first_index_ = 24; // back
+        else
+            first_index_ = 30; // front
+    }
+
     bx::mtxTranslate(transform_, pos.x, pos.y, pos.z);
 }
 
@@ -91,6 +112,6 @@ void Outline::render() {
         BGFX_STATE_BLEND_FUNC(BGFX_STATE_BLEND_SRC_ALPHA, BGFX_STATE_BLEND_INV_SRC_ALPHA)
     );
     bgfx::setVertexBuffer(0, vertex_buffer_);
-    bgfx::setIndexBuffer(index_buffer_);
+    bgfx::setIndexBuffer(index_buffer_, first_index_, 6);
     bgfx::submit(0, program_);
 }

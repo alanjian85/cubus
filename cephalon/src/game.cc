@@ -35,7 +35,7 @@ void Game::update(float delta) {
             nearest = bx::length(bx::sub(bx::Vec3(pos.x, pos.y, pos.z), camera_.pos));
             intersect_pos_ = pos;
 
-            outline_.update(intersect_pos_);
+            outline_.update(camera_.pos, intersect_pos_);
         }
     }
 }

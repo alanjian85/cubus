@@ -37,6 +37,10 @@ namespace cephalon {
             return i == 0 ? x : i == 1 ? y : z;
         }
 
+        operator bx::Vec3() const {
+            return bx::Vec3(x, y, z);
+        }
+
         int x;
         int y;
         int z;            

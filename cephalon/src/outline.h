@@ -16,7 +16,7 @@ namespace cephalon {
 
         ~Outline();
 
-        void update(Vec3i pos);
+        void update(bx::Vec3 playerPos, Vec3i pos);
 
         void render();
     private:
@@ -26,6 +26,7 @@ namespace cephalon {
         bgfx::IndexBufferHandle index_buffer_;
 
         bgfx::UniformHandle u_color_;
+        std::uint32_t first_index_;
         float transform_[16];
     };
 }
