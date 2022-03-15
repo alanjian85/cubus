@@ -10,6 +10,7 @@
 #include "cephalon_config.h"
 #include "game.h"
 #include "input.h"
+#include "timer.h"
 using namespace cephalon;
 
 int main(int argc, char **argv) {
@@ -87,8 +88,8 @@ int main(int argc, char **argv) {
                 }
             }
 
-            float current_time = SDL_GetTicks() / 1000.0f;
-            float delta = current_time - last_time;
+            auto current_time = Timer::getTime();
+            auto delta = current_time - last_time;
             last_time = current_time;
 
             game.update(delta);

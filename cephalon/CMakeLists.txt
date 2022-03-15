@@ -19,6 +19,7 @@ set(CEPHALON_SRCS
     src/main.cc
     src/outline.h
     src/outline.cc
+    src/timer.h
     src/utils.cc
     src/utils.h
     src/world.cc

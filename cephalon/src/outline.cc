@@ -1,6 +1,8 @@
 #include "outline.h"
 using namespace cephalon;
 
+#include "timer.h"
+
 Outline::Outline() {
     program_ = LoadProgram("vs_outline", "fs_outline");
 
@@ -9,35 +11,35 @@ Outline::Outline() {
     .end();
 
     float vertices[] = {
-         0.51f, -0.51f, -0.51f,
-         0.51f, -0.51f,  0.51f,
-         0.51f,  0.51f, -0.51f,
-         0.51f,  0.51f,  0.51f,
+         0.525f, -0.525f, -0.525f,
+         0.525f, -0.525f,  0.525f,
+         0.525f,  0.525f, -0.525f,
+         0.525f,  0.525f,  0.525f,
 
-        -0.51f, -0.51f, -0.51f,
-        -0.51f, -0.51f,  0.51f,
-        -0.51f,  0.51f, -0.51f,
-        -0.51f,  0.51f,  0.51f,                       
+        -0.525f, -0.525f, -0.525f,
+        -0.525f, -0.525f,  0.525f,
+        -0.525f,  0.525f, -0.525f,
+        -0.525f,  0.525f,  0.525f,                       
 
-        -0.51f,  0.51f, -0.51f,
-        -0.51f,  0.51f,  0.51f,
-         0.51f,  0.51f, -0.51f,
-         0.51f,  0.51f,  0.51f,
+        -0.525f,  0.525f, -0.525f,
+        -0.525f,  0.525f,  0.525f,
+         0.525f,  0.525f, -0.525f,
+         0.525f,  0.525f,  0.525f,
 
-        -0.51f, -0.51f, -0.51f,
-        -0.51f, -0.51f,  0.51f,
-         0.51f, -0.51f, -0.51f,
-         0.51f, -0.51f,  0.51f,
+        -0.525f, -0.525f, -0.525f,
+        -0.525f, -0.525f,  0.525f,
+         0.525f, -0.525f, -0.525f,
+         0.525f, -0.525f,  0.525f,
 
-        -0.51f, -0.51f,  0.51f,
-        -0.51f,  0.51f,  0.51f,
-         0.51f, -0.51f,  0.51f,
-         0.51f,  0.51f,  0.51f,
+        -0.525f, -0.525f,  0.525f,
+        -0.525f,  0.525f,  0.525f,
+         0.525f, -0.525f,  0.525f,
+         0.525f,  0.525f,  0.525f,
 
-        -0.51f, -0.51f, -0.51f,
-        -0.51f,  0.51f, -0.51f,
-         0.51f, -0.51f, -0.51f,
-         0.51f,  0.51f, -0.51f
+        -0.525f, -0.525f, -0.525f,
+        -0.525f,  0.525f, -0.525f,
+         0.525f, -0.525f, -0.525f,
+         0.525f,  0.525f, -0.525f
     };
 
     std::uint16_t indices[] = {
@@ -62,12 +64,15 @@ Outline::Outline() {
 
     vertex_buffer_ = bgfx::createVertexBuffer(bgfx::copy(vertices, sizeof(vertices)), layout_);
     index_buffer_ = bgfx::createIndexBuffer(bgfx::copy(indices, sizeof(indices)));
+
+    u_color_ = bgfx::createUniform("u_color", bgfx::UniformType::Vec4);
 }
 
 Outline::~Outline() noexcept {
     bgfx::destroy(program_);
     bgfx::destroy(vertex_buffer_);
     bgfx::destroy(index_buffer_);
+    bgfx::destroy(u_color_);
 }
 
 void Outline::update(Vec3i pos) {
@@ -75,6 +80,10 @@ void Outline::update(Vec3i pos) {
 }
 
 void Outline::render() {
+    auto a = (std::sin(Timer::getTime() * 5) * 0.5f + 0.5f) * 0.8f;
+    float color[4] = { 1.0f, 1.0f, 1.0f, a };
+    bgfx::setUniform(u_color_, color);
+
     bgfx::setTransform(transform_);
     bgfx::setState(
         BGFX_STATE_WRITE_RGB       | 

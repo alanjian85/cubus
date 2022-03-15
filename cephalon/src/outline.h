@@ -24,6 +24,8 @@ namespace cephalon {
         bgfx::VertexLayout layout_;
         bgfx::VertexBufferHandle vertex_buffer_;
         bgfx::IndexBufferHandle index_buffer_;
+
+        bgfx::UniformHandle u_color_;
         float transform_[16];
     };
 }
