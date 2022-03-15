@@ -24,6 +24,7 @@ namespace cephalon {
     private:        
         bgfx::ProgramHandle chunks_program_;
         bgfx::ProgramHandle focus_program_;
+        bgfx::UniformHandle u_color_;
 
         bgfx::VertexLayout focus_layout_;
         bgfx::VertexBufferHandle focus_vertex_buffer_;

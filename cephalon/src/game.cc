@@ -9,7 +9,9 @@ Game::Game(int width, int height) {
     camera_.aspect = static_cast<float>(width) / height;
 
     chunks_program_ = LoadProgram("vs_chunks", "fs_chunks");
-    focus_program_ = LoadProgram("vs_outline", "fs_outline");
+    focus_program_ = LoadProgram("vs_focus", "fs_focus");
+
+    u_color_ = bgfx::createUniform("u_color", bgfx::UniformType::Vec4);
 
     focus_layout_.begin()
         .add(bgfx::Attrib::Position, 3, bgfx::AttribType::Float)
@@ -126,6 +128,10 @@ void Game::render() {
     world_.render(chunks_program_);
 
     if (focus_) {
+        auto t = SDL_GetTicks() / 1000.0f;
+        float color[4] = { 1.0f, 1.0f, 1.0f, std::sin(t * 5.0f) * 0.5f + 0.5f };
+        bgfx::setUniform(u_color_, color);
+
         float transform[16];
         bx::mtxSRT(transform,
             1.001f, 1.001f, 1.001f,
