@@ -30,12 +30,14 @@ void Game::update(float delta) {
     auto nearest = Config::kDestroyDistance;
     intersect_ = false;
     for (auto [pos, bounding_box] : bounding_boxes) {
-        if (auto dir = bounding_box.intersect(camera_.pos, camera_.dir, 0.1f, nearest)) {
+        auto dir = bounding_box.intersect(camera_.pos, camera_.dir, 0.1f, nearest);
+        if (dir) {
             intersect_ = true;
             nearest = bx::length(bx::sub(bx::Vec3(pos.x, pos.y, pos.z), camera_.pos));
             intersect_pos_ = pos;
+            intersect_dir_ = *dir;
 
-            outline_.update(intersect_pos_, *dir);
+            outline_.update(intersect_pos_, intersect_dir_);
         }
     }
 }
@@ -58,6 +60,34 @@ void Game::onCursorMove(float relative_x, float relative_y) {
 void Game::onMouseLeftClick() {
     if (intersect_) {
         world_.setBlock(intersect_pos_, blocks::kAir);
+    }
+}
+
+void Game::onMouseRightClick() {
+    Vec3i place_pos;
+    switch (intersect_dir_) {
+        case Direction::kRight:
+            place_pos = intersect_pos_ + Vec3i( 1,  0,  0);
+            break;
+        case Direction::kLeft:
+            place_pos = intersect_pos_ + Vec3i(-1,  0,  0);
+            break;
+        case Direction::kTop:
+            place_pos = intersect_pos_ + Vec3i( 0,  1,  0);
+            break;
+        case Direction::kBottom:
+            place_pos = intersect_pos_ + Vec3i( 0, -1,  0);
+            break;
+        case Direction::kBack:
+            place_pos = intersect_pos_ + Vec3i( 0,  0,  1);
+            break;
+        case Direction::kFront:
+            place_pos = intersect_pos_ + Vec3i( 0,  0, -1);
+            break;
+    }
+
+    if (&world_.getBlock(place_pos) == &blocks::kAir) {
+        world_.setBlock(place_pos, blocks::kStone);
     }
 }
 

@@ -19,10 +19,13 @@ namespace cephalon {
 
         void onMouseLeftClick();
 
+        void onMouseRightClick();
+
         void render();
     private:
         bool intersect_;
         Vec3i intersect_pos_;
+        Direction intersect_dir_;
         Outline outline_;
 
         World world_;

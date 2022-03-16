@@ -85,6 +85,8 @@ int main(int argc, char **argv) {
                     case SDL_MOUSEBUTTONDOWN:
                         if (event.button.button == SDL_BUTTON_LEFT)
                             game.onMouseLeftClick();
+                        if (event.button.button == SDL_BUTTON_RIGHT)
+                            game.onMouseRightClick();
                 }
             }
 
