@@ -17,7 +17,7 @@ namespace cephalon {
     class World {
     public:
         static glm::ivec3 getRegion(glm::ivec3 pos) {
-            return glm::floor(glm::vec3(pos)) / glm::vec3(Chunk::kVolume);
+            return glm::floor(glm::vec3(pos) / glm::vec3(Chunk::kVolume));
         }
 
         static glm::ivec3 getChunkPos(glm::ivec3 pos) {
