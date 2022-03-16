@@ -6,15 +6,15 @@
 #include <vector>
 
 #include <bgfx/bgfx.h>
-#include <bx/math.h>
+#include <glm/glm.hpp>
 
 #include "blocks/block.h"
 #include "utils.h"
 
 namespace cephalon {
     struct Vertex {
-        bx::Vec3 pos;
-        bx::Vec3 normal;
+        glm::vec3 pos;
+        glm::vec3 normal;
         std::uint32_t agbr;
     };
 
@@ -24,7 +24,7 @@ namespace cephalon {
         
         static void cleanup();
 
-        static constexpr Vec3i kChunkSize = { 16, 256, 16 };
+        static constexpr glm::ivec3 kVolume = { 16, 256, 16 };
 
         Chunk();
 
@@ -34,9 +34,9 @@ namespace cephalon {
 
         ~Chunk() noexcept;
 
-        void setBlock(Vec3i pos, const Block& block);
+        void setBlock(glm::ivec3 pos, const Block& block);
 
-        const Block& getBlock(Vec3i pos) const;
+        const Block& getBlock(glm::ivec3 pos) const;
 
         bool isDirty() const {
             return dirty_;

@@ -17,8 +17,8 @@ namespace cephalon {
 
         virtual std::uint32_t getColor() const = 0;
 
-        virtual AABB getBoundingBox(Vec3i pos) const {
-            return AABB(bx::sub(pos, bx::Vec3(0.5f)), bx::add(pos, bx::Vec3(0.5f)));
+        virtual AABB getBoundingBox(glm::ivec3 pos) const {
+            return AABB(glm::vec3(pos) - 0.5f, glm::vec3(pos) + 0.5f);
         }
     };
 }

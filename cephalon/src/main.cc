@@ -21,7 +21,7 @@ int main(int argc, char **argv) {
     SDL_Window* window = SDL_CreateWindow(
         fmt::format("Cephalon {}.{}.{}", CEPHALON_VERSION_MAJOR, CEPHALON_VERSION_MINOR, CEPHALON_VERSION_PATCH).c_str(),
         SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 
-        width, height, 
+        width, height,
         SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE
     );
 

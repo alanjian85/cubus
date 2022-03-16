@@ -2,9 +2,9 @@
 #define CEPHALON_OUTLINE_H_
 
 #include <bgfx/bgfx.h>
+#include <glm/glm.hpp>
 
 #include "aabb.h"
-#include "utils.h"
 
 namespace cephalon {
     class Outline {
@@ -17,7 +17,7 @@ namespace cephalon {
 
         ~Outline();
 
-        void update(Vec3i pos, Direction dir);
+        void update(glm::ivec3 pos, Direction dir);
 
         void render();
     private:
@@ -28,7 +28,7 @@ namespace cephalon {
 
         bgfx::UniformHandle u_color_;
         std::uint32_t first_index_;
-        float transform_[16];
+        glm::mat4 transform_;
     };
 }
 

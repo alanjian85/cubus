@@ -1,7 +1,11 @@
 #include "outline.h"
 using namespace cephalon;
 
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
 #include "timer.h"
+#include "utils.h"
 
 Outline::Outline() {
     program_ = LoadProgram("vs_outline", "fs_outline");
@@ -76,7 +80,7 @@ Outline::~Outline() noexcept {
     bgfx::destroy(u_color_);
 }
 
-void Outline::update(Vec3i pos, Direction dir) {
+void Outline::update(glm::ivec3 pos, Direction dir) {
     switch (dir) {
         case Direction::kRight:
             first_index_ = 0;
@@ -98,7 +102,7 @@ void Outline::update(Vec3i pos, Direction dir) {
             break;
     }
 
-    bx::mtxTranslate(transform_, pos.x, pos.y, pos.z);
+    transform_ = glm::translate(glm::mat4(1.0f), glm::vec3(pos));
 }
 
 void Outline::render() {
@@ -106,7 +110,7 @@ void Outline::render() {
     float color[4] = { 1.0f, 1.0f, 1.0f, a };
     bgfx::setUniform(u_color_, color);
 
-    bgfx::setTransform(transform_);
+    bgfx::setTransform(glm::value_ptr(transform_));
     bgfx::setState(
         BGFX_STATE_WRITE_RGB       | 
         BGFX_STATE_DEPTH_TEST_LESS |

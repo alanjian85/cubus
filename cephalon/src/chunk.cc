@@ -24,7 +24,7 @@ void Chunk::cleanup() {
 Chunk::Chunk()
 {
     dirty_ = false;
-    blocks_.resize(kChunkSize.x * kChunkSize.y * kChunkSize.z, &blocks::kAir);
+    blocks_.resize(kVolume.x * kVolume.y * kVolume.z, &blocks::kAir);
     vertex_buffer_ = bgfx::createDynamicVertexBuffer(0u, layout_, BGFX_BUFFER_ALLOW_RESIZE);
     index_buffer_ = bgfx::createDynamicIndexBuffer(0u, BGFX_BUFFER_ALLOW_RESIZE);
 }
@@ -34,42 +34,42 @@ Chunk::~Chunk() noexcept {
     bgfx::destroy(index_buffer_);
 }
 
-void Chunk::setBlock(Vec3i pos, const Block& block) {
-    assert(pos.x >= 0 && pos.x < kChunkSize.x);
-    assert(pos.y >= 0 && pos.y < kChunkSize.y);
-    assert(pos.z >= 0 && pos.z < kChunkSize.z);
-    auto index = pos.z * kChunkSize.x * kChunkSize.y + pos.y * kChunkSize.x + pos.x;
+void Chunk::setBlock(glm::ivec3 pos, const Block& block) {
+    assert(pos.x >= 0 && pos.x < kVolume.x);
+    assert(pos.y >= 0 && pos.y < kVolume.y);
+    assert(pos.z >= 0 && pos.z < kVolume.z);
+    auto index = pos.z * kVolume.x * kVolume.y + pos.y * kVolume.x + pos.x;
     if (blocks_[index] != &block) {
         dirty_ = true;
         blocks_[index] = &block;
     }
 }
 
-const Block& Chunk::getBlock(Vec3i pos) const {
-    assert(pos.x >= 0 && pos.x < kChunkSize.x);
-    assert(pos.y >= 0 && pos.y < kChunkSize.y);
-    assert(pos.z >= 0 && pos.z < kChunkSize.z);
-    return *blocks_[pos.z * kChunkSize.x * kChunkSize.y + pos.y * kChunkSize.x + pos.x];
+const Block& Chunk::getBlock(glm::ivec3 pos) const {
+    assert(pos.x >= 0 && pos.x < kVolume.x);
+    assert(pos.y >= 0 && pos.y < kVolume.y);
+    assert(pos.z >= 0 && pos.z < kVolume.z);
+    return *blocks_[pos.z * kVolume.x * kVolume.y + pos.y * kVolume.x + pos.x];
 }
 
 void Chunk::rebuild() {
     std::vector<Vertex> vertices;
     std::vector<std::uint16_t> indices;
 
-    for (int x = 0; x < kChunkSize.x; ++x) {
-        for (int y = 0; y < kChunkSize.y; ++y) {
-            for (int z = 0; z < kChunkSize.z; ++z) {
-                auto& block = getBlock(Vec3i(x, y, z));
+    for (int x = 0; x < kVolume.x; ++x) {
+        for (int y = 0; y < kVolume.y; ++y) {
+            for (int z = 0; z < kVolume.z; ++z) {
+                auto& block = getBlock(glm::ivec3(x, y, z));
                 if (!block.isAir()) {
                     auto color = block.getColor();
 
                     // right
-                    if (x == kChunkSize.x - 1 || getBlock(Vec3i(x + 1, y, z)).isAir()) {
+                    if (x == kVolume.x - 1 || getBlock(glm::ivec3(x + 1, y, z)).isAir()) {
                         Vertex block_vertices[] = {
-                            { bx::Vec3(x + 0.5f, y - 0.5f, z - 0.5f), bx::Vec3( 1.0f,  0.0f,  0.0f), color },
-                            { bx::Vec3(x + 0.5f, y - 0.5f, z + 0.5f), bx::Vec3( 1.0f,  0.0f,  0.0f), color },
-                            { bx::Vec3(x + 0.5f, y + 0.5f, z - 0.5f), bx::Vec3( 1.0f,  0.0f,  0.0f), color },
-                            { bx::Vec3(x + 0.5f, y + 0.5f, z + 0.5f), bx::Vec3( 1.0f,  0.0f,  0.0f), color }
+                            { glm::vec3(x + 0.5f, y - 0.5f, z - 0.5f), glm::vec3( 1.0f,  0.0f,  0.0f), color },
+                            { glm::vec3(x + 0.5f, y - 0.5f, z + 0.5f), glm::vec3( 1.0f,  0.0f,  0.0f), color },
+                            { glm::vec3(x + 0.5f, y + 0.5f, z - 0.5f), glm::vec3( 1.0f,  0.0f,  0.0f), color },
+                            { glm::vec3(x + 0.5f, y + 0.5f, z + 0.5f), glm::vec3( 1.0f,  0.0f,  0.0f), color }
                         };
 
                         auto index_base = static_cast<int>(vertices.size());
@@ -83,12 +83,12 @@ void Chunk::rebuild() {
                     }
 
                     // left
-                    if (x == 0 || getBlock(Vec3i(x - 1, y, z)).isAir()) {
+                    if (x == 0 || getBlock(glm::ivec3(x - 1, y, z)).isAir()) {
                         Vertex block_vertices[] = {
-                            { bx::Vec3(x - 0.5f, y - 0.5f, z - 0.5f), bx::Vec3(-1.0f,  0.0f,  0.0f), color },
-                            { bx::Vec3(x - 0.5f, y - 0.5f, z + 0.5f), bx::Vec3(-1.0f,  0.0f,  0.0f), color },
-                            { bx::Vec3(x - 0.5f, y + 0.5f, z - 0.5f), bx::Vec3(-1.0f,  0.0f,  0.0f), color },
-                            { bx::Vec3(x - 0.5f, y + 0.5f, z + 0.5f), bx::Vec3(-1.0f,  0.0f,  0.0f), color }
+                            { glm::vec3(x - 0.5f, y - 0.5f, z - 0.5f), glm::vec3(-1.0f,  0.0f,  0.0f), color },
+                            { glm::vec3(x - 0.5f, y - 0.5f, z + 0.5f), glm::vec3(-1.0f,  0.0f,  0.0f), color },
+                            { glm::vec3(x - 0.5f, y + 0.5f, z - 0.5f), glm::vec3(-1.0f,  0.0f,  0.0f), color },
+                            { glm::vec3(x - 0.5f, y + 0.5f, z + 0.5f), glm::vec3(-1.0f,  0.0f,  0.0f), color }
                         };
 
                         auto index_base = static_cast<int>(vertices.size());
@@ -102,12 +102,12 @@ void Chunk::rebuild() {
                     }
 
                     // top
-                    if (y == kChunkSize.y - 1 || getBlock(Vec3i(x, y + 1, z)).isAir()) {
+                    if (y == kVolume.y - 1 || getBlock(glm::ivec3(x, y + 1, z)).isAir()) {
                         Vertex block_vertices[] = {
-                            { bx::Vec3(x - 0.5f, y + 0.5f, z - 0.5f), bx::Vec3( 0.0f,  1.0f,  0.0f), color },
-                            { bx::Vec3(x - 0.5f, y + 0.5f, z + 0.5f), bx::Vec3( 0.0f,  1.0f,  0.0f), color },
-                            { bx::Vec3(x + 0.5f, y + 0.5f, z - 0.5f), bx::Vec3( 0.0f,  1.0f,  0.0f), color },
-                            { bx::Vec3(x + 0.5f, y + 0.5f, z + 0.5f), bx::Vec3( 0.0f,  1.0f,  0.0f), color }
+                            { glm::vec3(x - 0.5f, y + 0.5f, z - 0.5f), glm::vec3( 0.0f,  1.0f,  0.0f), color },
+                            { glm::vec3(x - 0.5f, y + 0.5f, z + 0.5f), glm::vec3( 0.0f,  1.0f,  0.0f), color },
+                            { glm::vec3(x + 0.5f, y + 0.5f, z - 0.5f), glm::vec3( 0.0f,  1.0f,  0.0f), color },
+                            { glm::vec3(x + 0.5f, y + 0.5f, z + 0.5f), glm::vec3( 0.0f,  1.0f,  0.0f), color }
                         };
 
                         auto index_base = static_cast<int>(vertices.size());
@@ -121,12 +121,12 @@ void Chunk::rebuild() {
                     }
 
                     // bottom
-                    if (y == 0 || getBlock(Vec3i(x, y - 1, z)).isAir()) {
+                    if (y == 0 || getBlock(glm::ivec3(x, y - 1, z)).isAir()) {
                         Vertex block_vertices[] = {
-                            { bx::Vec3(x - 0.5f, y - 0.5f, z - 0.5f), bx::Vec3( 0.0f, -1.0f,  0.0f), color },
-                            { bx::Vec3(x - 0.5f, y - 0.5f, z + 0.5f), bx::Vec3( 0.0f, -1.0f,  0.0f), color },
-                            { bx::Vec3(x + 0.5f, y - 0.5f, z - 0.5f), bx::Vec3( 0.0f, -1.0f,  0.0f), color },
-                            { bx::Vec3(x + 0.5f, y - 0.5f, z + 0.5f), bx::Vec3( 0.0f, -1.0f,  0.0f), color }
+                            { glm::vec3(x - 0.5f, y - 0.5f, z - 0.5f), glm::vec3( 0.0f, -1.0f,  0.0f), color },
+                            { glm::vec3(x - 0.5f, y - 0.5f, z + 0.5f), glm::vec3( 0.0f, -1.0f,  0.0f), color },
+                            { glm::vec3(x + 0.5f, y - 0.5f, z - 0.5f), glm::vec3( 0.0f, -1.0f,  0.0f), color },
+                            { glm::vec3(x + 0.5f, y - 0.5f, z + 0.5f), glm::vec3( 0.0f, -1.0f,  0.0f), color }
                         };
 
                         auto index_base = static_cast<int>(vertices.size());
@@ -140,12 +140,12 @@ void Chunk::rebuild() {
                     }
 
                     // back
-                    if (z == kChunkSize.z - 1 || getBlock(Vec3i(x, y, z + 1)).isAir()) {
+                    if (z == kVolume.z - 1 || getBlock(glm::ivec3(x, y, z + 1)).isAir()) {
                         Vertex block_vertices[] = {
-                            { bx::Vec3(x - 0.5f, y - 0.5f, z + 0.5f), bx::Vec3( 0.0f,  0.0f,  1.0f), color },
-                            { bx::Vec3(x - 0.5f, y + 0.5f, z + 0.5f), bx::Vec3( 0.0f,  0.0f,  1.0f), color },
-                            { bx::Vec3(x + 0.5f, y - 0.5f, z + 0.5f), bx::Vec3( 0.0f,  0.0f,  1.0f), color },
-                            { bx::Vec3(x + 0.5f, y + 0.5f, z + 0.5f), bx::Vec3( 0.0f,  0.0f,  1.0f), color }
+                            { glm::vec3(x - 0.5f, y - 0.5f, z + 0.5f), glm::vec3( 0.0f,  0.0f,  1.0f), color },
+                            { glm::vec3(x - 0.5f, y + 0.5f, z + 0.5f), glm::vec3( 0.0f,  0.0f,  1.0f), color },
+                            { glm::vec3(x + 0.5f, y - 0.5f, z + 0.5f), glm::vec3( 0.0f,  0.0f,  1.0f), color },
+                            { glm::vec3(x + 0.5f, y + 0.5f, z + 0.5f), glm::vec3( 0.0f,  0.0f,  1.0f), color }
                         };
 
                         auto index_base = static_cast<int>(vertices.size());
@@ -159,12 +159,12 @@ void Chunk::rebuild() {
                     }
 
                     // front
-                    if (z == 0 || getBlock(Vec3i(x, y, z - 1)).isAir()) {
+                    if (z == 0 || getBlock(glm::ivec3(x, y, z - 1)).isAir()) {
                         Vertex block_vertices[] = {
-                            { bx::Vec3(x - 0.5f, y - 0.5f, z - 0.5f), bx::Vec3( 0.0f,  0.0f, -1.0f), color },
-                            { bx::Vec3(x - 0.5f, y + 0.5f, z - 0.5f), bx::Vec3( 0.0f,  0.0f, -1.0f), color },
-                            { bx::Vec3(x + 0.5f, y - 0.5f, z - 0.5f), bx::Vec3( 0.0f,  0.0f, -1.0f), color },
-                            { bx::Vec3(x + 0.5f, y + 0.5f, z - 0.5f), bx::Vec3( 0.0f,  0.0f, -1.0f), color }
+                            { glm::vec3(x - 0.5f, y - 0.5f, z - 0.5f), glm::vec3( 0.0f,  0.0f, -1.0f), color },
+                            { glm::vec3(x - 0.5f, y + 0.5f, z - 0.5f), glm::vec3( 0.0f,  0.0f, -1.0f), color },
+                            { glm::vec3(x + 0.5f, y - 0.5f, z - 0.5f), glm::vec3( 0.0f,  0.0f, -1.0f), color },
+                            { glm::vec3(x + 0.5f, y + 0.5f, z - 0.5f), glm::vec3( 0.0f,  0.0f, -1.0f), color }
                         };
 
                         auto index_base = static_cast<int>(vertices.size());

@@ -3,7 +3,7 @@
 
 #include <optional>
 
-#include "utils.h"
+#include <glm/glm.hpp>
 
 namespace cephalon {
     enum class Direction {
@@ -17,20 +17,17 @@ namespace cephalon {
 
     struct AABB {
         AABB() = default;
-        AABB(bx::Vec3 min_, bx::Vec3 max_)
+        AABB(glm::vec3 min_, glm::vec3 max_)
             : min(min_), max(max_)
         {
 
         }
 
-        bx::Vec3 min;
-        bx::Vec3 max;
-
-        std::optional<Direction> intersect(bx::Vec3 pos, bx::Vec3 dir, float t_min, float t_max) const {
+        std::optional<Direction> intersect(glm::vec3 pos, glm::vec3 dir, float t_min, float t_max) const {
             for (int i = 0; i < 3; ++i) {
-                auto invd = 1.0f / get(dir, i);
-                auto t0 = (get(min, i) - get(pos, i)) * invd;
-                auto t1 = (get(max, i) - get(pos, i)) * invd;
+                auto invd = 1.0f / dir[i];
+                auto t0 = (min[i] - pos[i]) * invd;
+                auto t1 = (max[i] - pos[i]) * invd;
                 if (invd < 0.0f)
                     std::swap(t0, t1);
                 t_min = t0 > t_min ? t0 : t_min;
@@ -39,7 +36,7 @@ namespace cephalon {
                     return std::nullopt;
             }
             
-            auto point = bx::sub(bx::add(pos, bx::mul(dir, t_min)), bx::div(bx::add(min, max), 2.0f));
+            auto point = pos + dir * t_min - (min + max) / 2.0f;
             if (std::abs(point.x) > std::abs(point.y) && std::abs(point.x) > std::abs(point.z)) {
                 if (point.x > 0)
                     return Direction::kRight;
@@ -59,6 +56,9 @@ namespace cephalon {
                     return Direction::kFront;
             }
         }
+
+        glm::vec3 min;
+        glm::vec3 max;
     };
 }
 

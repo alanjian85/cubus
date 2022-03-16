@@ -1,8 +1,11 @@
 #include "world.h"
 using namespace cephalon;
 
-void World::update(bx::Vec3 playerPos) {
-    auto playerRegion = getRegion(Vec3i(playerPos));
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
+void World::update(glm::vec3 playerPos) {
+    auto playerRegion = getRegion(glm::ivec3(playerPos));
 
     for (auto i = chunks_.begin(); i != chunks_.end();) {
         auto& [region, chunk] = *i;
@@ -18,9 +21,9 @@ void World::update(bx::Vec3 playerPos) {
     int loadCount = 0;
     for (auto x = playerRegion.x - Config::kViewDistance; x <= playerRegion.x + Config::kViewDistance; ++x) {
         for (auto z = playerRegion.z - Config::kViewDistance; z <= playerRegion.z + Config::kViewDistance; ++z) {
-            if (loadCount < Config::kChunkLoadLimit && chunks_.find(Vec3i(x, 0, z)) == chunks_.cend())
+            if (loadCount < Config::kChunkLoadLimit && chunks_.find(glm::ivec3(x, 0, z)) == chunks_.cend())
             {
-                loadChunk(Vec3i(x, 0, z), chunks_[Vec3i(x, 0, z)]);
+                loadChunk(glm::ivec3(x, 0, z), chunks_[glm::ivec3(x, 0, z)]);
                 ++loadCount;
             }
         }
@@ -30,9 +33,8 @@ void World::update(bx::Vec3 playerPos) {
 void World::render() {
     int rebuildCount = 0;
     for (auto& [pos, chunk] : chunks_) {
-        float transform[16];
-        bx::mtxTranslate(transform, pos.x * Chunk::kChunkSize.x, 0, pos.z * Chunk::kChunkSize.z);
-        bgfx::setTransform(transform);
+        auto transform = glm::translate(glm::mat4(1.0f), glm::vec3(pos * Chunk::kVolume));
+        bgfx::setTransform(glm::value_ptr(transform));
         if (chunk.isDirty() && rebuildCount < Config::kChunkRebuildLimit) {
             chunk.rebuild();
             ++rebuildCount;
@@ -41,29 +43,29 @@ void World::render() {
     }
 }
 
-std::vector<std::pair<Vec3i, AABB>> World::getBoundingBoxes(AABB range) {
+std::vector<std::pair<glm::ivec3, AABB>> World::getBoundingBoxes(AABB range) {
     range.min.y = std::max<float>(range.min.y, 0.0f);
-    range.max.y = std::min<float>(range.max.y, Chunk::kChunkSize.y);
+    range.max.y = std::min<float>(range.max.y, Chunk::kVolume.y);
 
-    std::vector<std::pair<Vec3i, AABB>> result;
+    std::vector<std::pair<glm::ivec3, AABB>> result;
     for (auto x = range.min.x; x <= range.max.x; ++x) {
         for (auto y = range.min.y; y <= range.max.y; ++y) {
             for (auto z = range.min.z; z <= range.max.z; ++z) {
-                auto& block = getBlock(Vec3i(x, y, z));
+                auto& block = getBlock(glm::ivec3(x, y, z));
                 if (!block.isAir())
-                    result.emplace_back(Vec3i(x, y, z), block.getBoundingBox(Vec3i(x, y, z)));
+                    result.emplace_back(glm::ivec3(x, y, z), block.getBoundingBox(glm::ivec3(x, y, z)));
             }
         }
     }
     return result;
 }
 
-void World::loadChunk(Vec3i region, Chunk& chunk) {
-    for (int x = 0; x < Chunk::kChunkSize.x; ++x) {
-        for (int y = 0; y < Chunk::kChunkSize.y; ++y) {
-            for (int z = 0; z < Chunk::kChunkSize.z; ++z) {
-                auto pos = region * Chunk::kChunkSize + Vec3i(x, y, z);
-                chunk.setBlock(Vec3i(x, y, z), generator_(Vec3i(x, y, z)));
+void World::loadChunk(glm::ivec3 region, Chunk& chunk) {
+    for (int x = 0; x < Chunk::kVolume.x; ++x) {
+        for (int y = 0; y < Chunk::kVolume.y; ++y) {
+            for (int z = 0; z < Chunk::kVolume.z; ++z) {
+                auto pos = region * Chunk::kVolume + glm::ivec3(x, y, z);
+                chunk.setBlock(glm::ivec3(x, y, z), generator_(glm::ivec3(x, y, z)));
             }
         }
     }

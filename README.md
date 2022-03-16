@@ -2,6 +2,7 @@
 A Minecraft-like voxel game written in C++
 
 ## Dependencies
-* [SDL2](https://www.libsdl.org/index.php)
-* [bgfx](https://github.com/bkaradzic/bgfx)
+* [bgfx](https://bkaradzic.github.io/bgfx/index.html)
 * [{fmt}](https://github.com/fmtlib/fmt)
+* [GLM](https://glm.g-truc.net/)
+* [SDL2](https://www.libsdl.org/index.php)

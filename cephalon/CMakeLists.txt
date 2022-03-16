@@ -38,15 +38,21 @@ add_bgfx_shader(cephalon ${CEPHALON_SHADERS})
 find_package(SDL2 REQUIRED)
 find_package(bgfx REQUIRED)
 find_package(fmt REQUIRED)
+find_package(glm REQUIRED)
 
 target_link_libraries(cephalon
     ${SDL2_LIBRARIES}
     bgfx::bgfx
     fmt::fmt
+    glm::glm
 )
 
 target_include_directories(cephalon PRIVATE
     src
     ${CMAKE_CURRENT_BINARY_DIR}
     ${SDL2_INCLUDE_DIRS}
+)
+
+target_compile_definitions(cephalon PRIVATE
+    GLM_FORCE_LEFT_HANDED
 )

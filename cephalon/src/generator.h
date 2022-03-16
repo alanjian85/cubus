@@ -1,13 +1,14 @@
 #ifndef CEPHALON_GENERATOR_H_
 #define CEPHALON_GENERATOR_H_
 
+#include <glm/glm.hpp>
+
 #include "blocks/block.h"
-#include "utils.h"
 
 namespace cephalon {
     class Generator {
     public:
-        const Block& operator()(Vec3i pos) const {
+        const Block& operator()(glm::ivec3 pos) const {
             if (pos.y == 0)
                 return blocks::kStone;
             if (pos.y >= 1 && pos.y <= 4)

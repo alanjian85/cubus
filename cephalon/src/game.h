@@ -3,6 +3,8 @@
 
 #include <memory>
 
+#include <glm/glm.hpp>
+
 #include "camera.h"
 #include "outline.h"
 #include "utils.h"
@@ -24,7 +26,7 @@ namespace cephalon {
         void render();
     private:
         bool intersect_;
-        Vec3i intersect_pos_;
+        glm::ivec3 intersect_pos_;
         Direction intersect_dir_;
         Outline outline_;
 
