@@ -18,7 +18,7 @@ namespace cephalon {
         virtual std::uint32_t getColor() const = 0;
 
         virtual AABB getBoundingBox(Vec3i pos) const {
-            return AABB(pos, pos + Vec3i(1, 1, 1));
+            return AABB(bx::sub(pos, bx::Vec3(0.5f)), bx::add(pos, bx::Vec3(0.5f)));
         }
     };
 }
@@ -27,6 +27,7 @@ namespace cephalon {
 #include "dirt.h"
 #include "grass.h"
 #include "stone.h"
+#include "wood.h"
 
 namespace cephalon {
     namespace blocks {
@@ -34,6 +35,7 @@ namespace cephalon {
         extern const Dirt kDirt;
         extern const Grass kGrass;
         extern const Stone kStone;
+        extern const Wood kWood;
     }
 }
 

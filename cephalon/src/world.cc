@@ -42,8 +42,8 @@ void World::render() {
 }
 
 std::vector<std::pair<Vec3i, AABB>> World::getBoundingBoxes(AABB range) {
-    range.min.y = std::max(range.min.y, 0);
-    range.max.y = std::min(range.max.y, Chunk::kChunkSize.y);
+    range.min.y = std::max<float>(range.min.y, 0.0f);
+    range.max.y = std::min<float>(range.max.y, Chunk::kChunkSize.y);
 
     std::vector<std::pair<Vec3i, AABB>> result;
     for (auto x = range.min.x; x <= range.max.x; ++x) {

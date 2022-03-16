@@ -5,3 +5,4 @@ const Air blocks::kAir;
 const Dirt blocks::kDirt;
 const Grass blocks::kGrass;
 const Stone blocks::kStone;
+const Wood blocks::kWood;

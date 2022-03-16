@@ -87,7 +87,7 @@ void Game::onMouseRightClick() {
     }
 
     if (&world_.getBlock(place_pos) == &blocks::kAir) {
-        world_.setBlock(place_pos, blocks::kStone);
+        world_.setBlock(place_pos, blocks::kWood);
     }
 }
 

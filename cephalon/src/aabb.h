@@ -17,19 +17,20 @@ namespace cephalon {
 
     struct AABB {
         AABB() = default;
-        AABB(Vec3i min_, Vec3i max_) {
-            min = min_;
-            max = max_;
+        AABB(bx::Vec3 min_, bx::Vec3 max_)
+            : min(min_), max(max_)
+        {
+
         }
 
-        Vec3i min;
-        Vec3i max;
+        bx::Vec3 min;
+        bx::Vec3 max;
 
         std::optional<Direction> intersect(bx::Vec3 pos, bx::Vec3 dir, float t_min, float t_max) const {
             for (int i = 0; i < 3; ++i) {
                 auto invd = 1.0f / get(dir, i);
-                auto t0 = (min[i] - get(pos, i)) * invd;
-                auto t1 = (max[i] - get(pos, i)) * invd;
+                auto t0 = (get(min, i) - get(pos, i)) * invd;
+                auto t1 = (get(max, i) - get(pos, i)) * invd;
                 if (invd < 0.0f)
                     std::swap(t0, t1);
                 t_min = t0 > t_min ? t0 : t_min;
