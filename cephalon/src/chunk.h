@@ -14,6 +14,7 @@
 namespace cephalon {
     struct Vertex {
         bx::Vec3 pos;
+        bx::Vec3 normal;
         std::uint32_t agbr;
     };
 
