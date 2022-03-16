@@ -2,7 +2,7 @@
 using namespace cephalon;
 
 void World::update(bx::Vec3 playerPos) {
-    auto playerRegion = getRegion(playerPos);
+    auto playerRegion = getRegion(Vec3i(playerPos));
 
     for (auto i = chunks_.begin(); i != chunks_.end();) {
         auto& [region, chunk] = *i;

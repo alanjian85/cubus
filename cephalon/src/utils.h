@@ -15,7 +15,7 @@ namespace cephalon {
     struct Vec3i {
         Vec3i() = default;
 
-        constexpr Vec3i(int i)
+        explicit constexpr Vec3i(int i)
             : x(i), y(i), z(i)
         {
 
@@ -27,7 +27,7 @@ namespace cephalon {
 
         }
 
-        Vec3i(bx::Vec3 vec) {
+        explicit Vec3i(bx::Vec3 vec) {
             x = vec.x;
             y = vec.y;
             z = vec.z;

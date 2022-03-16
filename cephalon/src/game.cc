@@ -24,8 +24,8 @@ void Game::update(float delta) {
     world_.update(camera_.pos);
 
     auto bounding_boxes = world_.getBoundingBoxes(AABB(
-        camera_.pos - Vec3i(Config::kDestroyDistance),
-        camera_.pos + Vec3i(Config::kDestroyDistance)
+        Vec3i(camera_.pos) - Vec3i(Config::kDestroyDistance),
+        Vec3i(camera_.pos) + Vec3i(Config::kDestroyDistance)
     ));
     auto nearest = Config::kDestroyDistance;
     intersect_ = false;
