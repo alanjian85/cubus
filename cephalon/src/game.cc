@@ -30,12 +30,12 @@ void Game::update(float delta) {
     auto nearest = Config::kDestroyDistance;
     intersect_ = false;
     for (auto [pos, bounding_box] : bounding_boxes) {
-        if (bounding_box.intersect(camera_.pos, camera_.dir, 0.1f, nearest)) {
+        if (auto dir = bounding_box.intersect(camera_.pos, camera_.dir, 0.1f, nearest)) {
             intersect_ = true;
             nearest = bx::length(bx::sub(bx::Vec3(pos.x, pos.y, pos.z), camera_.pos));
             intersect_pos_ = pos;
 
-            outline_.update(camera_.pos, intersect_pos_);
+            outline_.update(intersect_pos_, *dir);
         }
     }
 }

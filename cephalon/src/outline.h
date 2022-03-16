@@ -3,6 +3,7 @@
 
 #include <bgfx/bgfx.h>
 
+#include "aabb.h"
 #include "utils.h"
 
 namespace cephalon {
@@ -16,7 +17,7 @@ namespace cephalon {
 
         ~Outline();
 
-        void update(bx::Vec3 playerPos, Vec3i pos);
+        void update(Vec3i pos, Direction dir);
 
         void render();
     private:

@@ -76,32 +76,33 @@ Outline::~Outline() noexcept {
     bgfx::destroy(u_color_);
 }
 
-void Outline::update(bx::Vec3 playerPos, Vec3i pos) {
-    auto dir = bx::normalize(bx::sub(playerPos, pos));
-    if (std::abs(dir.x) > std::abs(dir.y) && std::abs(dir.x) > std::abs(dir.z)) {
-        if (dir.x > 0)
-            first_index_ = 0; // right
-        else
-            first_index_ = 6; // left
-    }
-    if (std::abs(dir.y) > std::abs(dir.x) && std::abs(dir.y) > std::abs(dir.z)) {
-        if (dir.y > 0)
-            first_index_ = 12; // top
-        else
-            first_index_ = 18; // bottom
-    }
-    if (std::abs(dir.z) > std::abs(dir.x) && std::abs(dir.z) > std::abs(dir.y)) {
-        if (dir.z > 0)
-            first_index_ = 24; // back
-        else
-            first_index_ = 30; // front
+void Outline::update(Vec3i pos, Direction dir) {
+    switch (dir) {
+        case Direction::kRight:
+            first_index_ = 0;
+            break;
+        case Direction::kLeft:
+            first_index_ = 6;
+            break;
+        case Direction::kTop:
+            first_index_ = 12;
+            break;
+        case Direction::kBottom:
+            first_index_ = 18;
+            break;
+        case Direction::kBack:
+            first_index_ = 24;
+            break;
+        case Direction::kFront:
+            first_index_ = 30;
+            break;
     }
 
     bx::mtxTranslate(transform_, pos.x, pos.y, pos.z);
 }
 
 void Outline::render() {
-    auto a = (std::sin(Timer::getTime() * 5) * 0.5f + 0.5f) * 0.8f;
+    auto a = (std::sin(Timer::getTime() * 5) * 0.5f + 0.5f) * 0.8f + 0.2f;
     float color[4] = { 1.0f, 1.0f, 1.0f, a };
     bgfx::setUniform(u_color_, color);
 
