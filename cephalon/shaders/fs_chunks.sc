@@ -7,7 +7,7 @@ void main()
 	vec3 normal = normalize(v_normal);
 	vec3 lightDir = vec3(-0.2, -1.0, 0.3);
 
-	float ambientStrength = 0.3f;
+	float ambientStrength = 0.4f;
 	vec3 ambient = ambientStrength * vec3(v_color0) * vec3(v_color1);
 
 	float diff = max(dot(normal, -lightDir), 0.0);

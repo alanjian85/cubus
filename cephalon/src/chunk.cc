@@ -54,7 +54,7 @@ const Block& Chunk::getBlock(glm::ivec3 pos) const {
     return *blocks_[pos.z * kVolume.x * kVolume.y + pos.y * kVolume.x + pos.x];
 }
 
-void Chunk::rebuild(World& world) {
+void Chunk::rebuild(World& world, glm::ivec3 region) {
     std::vector<Vertex> vertices;
     std::vector<std::uint16_t> indices;
 
@@ -64,14 +64,15 @@ void Chunk::rebuild(World& world) {
                 auto& block = getBlock(glm::ivec3(x, y, z));
                 if (!block.isAir()) {
                     auto color = block.getColor();
+                    auto pos = region * kVolume + glm::ivec3(x, y, z);
 
                     // right
                     if (x == kVolume.x - 1 || getBlock(glm::ivec3(x + 1, y, z)).isAir()) {
                         float block_ao[] = {
-                            vertexAO(world.getBlock(glm::ivec3(x + 1, y, z - 1)), world.getBlock(glm::ivec3(x + 1, y - 1, z)), world.getBlock(glm::ivec3(x + 1, y - 1, z - 1))),
-                            vertexAO(world.getBlock(glm::ivec3(x + 1, y, z + 1)), world.getBlock(glm::ivec3(x + 1, y - 1, z)), world.getBlock(glm::ivec3(x + 1, y - 1, z + 1))),
-                            vertexAO(world.getBlock(glm::ivec3(x + 1, y, z - 1)), world.getBlock(glm::ivec3(x + 1, y + 1, z)), world.getBlock(glm::ivec3(x + 1, y + 1, z - 1))),
-                            vertexAO(world.getBlock(glm::ivec3(x + 1, y, z + 1)), world.getBlock(glm::ivec3(x + 1, y + 1, z)), world.getBlock(glm::ivec3(x + 1, y + 1, z + 1))),
+                            vertexAO(world.getBlock(pos + glm::ivec3(1, 0, -1)), world.getBlock(pos + glm::ivec3(1, -1, 0)), world.getBlock(pos + glm::ivec3(1, -1, -1))),
+                            vertexAO(world.getBlock(pos + glm::ivec3(1, 0,  1)), world.getBlock(pos + glm::ivec3(1, -1, 0)), world.getBlock(pos + glm::ivec3(1, -1,  1))),
+                            vertexAO(world.getBlock(pos + glm::ivec3(1, 0, -1)), world.getBlock(pos + glm::ivec3(1,  1, 0)), world.getBlock(pos + glm::ivec3(1,  1, -1))),
+                            vertexAO(world.getBlock(pos + glm::ivec3(1, 0,  1)), world.getBlock(pos + glm::ivec3(1,  1, 0)), world.getBlock(pos + glm::ivec3(1,  1,  1))),
                         };
 
                         Vertex block_vertices[] = {
@@ -94,10 +95,10 @@ void Chunk::rebuild(World& world) {
                     // left
                     if (x == 0 || getBlock(glm::ivec3(x - 1, y, z)).isAir()) {
                         float block_ao[] = {
-                            vertexAO(world.getBlock(glm::ivec3(x - 1, y, z - 1)), world.getBlock(glm::ivec3(x - 1, y - 1, z)), world.getBlock(glm::ivec3(x - 1, y - 1, z - 1))),
-                            vertexAO(world.getBlock(glm::ivec3(x - 1, y, z + 1)), world.getBlock(glm::ivec3(x - 1, y - 1, z)), world.getBlock(glm::ivec3(x - 1, y - 1, z + 1))),
-                            vertexAO(world.getBlock(glm::ivec3(x - 1, y, z - 1)), world.getBlock(glm::ivec3(x - 1, y + 1, z)), world.getBlock(glm::ivec3(x - 1, y + 1, z - 1))),
-                            vertexAO(world.getBlock(glm::ivec3(x - 1, y, z + 1)), world.getBlock(glm::ivec3(x - 1, y + 1, z)), world.getBlock(glm::ivec3(x - 1, y + 1, z + 1))),
+                            vertexAO(world.getBlock(pos + glm::ivec3(-1, 0, -1)), world.getBlock(pos + glm::ivec3(-1, -1, 0)), world.getBlock(pos + glm::ivec3(-1, -1, -1))),
+                            vertexAO(world.getBlock(pos + glm::ivec3(-1, 0,  1)), world.getBlock(pos + glm::ivec3(-1, -1, 0)), world.getBlock(pos + glm::ivec3(-1, -1,  1))),
+                            vertexAO(world.getBlock(pos + glm::ivec3(-1, 0, -1)), world.getBlock(pos + glm::ivec3(-1,  1, 0)), world.getBlock(pos + glm::ivec3(-1,  1, -1))),
+                            vertexAO(world.getBlock(pos + glm::ivec3(-1, 0,  1)), world.getBlock(pos + glm::ivec3(-1,  1, 0)), world.getBlock(pos + glm::ivec3(-1,  1,  1))),
                         };
                         
                         Vertex block_vertices[] = {
@@ -120,10 +121,10 @@ void Chunk::rebuild(World& world) {
                     // top
                     if (y == kVolume.y - 1 || getBlock(glm::ivec3(x, y + 1, z)).isAir()) {
                         float block_ao[] = {
-                            vertexAO(world.getBlock(glm::ivec3(x, y + 1, z - 1)), world.getBlock(glm::ivec3(x - 1, y + 1, z)), world.getBlock(glm::ivec3(x - 1, y + 1, z - 1))),
-                            vertexAO(world.getBlock(glm::ivec3(x, y + 1, z + 1)), world.getBlock(glm::ivec3(x - 1, y + 1, z)), world.getBlock(glm::ivec3(x - 1, y + 1, z + 1))),
-                            vertexAO(world.getBlock(glm::ivec3(x, y + 1, z - 1)), world.getBlock(glm::ivec3(x + 1, y + 1, z)), world.getBlock(glm::ivec3(x + 1, y + 1, z - 1))),
-                            vertexAO(world.getBlock(glm::ivec3(x, y + 1, z + 1)), world.getBlock(glm::ivec3(x + 1, y + 1, z)), world.getBlock(glm::ivec3(x + 1, y + 1, z + 1))),
+                            vertexAO(world.getBlock(pos + glm::ivec3(0,  1, -1)), world.getBlock(pos + glm::ivec3(-1, 1, 0)), world.getBlock(pos + glm::ivec3(-1, 1, -1))),
+                            vertexAO(world.getBlock(pos + glm::ivec3(0,  1,  1)), world.getBlock(pos + glm::ivec3(-1, 1, 0)), world.getBlock(pos + glm::ivec3(-1, 1,  1))),
+                            vertexAO(world.getBlock(pos + glm::ivec3(0,  1, -1)), world.getBlock(pos + glm::ivec3( 1, 1, 0)), world.getBlock(pos + glm::ivec3( 1, 1, -1))),
+                            vertexAO(world.getBlock(pos + glm::ivec3(0,  1,  1)), world.getBlock(pos + glm::ivec3( 1, 1, 0)), world.getBlock(pos + glm::ivec3( 1, 1,  1))),
                         };
 
                         Vertex block_vertices[] = {
@@ -146,10 +147,10 @@ void Chunk::rebuild(World& world) {
                     // bottom
                     if (y == 0 || getBlock(glm::ivec3(x, y - 1, z)).isAir()) {
                         float block_ao[] = {
-                            vertexAO(world.getBlock(glm::ivec3(x, y - 1, z - 1)), world.getBlock(glm::ivec3(x - 1, y - 1, z)), world.getBlock(glm::ivec3(x - 1, y - 1, z - 1))),
-                            vertexAO(world.getBlock(glm::ivec3(x, y - 1, z + 1)), world.getBlock(glm::ivec3(x - 1, y - 1, z)), world.getBlock(glm::ivec3(x - 1, y - 1, z + 1))),
-                            vertexAO(world.getBlock(glm::ivec3(x, y - 1, z - 1)), world.getBlock(glm::ivec3(x + 1, y - 1, z)), world.getBlock(glm::ivec3(x + 1, y - 1, z - 1))),
-                            vertexAO(world.getBlock(glm::ivec3(x, y - 1, z + 1)), world.getBlock(glm::ivec3(x + 1, y - 1, z)), world.getBlock(glm::ivec3(x + 1, y - 1, z + 1))),
+                            vertexAO(world.getBlock(pos + glm::ivec3(0, -1, -1)), world.getBlock(pos + glm::ivec3(-1, -1, 0)), world.getBlock(pos + glm::ivec3(-1, -1, -1))),
+                            vertexAO(world.getBlock(pos + glm::ivec3(0, -1,  1)), world.getBlock(pos + glm::ivec3(-1, -1, 0)), world.getBlock(pos + glm::ivec3(-1, -1,  1))),
+                            vertexAO(world.getBlock(pos + glm::ivec3(0, -1, -1)), world.getBlock(pos + glm::ivec3( 1, -1, 0)), world.getBlock(pos + glm::ivec3( 1, -1, -1))),
+                            vertexAO(world.getBlock(pos + glm::ivec3(0, -1,  1)), world.getBlock(pos + glm::ivec3( 1, -1, 0)), world.getBlock(pos + glm::ivec3( 1, -1,  1))),
                         };
 
                         Vertex block_vertices[] = {
@@ -172,10 +173,10 @@ void Chunk::rebuild(World& world) {
                     // back
                     if (z == kVolume.z - 1 || getBlock(glm::ivec3(x, y, z + 1)).isAir()) {
                         float block_ao[] = {
-                            vertexAO(world.getBlock(glm::ivec3(x, y - 1, z + 1)), world.getBlock(glm::ivec3(x - 1, y, z + 1)), world.getBlock(glm::ivec3(x - 1, y - 1, z + 1))),
-                            vertexAO(world.getBlock(glm::ivec3(x, y + 1, z + 1)), world.getBlock(glm::ivec3(x - 1, y, z + 1)), world.getBlock(glm::ivec3(x - 1, y + 1, z + 1))),
-                            vertexAO(world.getBlock(glm::ivec3(x, y - 1, z + 1)), world.getBlock(glm::ivec3(x + 1, y, z + 1)), world.getBlock(glm::ivec3(x + 1, y - 1, z + 1))),
-                            vertexAO(world.getBlock(glm::ivec3(x, y + 1, z + 1)), world.getBlock(glm::ivec3(x + 1, y, z + 1)), world.getBlock(glm::ivec3(x + 1, y + 1, z + 1))),
+                            vertexAO(world.getBlock(pos + glm::ivec3(0, -1, 1)), world.getBlock(pos + glm::ivec3(-1, 0, 1)), world.getBlock(pos + glm::ivec3(-1, -1, 1))),
+                            vertexAO(world.getBlock(pos + glm::ivec3(0,  1, 1)), world.getBlock(pos + glm::ivec3(-1, 0, 1)), world.getBlock(pos + glm::ivec3(-1,  1, 1))),
+                            vertexAO(world.getBlock(pos + glm::ivec3(0, -1, 1)), world.getBlock(pos + glm::ivec3( 1, 0, 1)), world.getBlock(pos + glm::ivec3( 1, -1, 1))),
+                            vertexAO(world.getBlock(pos + glm::ivec3(0,  1, 1)), world.getBlock(pos + glm::ivec3( 1, 0, 1)), world.getBlock(pos + glm::ivec3( 1,  1, 1))),
                         };
 
                         Vertex block_vertices[] = {
@@ -198,10 +199,10 @@ void Chunk::rebuild(World& world) {
                     // front
                     if (z == 0 || getBlock(glm::ivec3(x, y, z - 1)).isAir()) {
                         float block_ao[] = {
-                            vertexAO(world.getBlock(glm::ivec3(x, y - 1, z - 1)), world.getBlock(glm::ivec3(x - 1, y, z - 1)), world.getBlock(glm::ivec3(x - 1, y - 1, z - 1))),
-                            vertexAO(world.getBlock(glm::ivec3(x, y + 1, z - 1)), world.getBlock(glm::ivec3(x - 1, y, z - 1)), world.getBlock(glm::ivec3(x - 1, y + 1, z - 1))),
-                            vertexAO(world.getBlock(glm::ivec3(x, y - 1, z - 1)), world.getBlock(glm::ivec3(x + 1, y, z - 1)), world.getBlock(glm::ivec3(x + 1, y - 1, z - 1))),
-                            vertexAO(world.getBlock(glm::ivec3(x, y + 1, z - 1)), world.getBlock(glm::ivec3(x + 1, y, z - 1)), world.getBlock(glm::ivec3(x + 1, y + 1, z - 1))),
+                            vertexAO(world.getBlock(pos + glm::ivec3(0, -1, -1)), world.getBlock(pos + glm::ivec3(-1, 0, -1)), world.getBlock(pos + glm::ivec3(-1, -1, -1))),
+                            vertexAO(world.getBlock(pos + glm::ivec3(0,  1, -1)), world.getBlock(pos + glm::ivec3(-1, 0, -1)), world.getBlock(pos + glm::ivec3(-1,  1, -1))),
+                            vertexAO(world.getBlock(pos + glm::ivec3(0, -1, -1)), world.getBlock(pos + glm::ivec3( 1, 0, -1)), world.getBlock(pos + glm::ivec3( 1, -1, -1))),
+                            vertexAO(world.getBlock(pos + glm::ivec3(0,  1, -1)), world.getBlock(pos + glm::ivec3( 1, 0, -1)), world.getBlock(pos + glm::ivec3( 1,  1, -1))),
                         };
 
                         Vertex block_vertices[] = {
@@ -241,5 +242,5 @@ void Chunk::render() {
 float Chunk::vertexAO(const Block& side1, const Block& side2, const Block& corner) {
     if (!side1.isAir() && !side2.isAir())
         return 0.0f;
-    return (3 - !side1.isAir() - !side2.isAir() - !corner.isAir()) / 3.0f;
+    return 1.0f - (!side1.isAir() + !side2.isAir() + !corner.isAir()) / 3.0f;
 }

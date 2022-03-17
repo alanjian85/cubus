@@ -32,11 +32,11 @@ void World::update(glm::vec3 playerPos) {
 
 void World::render() {
     int rebuildCount = 0;
-    for (auto& [pos, chunk] : chunks_) {
-        auto transform = glm::translate(glm::mat4(1.0f), glm::vec3(pos * Chunk::kVolume));
+    for (auto& [region, chunk] : chunks_) {
+        auto transform = glm::translate(glm::mat4(1.0f), glm::vec3(region * Chunk::kVolume));
         bgfx::setTransform(glm::value_ptr(transform));
         if (chunk.isDirty() && rebuildCount < Config::kChunkRebuildLimit) {
-            chunk.rebuild(*this);
+            chunk.rebuild(*this, region);
             ++rebuildCount;
         }
         chunk.render();

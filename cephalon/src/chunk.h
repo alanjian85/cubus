@@ -45,7 +45,7 @@ namespace cephalon {
             return dirty_;
         }
 
-        void rebuild(World& world);
+        void rebuild(World& world, glm::ivec3 region);
 
         void render();
     private:
