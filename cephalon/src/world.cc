@@ -51,9 +51,9 @@ std::vector<std::pair<glm::ivec3, AABB>> World::getBoundingBoxes(AABB range) {
     for (auto x = range.min.x; x <= range.max.x; ++x) {
         for (auto y = range.min.y; y <= range.max.y; ++y) {
             for (auto z = range.min.z; z <= range.max.z; ++z) {
-                auto& block = getBlock(glm::ivec3(x, y, z));
-                if (!block.isAir())
-                    result.emplace_back(glm::ivec3(x, y, z), block.getBoundingBox(glm::ivec3(x, y, z)));
+                auto block = getBlock(glm::ivec3(x, y, z));
+                if (block && !block->isAir())
+                    result.emplace_back(glm::ivec3(x, y, z), block->getBoundingBox(glm::ivec3(x, y, z)));
             }
         }
     }
@@ -67,11 +67,6 @@ void World::loadChunk(glm::ivec3 region, Chunk& chunk) {
                 auto pos = region * Chunk::kVolume + glm::ivec3(x, y, z);
                 chunk.setBlock(glm::ivec3(x, y, z), generator_(glm::ivec3(x, y, z)));
             }
-        }
-    }
-    for (auto [pos, block] : blocks_) {
-        if (getRegion(pos) == region) {
-            chunk.setBlock(getChunkPos(pos), *block);
         }
     }
 }

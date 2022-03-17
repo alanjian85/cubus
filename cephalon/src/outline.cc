@@ -106,7 +106,7 @@ void Outline::update(glm::ivec3 pos, Direction dir) {
 }
 
 void Outline::render() {
-    auto a = (std::sin(Timer::getTime() * 5) * 0.5f + 0.5f) * 0.8f + 0.2f;
+    auto a = (std::sin(Timer::getTime() * 5) * 0.5f + 0.5f) * 0.5f + 0.25f;
     float color[4] = { 1.0f, 1.0f, 1.0f, a };
     bgfx::setUniform(u_color_, color);
 
