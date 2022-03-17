@@ -15,8 +15,11 @@ namespace cephalon {
     struct Vertex {
         glm::vec3 pos;
         glm::vec3 normal;
+        float ao;
         std::uint32_t agbr;
     };
+
+    class World;
 
     class Chunk {
     public:
@@ -42,10 +45,12 @@ namespace cephalon {
             return dirty_;
         }
 
-        void rebuild();
+        void rebuild(World& world);
 
         void render();
     private:
+        static float vertexAO(const Block& side1, const Block& side2, const Block& corner);
+
         static bgfx::VertexLayout layout_;
         static bgfx::ProgramHandle program_;
 

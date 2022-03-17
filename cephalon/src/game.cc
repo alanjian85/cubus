@@ -88,8 +88,8 @@ void Game::onMouseRightClick() {
             break;
     }
 
-    auto block = world_.getBlock(place_pos);
-    if (block && block->isAir()) {
+    
+    if (world_.getBlock(place_pos).isAir()) {
         world_.setBlock(place_pos, blocks::kWood);
     }
 }

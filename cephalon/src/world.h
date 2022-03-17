@@ -25,16 +25,18 @@ namespace cephalon {
         }
 
         void setBlock(glm::ivec3 pos, const Block& block) {
+            blocks_[pos] = &block;
             auto it = chunks_.find(getRegion(pos));
             if (it != chunks_.cend())
                 it->second.setBlock(getChunkPos(pos), block);
         }
 
-        const Block* getBlock(glm::ivec3 pos) const {
-            auto it = chunks_.find(getRegion(pos));
-            if (it != chunks_.cend())
-                return &it->second.getBlock(getChunkPos(pos));
-            return nullptr;
+        const Block& getBlock(glm::ivec3 pos) const {
+            auto it = blocks_.find(pos);
+            if (it != blocks_.cend())
+                return *it->second;
+            else
+                return generator_(pos);
         }
 
         void update(glm::vec3 playerPos);
@@ -46,6 +48,7 @@ namespace cephalon {
         void loadChunk(glm::ivec3 region, Chunk& chunk);
 
         std::unordered_map<glm::ivec3, Chunk> chunks_;
+        std::unordered_map<glm::ivec3, const Block*> blocks_;
         Generator generator_;
     };
 }

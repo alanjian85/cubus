@@ -3,6 +3,7 @@
 
 #include <glm/glm.hpp>
 
+#include "chunk.h"
 #include "blocks/block.h"
 
 namespace cephalon {

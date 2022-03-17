@@ -4,6 +4,7 @@ using namespace cephalon;
 #include <iterator>
 
 #include "utils.h"
+#include "world.h"
 
 bgfx::VertexLayout Chunk::layout_;
 bgfx::ProgramHandle Chunk::program_;
@@ -12,7 +13,8 @@ void Chunk::init() {
     layout_.begin()
         .add(bgfx::Attrib::Position, 3, bgfx::AttribType::Float)
         .add(bgfx::Attrib::Normal, 3, bgfx::AttribType::Float)
-        .add(bgfx::Attrib::Color0, 4, bgfx::AttribType::Uint8, true)
+        .add(bgfx::Attrib::Color0, 1, bgfx::AttribType::Float)
+        .add(bgfx::Attrib::Color1, 4, bgfx::AttribType::Uint8, true)
     .end();
     program_ = LoadProgram("vs_chunks", "fs_chunks");
 }
@@ -52,7 +54,7 @@ const Block& Chunk::getBlock(glm::ivec3 pos) const {
     return *blocks_[pos.z * kVolume.x * kVolume.y + pos.y * kVolume.x + pos.x];
 }
 
-void Chunk::rebuild() {
+void Chunk::rebuild(World& world) {
     std::vector<Vertex> vertices;
     std::vector<std::uint16_t> indices;
 
@@ -65,11 +67,18 @@ void Chunk::rebuild() {
 
                     // right
                     if (x == kVolume.x - 1 || getBlock(glm::ivec3(x + 1, y, z)).isAir()) {
+                        float block_ao[] = {
+                            vertexAO(world.getBlock(glm::ivec3(x + 1, y, z - 1)), world.getBlock(glm::ivec3(x + 1, y - 1, z)), world.getBlock(glm::ivec3(x + 1, y - 1, z - 1))),
+                            vertexAO(world.getBlock(glm::ivec3(x + 1, y, z + 1)), world.getBlock(glm::ivec3(x + 1, y - 1, z)), world.getBlock(glm::ivec3(x + 1, y - 1, z + 1))),
+                            vertexAO(world.getBlock(glm::ivec3(x + 1, y, z - 1)), world.getBlock(glm::ivec3(x + 1, y + 1, z)), world.getBlock(glm::ivec3(x + 1, y + 1, z - 1))),
+                            vertexAO(world.getBlock(glm::ivec3(x + 1, y, z + 1)), world.getBlock(glm::ivec3(x + 1, y + 1, z)), world.getBlock(glm::ivec3(x + 1, y + 1, z + 1))),
+                        };
+
                         Vertex block_vertices[] = {
-                            { glm::vec3(x + 0.5f, y - 0.5f, z - 0.5f), glm::vec3( 1.0f,  0.0f,  0.0f), color },
-                            { glm::vec3(x + 0.5f, y - 0.5f, z + 0.5f), glm::vec3( 1.0f,  0.0f,  0.0f), color },
-                            { glm::vec3(x + 0.5f, y + 0.5f, z - 0.5f), glm::vec3( 1.0f,  0.0f,  0.0f), color },
-                            { glm::vec3(x + 0.5f, y + 0.5f, z + 0.5f), glm::vec3( 1.0f,  0.0f,  0.0f), color }
+                            { glm::vec3(x + 0.5f, y - 0.5f, z - 0.5f), glm::vec3( 1.0f,  0.0f,  0.0f), block_ao[0], color },
+                            { glm::vec3(x + 0.5f, y - 0.5f, z + 0.5f), glm::vec3( 1.0f,  0.0f,  0.0f), block_ao[1], color },
+                            { glm::vec3(x + 0.5f, y + 0.5f, z - 0.5f), glm::vec3( 1.0f,  0.0f,  0.0f), block_ao[2], color },
+                            { glm::vec3(x + 0.5f, y + 0.5f, z + 0.5f), glm::vec3( 1.0f,  0.0f,  0.0f), block_ao[3], color }
                         };
 
                         auto index_base = static_cast<int>(vertices.size());
@@ -84,11 +93,18 @@ void Chunk::rebuild() {
 
                     // left
                     if (x == 0 || getBlock(glm::ivec3(x - 1, y, z)).isAir()) {
+                        float block_ao[] = {
+                            vertexAO(world.getBlock(glm::ivec3(x - 1, y, z - 1)), world.getBlock(glm::ivec3(x - 1, y - 1, z)), world.getBlock(glm::ivec3(x - 1, y - 1, z - 1))),
+                            vertexAO(world.getBlock(glm::ivec3(x - 1, y, z + 1)), world.getBlock(glm::ivec3(x - 1, y - 1, z)), world.getBlock(glm::ivec3(x - 1, y - 1, z + 1))),
+                            vertexAO(world.getBlock(glm::ivec3(x - 1, y, z - 1)), world.getBlock(glm::ivec3(x - 1, y + 1, z)), world.getBlock(glm::ivec3(x - 1, y + 1, z - 1))),
+                            vertexAO(world.getBlock(glm::ivec3(x - 1, y, z + 1)), world.getBlock(glm::ivec3(x - 1, y + 1, z)), world.getBlock(glm::ivec3(x - 1, y + 1, z + 1))),
+                        };
+                        
                         Vertex block_vertices[] = {
-                            { glm::vec3(x - 0.5f, y - 0.5f, z - 0.5f), glm::vec3(-1.0f,  0.0f,  0.0f), color },
-                            { glm::vec3(x - 0.5f, y - 0.5f, z + 0.5f), glm::vec3(-1.0f,  0.0f,  0.0f), color },
-                            { glm::vec3(x - 0.5f, y + 0.5f, z - 0.5f), glm::vec3(-1.0f,  0.0f,  0.0f), color },
-                            { glm::vec3(x - 0.5f, y + 0.5f, z + 0.5f), glm::vec3(-1.0f,  0.0f,  0.0f), color }
+                            { glm::vec3(x - 0.5f, y - 0.5f, z - 0.5f), glm::vec3(-1.0f,  0.0f,  0.0f), block_ao[0], color },
+                            { glm::vec3(x - 0.5f, y - 0.5f, z + 0.5f), glm::vec3(-1.0f,  0.0f,  0.0f), block_ao[1], color },
+                            { glm::vec3(x - 0.5f, y + 0.5f, z - 0.5f), glm::vec3(-1.0f,  0.0f,  0.0f), block_ao[2], color },
+                            { glm::vec3(x - 0.5f, y + 0.5f, z + 0.5f), glm::vec3(-1.0f,  0.0f,  0.0f), block_ao[3], color }
                         };
 
                         auto index_base = static_cast<int>(vertices.size());
@@ -103,11 +119,18 @@ void Chunk::rebuild() {
 
                     // top
                     if (y == kVolume.y - 1 || getBlock(glm::ivec3(x, y + 1, z)).isAir()) {
+                        float block_ao[] = {
+                            vertexAO(world.getBlock(glm::ivec3(x, y + 1, z - 1)), world.getBlock(glm::ivec3(x - 1, y + 1, z)), world.getBlock(glm::ivec3(x - 1, y + 1, z - 1))),
+                            vertexAO(world.getBlock(glm::ivec3(x, y + 1, z + 1)), world.getBlock(glm::ivec3(x - 1, y + 1, z)), world.getBlock(glm::ivec3(x - 1, y + 1, z + 1))),
+                            vertexAO(world.getBlock(glm::ivec3(x, y + 1, z - 1)), world.getBlock(glm::ivec3(x + 1, y + 1, z)), world.getBlock(glm::ivec3(x + 1, y + 1, z - 1))),
+                            vertexAO(world.getBlock(glm::ivec3(x, y + 1, z + 1)), world.getBlock(glm::ivec3(x + 1, y + 1, z)), world.getBlock(glm::ivec3(x + 1, y + 1, z + 1))),
+                        };
+
                         Vertex block_vertices[] = {
-                            { glm::vec3(x - 0.5f, y + 0.5f, z - 0.5f), glm::vec3( 0.0f,  1.0f,  0.0f), color },
-                            { glm::vec3(x - 0.5f, y + 0.5f, z + 0.5f), glm::vec3( 0.0f,  1.0f,  0.0f), color },
-                            { glm::vec3(x + 0.5f, y + 0.5f, z - 0.5f), glm::vec3( 0.0f,  1.0f,  0.0f), color },
-                            { glm::vec3(x + 0.5f, y + 0.5f, z + 0.5f), glm::vec3( 0.0f,  1.0f,  0.0f), color }
+                            { glm::vec3(x - 0.5f, y + 0.5f, z - 0.5f), glm::vec3( 0.0f,  1.0f,  0.0f), block_ao[0], color },
+                            { glm::vec3(x - 0.5f, y + 0.5f, z + 0.5f), glm::vec3( 0.0f,  1.0f,  0.0f), block_ao[1], color },
+                            { glm::vec3(x + 0.5f, y + 0.5f, z - 0.5f), glm::vec3( 0.0f,  1.0f,  0.0f), block_ao[2], color },
+                            { glm::vec3(x + 0.5f, y + 0.5f, z + 0.5f), glm::vec3( 0.0f,  1.0f,  0.0f), block_ao[3], color }
                         };
 
                         auto index_base = static_cast<int>(vertices.size());
@@ -122,11 +145,18 @@ void Chunk::rebuild() {
 
                     // bottom
                     if (y == 0 || getBlock(glm::ivec3(x, y - 1, z)).isAir()) {
+                        float block_ao[] = {
+                            vertexAO(world.getBlock(glm::ivec3(x, y - 1, z - 1)), world.getBlock(glm::ivec3(x - 1, y - 1, z)), world.getBlock(glm::ivec3(x - 1, y - 1, z - 1))),
+                            vertexAO(world.getBlock(glm::ivec3(x, y - 1, z + 1)), world.getBlock(glm::ivec3(x - 1, y - 1, z)), world.getBlock(glm::ivec3(x - 1, y - 1, z + 1))),
+                            vertexAO(world.getBlock(glm::ivec3(x, y - 1, z - 1)), world.getBlock(glm::ivec3(x + 1, y - 1, z)), world.getBlock(glm::ivec3(x + 1, y - 1, z - 1))),
+                            vertexAO(world.getBlock(glm::ivec3(x, y - 1, z + 1)), world.getBlock(glm::ivec3(x + 1, y - 1, z)), world.getBlock(glm::ivec3(x + 1, y - 1, z + 1))),
+                        };
+
                         Vertex block_vertices[] = {
-                            { glm::vec3(x - 0.5f, y - 0.5f, z - 0.5f), glm::vec3( 0.0f, -1.0f,  0.0f), color },
-                            { glm::vec3(x - 0.5f, y - 0.5f, z + 0.5f), glm::vec3( 0.0f, -1.0f,  0.0f), color },
-                            { glm::vec3(x + 0.5f, y - 0.5f, z - 0.5f), glm::vec3( 0.0f, -1.0f,  0.0f), color },
-                            { glm::vec3(x + 0.5f, y - 0.5f, z + 0.5f), glm::vec3( 0.0f, -1.0f,  0.0f), color }
+                            { glm::vec3(x - 0.5f, y - 0.5f, z - 0.5f), glm::vec3( 0.0f, -1.0f,  0.0f), block_ao[0], color },
+                            { glm::vec3(x - 0.5f, y - 0.5f, z + 0.5f), glm::vec3( 0.0f, -1.0f,  0.0f), block_ao[1], color },
+                            { glm::vec3(x + 0.5f, y - 0.5f, z - 0.5f), glm::vec3( 0.0f, -1.0f,  0.0f), block_ao[2], color },
+                            { glm::vec3(x + 0.5f, y - 0.5f, z + 0.5f), glm::vec3( 0.0f, -1.0f,  0.0f), block_ao[3], color }
                         };
 
                         auto index_base = static_cast<int>(vertices.size());
@@ -141,11 +171,18 @@ void Chunk::rebuild() {
 
                     // back
                     if (z == kVolume.z - 1 || getBlock(glm::ivec3(x, y, z + 1)).isAir()) {
+                        float block_ao[] = {
+                            vertexAO(world.getBlock(glm::ivec3(x, y - 1, z + 1)), world.getBlock(glm::ivec3(x - 1, y, z + 1)), world.getBlock(glm::ivec3(x - 1, y - 1, z + 1))),
+                            vertexAO(world.getBlock(glm::ivec3(x, y + 1, z + 1)), world.getBlock(glm::ivec3(x - 1, y, z + 1)), world.getBlock(glm::ivec3(x - 1, y + 1, z + 1))),
+                            vertexAO(world.getBlock(glm::ivec3(x, y - 1, z + 1)), world.getBlock(glm::ivec3(x + 1, y, z + 1)), world.getBlock(glm::ivec3(x + 1, y - 1, z + 1))),
+                            vertexAO(world.getBlock(glm::ivec3(x, y + 1, z + 1)), world.getBlock(glm::ivec3(x + 1, y, z + 1)), world.getBlock(glm::ivec3(x + 1, y + 1, z + 1))),
+                        };
+
                         Vertex block_vertices[] = {
-                            { glm::vec3(x - 0.5f, y - 0.5f, z + 0.5f), glm::vec3( 0.0f,  0.0f,  1.0f), color },
-                            { glm::vec3(x - 0.5f, y + 0.5f, z + 0.5f), glm::vec3( 0.0f,  0.0f,  1.0f), color },
-                            { glm::vec3(x + 0.5f, y - 0.5f, z + 0.5f), glm::vec3( 0.0f,  0.0f,  1.0f), color },
-                            { glm::vec3(x + 0.5f, y + 0.5f, z + 0.5f), glm::vec3( 0.0f,  0.0f,  1.0f), color }
+                            { glm::vec3(x - 0.5f, y - 0.5f, z + 0.5f), glm::vec3( 0.0f,  0.0f,  1.0f), block_ao[0], color },
+                            { glm::vec3(x - 0.5f, y + 0.5f, z + 0.5f), glm::vec3( 0.0f,  0.0f,  1.0f), block_ao[1], color },
+                            { glm::vec3(x + 0.5f, y - 0.5f, z + 0.5f), glm::vec3( 0.0f,  0.0f,  1.0f), block_ao[2], color },
+                            { glm::vec3(x + 0.5f, y + 0.5f, z + 0.5f), glm::vec3( 0.0f,  0.0f,  1.0f), block_ao[3], color }
                         };
 
                         auto index_base = static_cast<int>(vertices.size());
@@ -160,11 +197,18 @@ void Chunk::rebuild() {
 
                     // front
                     if (z == 0 || getBlock(glm::ivec3(x, y, z - 1)).isAir()) {
+                        float block_ao[] = {
+                            vertexAO(world.getBlock(glm::ivec3(x, y - 1, z - 1)), world.getBlock(glm::ivec3(x - 1, y, z - 1)), world.getBlock(glm::ivec3(x - 1, y - 1, z - 1))),
+                            vertexAO(world.getBlock(glm::ivec3(x, y + 1, z - 1)), world.getBlock(glm::ivec3(x - 1, y, z - 1)), world.getBlock(glm::ivec3(x - 1, y + 1, z - 1))),
+                            vertexAO(world.getBlock(glm::ivec3(x, y - 1, z - 1)), world.getBlock(glm::ivec3(x + 1, y, z - 1)), world.getBlock(glm::ivec3(x + 1, y - 1, z - 1))),
+                            vertexAO(world.getBlock(glm::ivec3(x, y + 1, z - 1)), world.getBlock(glm::ivec3(x + 1, y, z - 1)), world.getBlock(glm::ivec3(x + 1, y + 1, z - 1))),
+                        };
+
                         Vertex block_vertices[] = {
-                            { glm::vec3(x - 0.5f, y - 0.5f, z - 0.5f), glm::vec3( 0.0f,  0.0f, -1.0f), color },
-                            { glm::vec3(x - 0.5f, y + 0.5f, z - 0.5f), glm::vec3( 0.0f,  0.0f, -1.0f), color },
-                            { glm::vec3(x + 0.5f, y - 0.5f, z - 0.5f), glm::vec3( 0.0f,  0.0f, -1.0f), color },
-                            { glm::vec3(x + 0.5f, y + 0.5f, z - 0.5f), glm::vec3( 0.0f,  0.0f, -1.0f), color }
+                            { glm::vec3(x - 0.5f, y - 0.5f, z - 0.5f), glm::vec3( 0.0f,  0.0f, -1.0f), block_ao[0], color },
+                            { glm::vec3(x - 0.5f, y + 0.5f, z - 0.5f), glm::vec3( 0.0f,  0.0f, -1.0f), block_ao[1], color },
+                            { glm::vec3(x + 0.5f, y - 0.5f, z - 0.5f), glm::vec3( 0.0f,  0.0f, -1.0f), block_ao[2], color },
+                            { glm::vec3(x + 0.5f, y + 0.5f, z - 0.5f), glm::vec3( 0.0f,  0.0f, -1.0f), block_ao[3], color }
                         };
 
                         auto index_base = static_cast<int>(vertices.size());
@@ -192,4 +236,10 @@ void Chunk::render() {
     bgfx::setVertexBuffer(0, vertex_buffer_);
     bgfx::setIndexBuffer(index_buffer_);
     bgfx::submit(0, program_);
+}
+
+float Chunk::vertexAO(const Block& side1, const Block& side2, const Block& corner) {
+    if (!side1.isAir() && !side2.isAir())
+        return 0.0f;
+    return (3 - !side1.isAir() - !side2.isAir() - !corner.isAir()) / 3.0f;
 }
