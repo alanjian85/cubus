@@ -6,7 +6,7 @@ using namespace cephalon;
 #include "input.h"
 
 Game::Game(int width, int height) {
-    camera_.pos = { 0.0f, 3.0f, 0.0f };
+    camera_.pos = { 0.0f, 8.0f, 0.0f };
     camera_.pitch = -15.0f;
     camera_.aspect = static_cast<float>(width) / height;
 }
@@ -34,12 +34,37 @@ void Game::update(float delta) {
     for (auto [pos, bounding_box] : bounding_boxes) {
         auto dir = bounding_box.intersect(camera_.pos, camera_.dir, 0.1f, nearest);
         if (dir) {
-            intersect_ = true;
-            nearest = glm::length(glm::vec3(pos) - camera_.pos);
-            intersect_pos_ = pos;
-            intersect_dir_ = *dir;
+            glm::ivec3 place_pos;
+            switch (*dir) {
+                case Direction::kRight:
+                    place_pos = pos + glm::ivec3( 1,  0,  0);
+                    break;
+                case Direction::kLeft:
+                    place_pos = pos + glm::ivec3(-1,  0,  0);
+                    break;
+                case Direction::kTop:
+                    place_pos = pos + glm::ivec3( 0,  1,  0);
+                    break;
+                case Direction::kBottom:
+                    place_pos = pos + glm::ivec3( 0, -1,  0);
+                    break;
+                case Direction::kBack:
+                    place_pos = pos + glm::ivec3( 0,  0,  1);
+                    break;
+                case Direction::kFront:
+                    place_pos = pos + glm::ivec3( 0,  0, -1);
+                    break;
+            }
 
-            outline_.update(intersect_pos_, intersect_dir_);
+            if (world_.getBlock(place_pos).isAir()) {
+                intersect_ = true;
+                nearest = glm::length(glm::vec3(pos) - camera_.pos);
+                intersect_pos_ = pos;
+                intersect_dir_ = *dir;
+                place_pos_ = place_pos;
+
+                outline_.update(intersect_pos_, intersect_dir_);
+            }
         }
     }
 }
@@ -66,32 +91,7 @@ void Game::onMouseLeftClick() {
 }
 
 void Game::onMouseRightClick() {
-    glm::ivec3 place_pos;
-    switch (intersect_dir_) {
-        case Direction::kRight:
-            place_pos = intersect_pos_ + glm::ivec3( 1,  0,  0);
-            break;
-        case Direction::kLeft:
-            place_pos = intersect_pos_ + glm::ivec3(-1,  0,  0);
-            break;
-        case Direction::kTop:
-            place_pos = intersect_pos_ + glm::ivec3( 0,  1,  0);
-            break;
-        case Direction::kBottom:
-            place_pos = intersect_pos_ + glm::ivec3( 0, -1,  0);
-            break;
-        case Direction::kBack:
-            place_pos = intersect_pos_ + glm::ivec3( 0,  0,  1);
-            break;
-        case Direction::kFront:
-            place_pos = intersect_pos_ + glm::ivec3( 0,  0, -1);
-            break;
-    }
-
-    
-    if (world_.getBlock(place_pos).isAir()) {
-        world_.setBlock(place_pos, blocks::kWood);
-    }
+    world_.setBlock(place_pos_, blocks::kWood);
 }
 
 void Game::render() {

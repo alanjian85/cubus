@@ -27,6 +27,7 @@ namespace cephalon {
     private:
         bool intersect_;
         glm::ivec3 intersect_pos_;
+        glm::ivec3 place_pos_;
         Direction intersect_dir_;
         Outline outline_;
 
