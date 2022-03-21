@@ -81,10 +81,10 @@ void Chunk::rebuild(World& world, glm::ivec3 region) {
                         };
 
                         Vertex block_vertices[] = {
-                            { glm::vec3(x + 0.5f, y - 0.5f, z - 0.5f), glm::vec3( 1.0f,  0.0f,  0.0f), block_ao[0], block.getTexCoord() + glm::vec2(0.0f,  0.0f ) },
-                            { glm::vec3(x + 0.5f, y - 0.5f, z + 0.5f), glm::vec3( 1.0f,  0.0f,  0.0f), block_ao[1], block.getTexCoord() + glm::vec2(0.0f,  0.25f) },
-                            { glm::vec3(x + 0.5f, y + 0.5f, z - 0.5f), glm::vec3( 1.0f,  0.0f,  0.0f), block_ao[2], block.getTexCoord() + glm::vec2(0.25f, 0.0f ) },
-                            { glm::vec3(x + 0.5f, y + 0.5f, z + 0.5f), glm::vec3( 1.0f,  0.0f,  0.0f), block_ao[3], block.getTexCoord() + glm::vec2(0.25f, 0.25f) }
+                            { glm::vec3(x + 0.5f, y - 0.5f, z - 0.5f), glm::vec3( 1.0f,  0.0f,  0.0f), block_ao[0], block.getTexCoord() + glm::vec2(0.0f,  0.0f) },
+                            { glm::vec3(x + 0.5f, y - 0.5f, z + 0.5f), glm::vec3( 1.0f,  0.0f,  0.0f), block_ao[1], block.getTexCoord() + glm::vec2(0.0f,  1.0f) },
+                            { glm::vec3(x + 0.5f, y + 0.5f, z - 0.5f), glm::vec3( 1.0f,  0.0f,  0.0f), block_ao[2], block.getTexCoord() + glm::vec2(0.25f, 0.0f) },
+                            { glm::vec3(x + 0.5f, y + 0.5f, z + 0.5f), glm::vec3( 1.0f,  0.0f,  0.0f), block_ao[3], block.getTexCoord() + glm::vec2(0.25f, 1.0f) }
                         };
 
                         auto index_base = static_cast<int>(vertices.size());
@@ -107,10 +107,10 @@ void Chunk::rebuild(World& world, glm::ivec3 region) {
                         };
                         
                         Vertex block_vertices[] = {
-                            { glm::vec3(x - 0.5f, y - 0.5f, z - 0.5f), glm::vec3(-1.0f,  0.0f,  0.0f), block_ao[0], block.getTexCoord() + glm::vec2(0.0f,  0.0f ) },
-                            { glm::vec3(x - 0.5f, y - 0.5f, z + 0.5f), glm::vec3(-1.0f,  0.0f,  0.0f), block_ao[1], block.getTexCoord() + glm::vec2(0.0f,  0.25f) },
-                            { glm::vec3(x - 0.5f, y + 0.5f, z - 0.5f), glm::vec3(-1.0f,  0.0f,  0.0f), block_ao[2], block.getTexCoord() + glm::vec2(0.25f, 0.0f ) },
-                            { glm::vec3(x - 0.5f, y + 0.5f, z + 0.5f), glm::vec3(-1.0f,  0.0f,  0.0f), block_ao[3], block.getTexCoord() + glm::vec2(0.25f, 0.25f) }
+                            { glm::vec3(x - 0.5f, y - 0.5f, z - 0.5f), glm::vec3(-1.0f,  0.0f,  0.0f), block_ao[0], block.getTexCoord() + glm::vec2(0.0f,  0.0f) },
+                            { glm::vec3(x - 0.5f, y - 0.5f, z + 0.5f), glm::vec3(-1.0f,  0.0f,  0.0f), block_ao[1], block.getTexCoord() + glm::vec2(0.0f,  1.0f) },
+                            { glm::vec3(x - 0.5f, y + 0.5f, z - 0.5f), glm::vec3(-1.0f,  0.0f,  0.0f), block_ao[2], block.getTexCoord() + glm::vec2(0.25f, 0.0f) },
+                            { glm::vec3(x - 0.5f, y + 0.5f, z + 0.5f), glm::vec3(-1.0f,  0.0f,  0.0f), block_ao[3], block.getTexCoord() + glm::vec2(0.25f, 1.0f) }
                         };
 
                         auto index_base = static_cast<int>(vertices.size());
@@ -133,10 +133,10 @@ void Chunk::rebuild(World& world, glm::ivec3 region) {
                         };
 
                         Vertex block_vertices[] = {
-                            { glm::vec3(x - 0.5f, y + 0.5f, z - 0.5f), glm::vec3( 0.0f,  1.0f,  0.0f), block_ao[0], block.getTexCoord() + glm::vec2(0.0f,  0.0f ) },
-                            { glm::vec3(x - 0.5f, y + 0.5f, z + 0.5f), glm::vec3( 0.0f,  1.0f,  0.0f), block_ao[1], block.getTexCoord() + glm::vec2(0.0f,  0.25f) },
-                            { glm::vec3(x + 0.5f, y + 0.5f, z - 0.5f), glm::vec3( 0.0f,  1.0f,  0.0f), block_ao[2], block.getTexCoord() + glm::vec2(0.25f, 0.0f ) },
-                            { glm::vec3(x + 0.5f, y + 0.5f, z + 0.5f), glm::vec3( 0.0f,  1.0f,  0.0f), block_ao[3], block.getTexCoord() + glm::vec2(0.25f, 0.25f) }
+                            { glm::vec3(x - 0.5f, y + 0.5f, z - 0.5f), glm::vec3( 0.0f,  1.0f,  0.0f), block_ao[0], block.getTexCoord() + glm::vec2(0.0f,  0.0f) },
+                            { glm::vec3(x - 0.5f, y + 0.5f, z + 0.5f), glm::vec3( 0.0f,  1.0f,  0.0f), block_ao[1], block.getTexCoord() + glm::vec2(0.0f,  1.0f) },
+                            { glm::vec3(x + 0.5f, y + 0.5f, z - 0.5f), glm::vec3( 0.0f,  1.0f,  0.0f), block_ao[2], block.getTexCoord() + glm::vec2(0.25f, 0.0f) },
+                            { glm::vec3(x + 0.5f, y + 0.5f, z + 0.5f), glm::vec3( 0.0f,  1.0f,  0.0f), block_ao[3], block.getTexCoord() + glm::vec2(0.25f, 1.0f) }
                         };
 
                         auto index_base = static_cast<int>(vertices.size());
@@ -159,10 +159,10 @@ void Chunk::rebuild(World& world, glm::ivec3 region) {
                         };
 
                         Vertex block_vertices[] = {
-                            { glm::vec3(x - 0.5f, y - 0.5f, z - 0.5f), glm::vec3( 0.0f, -1.0f,  0.0f), block_ao[0], block.getTexCoord() + glm::vec2(0.0f,  0.0f ) },
-                            { glm::vec3(x - 0.5f, y - 0.5f, z + 0.5f), glm::vec3( 0.0f, -1.0f,  0.0f), block_ao[1], block.getTexCoord() + glm::vec2(0.0f,  0.25f) },
-                            { glm::vec3(x + 0.5f, y - 0.5f, z - 0.5f), glm::vec3( 0.0f, -1.0f,  0.0f), block_ao[2], block.getTexCoord() + glm::vec2(0.25f, 0.0f ) },
-                            { glm::vec3(x + 0.5f, y - 0.5f, z + 0.5f), glm::vec3( 0.0f, -1.0f,  0.0f), block_ao[3], block.getTexCoord() + glm::vec2(0.25f, 0.25f) }
+                            { glm::vec3(x - 0.5f, y - 0.5f, z - 0.5f), glm::vec3( 0.0f, -1.0f,  0.0f), block_ao[0], block.getTexCoord() + glm::vec2(0.0f,  0.0f) },
+                            { glm::vec3(x - 0.5f, y - 0.5f, z + 0.5f), glm::vec3( 0.0f, -1.0f,  0.0f), block_ao[1], block.getTexCoord() + glm::vec2(0.0f,  1.0f) },
+                            { glm::vec3(x + 0.5f, y - 0.5f, z - 0.5f), glm::vec3( 0.0f, -1.0f,  0.0f), block_ao[2], block.getTexCoord() + glm::vec2(0.25f, 0.0f) },
+                            { glm::vec3(x + 0.5f, y - 0.5f, z + 0.5f), glm::vec3( 0.0f, -1.0f,  0.0f), block_ao[3], block.getTexCoord() + glm::vec2(0.25f, 1.0f) }
                         };
 
                         auto index_base = static_cast<int>(vertices.size());
@@ -185,10 +185,10 @@ void Chunk::rebuild(World& world, glm::ivec3 region) {
                         };
 
                         Vertex block_vertices[] = {
-                            { glm::vec3(x - 0.5f, y - 0.5f, z + 0.5f), glm::vec3( 0.0f,  0.0f,  1.0f), block_ao[0], block.getTexCoord() + glm::vec2(0.0f,  0.0f ) },
-                            { glm::vec3(x - 0.5f, y + 0.5f, z + 0.5f), glm::vec3( 0.0f,  0.0f,  1.0f), block_ao[1], block.getTexCoord() + glm::vec2(0.0f,  0.25f) },
-                            { glm::vec3(x + 0.5f, y - 0.5f, z + 0.5f), glm::vec3( 0.0f,  0.0f,  1.0f), block_ao[2], block.getTexCoord() + glm::vec2(0.25f, 0.0f ) },
-                            { glm::vec3(x + 0.5f, y + 0.5f, z + 0.5f), glm::vec3( 0.0f,  0.0f,  1.0f), block_ao[3], block.getTexCoord() + glm::vec2(0.25f, 0.25f) }
+                            { glm::vec3(x - 0.5f, y - 0.5f, z + 0.5f), glm::vec3( 0.0f,  0.0f,  1.0f), block_ao[0], block.getTexCoord() + glm::vec2(0.0f,  0.0f) },
+                            { glm::vec3(x - 0.5f, y + 0.5f, z + 0.5f), glm::vec3( 0.0f,  0.0f,  1.0f), block_ao[1], block.getTexCoord() + glm::vec2(0.0f,  1.0f) },
+                            { glm::vec3(x + 0.5f, y - 0.5f, z + 0.5f), glm::vec3( 0.0f,  0.0f,  1.0f), block_ao[2], block.getTexCoord() + glm::vec2(0.25f, 0.0f) },
+                            { glm::vec3(x + 0.5f, y + 0.5f, z + 0.5f), glm::vec3( 0.0f,  0.0f,  1.0f), block_ao[3], block.getTexCoord() + glm::vec2(0.25f, 1.0f) }
                         };
 
                         auto index_base = static_cast<int>(vertices.size());
@@ -211,10 +211,10 @@ void Chunk::rebuild(World& world, glm::ivec3 region) {
                         };
 
                         Vertex block_vertices[] = {
-                            { glm::vec3(x - 0.5f, y - 0.5f, z - 0.5f), glm::vec3( 0.0f,  0.0f, -1.0f), block_ao[0], block.getTexCoord() + glm::vec2(0.0f,  0.0f ) },
-                            { glm::vec3(x - 0.5f, y + 0.5f, z - 0.5f), glm::vec3( 0.0f,  0.0f, -1.0f), block_ao[1], block.getTexCoord() + glm::vec2(0.0f,  0.25f) },
-                            { glm::vec3(x + 0.5f, y - 0.5f, z - 0.5f), glm::vec3( 0.0f,  0.0f, -1.0f), block_ao[2], block.getTexCoord() + glm::vec2(0.25f, 0.0f ) },
-                            { glm::vec3(x + 0.5f, y + 0.5f, z - 0.5f), glm::vec3( 0.0f,  0.0f, -1.0f), block_ao[3], block.getTexCoord() + glm::vec2(0.25f, 0.25f) }
+                            { glm::vec3(x - 0.5f, y - 0.5f, z - 0.5f), glm::vec3( 0.0f,  0.0f, -1.0f), block_ao[0], block.getTexCoord() + glm::vec2(0.0f,  0.0f) },
+                            { glm::vec3(x - 0.5f, y + 0.5f, z - 0.5f), glm::vec3( 0.0f,  0.0f, -1.0f), block_ao[1], block.getTexCoord() + glm::vec2(0.0f,  1.0f) },
+                            { glm::vec3(x + 0.5f, y - 0.5f, z - 0.5f), glm::vec3( 0.0f,  0.0f, -1.0f), block_ao[2], block.getTexCoord() + glm::vec2(0.25f, 0.0f) },
+                            { glm::vec3(x + 0.5f, y + 0.5f, z - 0.5f), glm::vec3( 0.0f,  0.0f, -1.0f), block_ao[3], block.getTexCoord() + glm::vec2(0.25f, 1.0f) }
                         };
 
                         auto index_base = static_cast<int>(vertices.size());
