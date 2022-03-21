@@ -3,6 +3,7 @@
 #include <fstream>
 #include <vector>
 
+#include <bimg/decode.h>
 #include <bx/bx.h>
 #include <bx/string.h>
 
@@ -48,4 +49,23 @@ bgfx::ProgramHandle cephalon::LoadProgram(const char* vs, const char* fs) {
     auto vsh = LoadShader(vs);
     auto fsh = LoadShader(fs);
     return bgfx::createProgram(vsh, fsh, true);
+}
+
+bgfx::TextureHandle cephalon::LoadTexture(const char* path, std::uint64_t flags) {
+	std::ifstream file(path, std::ios::ate | std::ios::binary);
+    std::size_t size = file.tellg();
+    file.seekg(0, std::ios::beg);
+    std::vector<char> data(size);
+    file.read(data.data(), size);
+    bx::DefaultAllocator allocator;
+    bimg::ImageContainer* image = bimg::imageParse(&allocator, data.data(), data.size());
+    return bgfx::createTexture2D(
+        image->m_width,
+        image->m_height,
+        1 < image->m_numMips,
+        image->m_numLayers, 
+        bgfx::TextureFormat::Enum(image->m_format),
+        flags,
+        bgfx::makeRef(image->m_data, image->m_size)
+    );
 }
