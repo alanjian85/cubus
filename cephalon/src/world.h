@@ -3,6 +3,7 @@
 
 #include <cmath>
 #include <unordered_map>
+#include <set>
 #include <vector>
 
 #include <glm/glm.hpp>
@@ -39,7 +40,7 @@ namespace cephalon {
                 return generator_(pos);
         }
 
-        void update(glm::vec3 playerPos);
+        void update(glm::vec3 player_pos);
 
         void render();
 
@@ -48,6 +49,7 @@ namespace cephalon {
         void loadChunk(glm::ivec3 region, Chunk& chunk);
 
         std::unordered_map<glm::ivec3, Chunk> chunks_;
+        std::unordered_map<glm::ivec3, Chunk*> rebuild_chunks_;
         std::unordered_map<glm::ivec3, const Block*> blocks_;
         Generator generator_;
     };
