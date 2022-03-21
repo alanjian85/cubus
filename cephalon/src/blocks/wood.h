@@ -4,8 +4,8 @@
 namespace cephalon {
     class Wood : public Block {
     public:
-        virtual std::uint32_t getColor() const override {
-            return 0xff72a4ca;
+        virtual glm::vec2 getTexCoord() const override {
+            return glm::vec2(0.75f, 0.0f);
         }
     };
 }

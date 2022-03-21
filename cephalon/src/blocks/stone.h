@@ -4,8 +4,8 @@
 namespace cephalon {
     class Stone : public Block {
     public:
-        virtual std::uint32_t getColor() const override {
-            return 0xff8d8c88;
+        virtual glm::vec2 getTexCoord() const override {
+            return glm::vec2(0.5f, 0.0f);
         }
     };
 }

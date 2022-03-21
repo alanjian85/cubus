@@ -4,8 +4,8 @@
 namespace cephalon {
     class Grass : public Block {
     public:
-        virtual std::uint32_t getColor() const override {
-            return 0xff50c87e;
+        virtual glm::vec2 getTexCoord() const override {
+            return glm::vec2(0.25f, 0.0f);
         }
     };
 }

@@ -1,7 +1,7 @@
 #ifndef CEPHALON_BLOCK_H_
 #define CEPHALON_BLOCK_H_
 
-#include <cstdint>
+#include <glm/glm.hpp>
 
 #include "aabb.h"
 #include "utils.h"
@@ -15,7 +15,7 @@ namespace cephalon {
             return false;
         }
 
-        virtual std::uint32_t getColor() const = 0;
+        virtual glm::vec2 getTexCoord() const = 0;
 
         virtual AABB getBoundingBox(glm::ivec3 pos) const {
             return AABB(glm::vec3(pos) - 0.5f, glm::vec3(pos) + 0.5f);
