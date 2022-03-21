@@ -16,7 +16,7 @@ namespace cephalon {
         glm::vec3 pos;
         glm::vec3 normal;
         float ao;
-        std::uint32_t agbr;
+        glm::vec2 tex_coord;
     };
 
     class World;
@@ -53,6 +53,8 @@ namespace cephalon {
 
         static bgfx::VertexLayout layout_;
         static bgfx::ProgramHandle program_;
+        static bgfx::TextureHandle atlas_;
+        static bgfx::UniformHandle s_atlas_;
 
         bool dirty_;
         std::vector<const Block*> blocks_;

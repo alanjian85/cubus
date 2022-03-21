@@ -35,7 +35,7 @@ set(CEPHALON_SHADERS
 )
 add_bgfx_shader(cephalon ${CEPHALON_SHADERS})
 
-file(COPY textures DESTINATION textures)
+file(COPY textures DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
 find_package(SDL2 REQUIRED)
 find_package(bgfx REQUIRED)
