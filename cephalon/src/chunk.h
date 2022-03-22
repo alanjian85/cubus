@@ -27,7 +27,7 @@ namespace cephalon {
         
         static void cleanup();
 
-        static constexpr glm::ivec3 kVolume = { 16, 256, 16 };
+        static constexpr glm::ivec3 kVolume = glm::ivec3(16, 256, 16);
 
         Chunk();
 
@@ -37,15 +37,15 @@ namespace cephalon {
 
         ~Chunk() noexcept;
 
-        void setBlock(glm::ivec3 pos, const Block& block);
+        void setBlock(glm::ivec3 offset, const Block& block);
 
-        const Block& getBlock(glm::ivec3 pos) const;
+        const Block& getBlock(glm::ivec3 offset) const;
 
         bool isDirty() const {
             return dirty_;
         }
 
-        void rebuild(World& world, glm::ivec3 region);
+        void rebuild(World& world, glm::ivec2 region);
 
         void render();
     private:
@@ -57,7 +57,7 @@ namespace cephalon {
         static bgfx::UniformHandle s_atlas_;
 
         bool dirty_;
-        std::vector<const Block*> blocks_;
+        const Block* blocks_[kVolume.x][kVolume.y][kVolume.z];
 
         bgfx::DynamicVertexBufferHandle vertex_buffer_;
         bgfx::DynamicIndexBufferHandle index_buffer_;

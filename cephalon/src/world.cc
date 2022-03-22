@@ -10,7 +10,7 @@ void World::update(glm::vec3 player_pos) {
     for (auto i = chunks_.begin(); i != chunks_.end();) {
         auto& [region, chunk] = *i;
         if (std::abs(player_region.x - region.x) > Config::kViewDistance ||
-            std::abs(player_region.z - region.z) > Config::kViewDistance)
+            std::abs(player_region.y - region.y) > Config::kViewDistance)
         {
             chunks_.erase(i++);
         } else {
@@ -20,10 +20,9 @@ void World::update(glm::vec3 player_pos) {
     
     int load_count = 0;
     for (auto x = player_region.x - Config::kViewDistance; x <= player_region.x + Config::kViewDistance; ++x) {
-        for (auto z = player_region.z - Config::kViewDistance; z <= player_region.z + Config::kViewDistance; ++z) {
-            if (load_count < Config::kChunkLoadLimit && chunks_.find(glm::ivec3(x, 0, z)) == chunks_.cend())
-            {
-                loadChunk(glm::ivec3(x, 0, z), chunks_[glm::ivec3(x, 0, z)]);
+        for (auto y = player_region.y - Config::kViewDistance; y <= player_region.y + Config::kViewDistance; ++y) {
+            if (load_count < Config::kChunkLoadLimit && chunks_.find(glm::ivec2(x, y)) == chunks_.cend()) {
+                loadChunk(glm::ivec2(x, y), chunks_[glm::ivec2(x, y)]);
                 ++load_count;
             }
         }
@@ -35,6 +34,7 @@ void World::render() {
         for (auto& [region, chunk] : chunks_) {
             if (chunk.isDirty()) {
                 rebuild_chunks_[region] = &chunk;
+/*
                 if (auto it = chunks_.find(region + glm::ivec3( 1, 0,  0)); it != chunks_.cend()) // ( 1,  0)
                     rebuild_chunks_[region + glm::ivec3( 1, 0,  0)] = &it->second;
                 if (auto it = chunks_.find(region + glm::ivec3(-1, 0,  0)); it != chunks_.cend()) // (-1,  0)
@@ -43,6 +43,7 @@ void World::render() {
                     rebuild_chunks_[region + glm::ivec3( 0, 0,  1)] = &it->second;
                 if (auto it = chunks_.find(region + glm::ivec3( 0, 0, -1)); it != chunks_.cend()) // ( 0, -1)
                     rebuild_chunks_[region + glm::ivec3( 0, 0, -1)] = &it->second;
+*/
             }
         }
     }
@@ -60,41 +61,40 @@ void World::render() {
     }
     
     for (auto& [region, chunk] : chunks_) {
-        auto transform = glm::translate(glm::mat4(1.0f), glm::vec3(region * Chunk::kVolume));
+        auto transform = glm::translate(glm::mat4(1.0f), glm::vec3(getPosition(region, glm::ivec3(0))));
         bgfx::setTransform(glm::value_ptr(transform));
         chunk.render();
     }
 }
 
 std::vector<std::pair<glm::ivec3, AABB>> World::getBoundingBoxes(AABB range) {
-    range.min.y = std::max<float>(range.min.y, 0.0f);
-    range.max.y = std::min<float>(range.max.y, Chunk::kVolume.y);
-
     std::vector<std::pair<glm::ivec3, AABB>> result;
     for (auto x = range.min.x; x <= range.max.x; ++x) {
         for (auto y = range.min.y; y <= range.max.y; ++y) {
             for (auto z = range.min.z; z <= range.max.z; ++z) {
-                auto& block = getBlock(glm::ivec3(x, y, z));
-                if (!block.isAir())
-                    result.emplace_back(glm::ivec3(x, y, z), block.getBoundingBox(glm::ivec3(x, y, z)));
+                if (y > 0 && y < Chunk::kVolume.y) {
+                    auto& block = getBlock(glm::ivec3(x, y, z));
+                    if (!block.isAir())
+                        result.emplace_back(glm::ivec3(x, y, z), block.getBoundingBox(glm::ivec3(x, y, z)));
+                }
             }
         }
     }
     return result;
 }
 
-void World::loadChunk(glm::ivec3 region, Chunk& chunk) {
+void World::loadChunk(glm::ivec2 region, Chunk& chunk) {
     for (int x = 0; x < Chunk::kVolume.x; ++x) {
         for (int y = 0; y < Chunk::kVolume.y; ++y) {
             for (int z = 0; z < Chunk::kVolume.z; ++z) {
-                auto pos = region * Chunk::kVolume + glm::ivec3(x, y, z);
-                chunk.setBlock(glm::ivec3(x, y, z), generator_(glm::ivec3(x, y, z)));
+                auto pos = getPosition(region, glm::ivec3(x, y, z));
+                chunk.setBlock(glm::ivec3(x, y, z), generator_(pos));
             }
         }
     }
     for (auto [pos, block] : blocks_) {
         if (getRegion(pos) == region) {
-            chunk.setBlock(getChunkPos(pos), *block);
+            chunk.setBlock(getOffset(pos), *block);
         }
     }
 }

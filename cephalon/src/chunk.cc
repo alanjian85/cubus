@@ -32,7 +32,6 @@ void Chunk::cleanup() {
 Chunk::Chunk()
 {
     dirty_ = false;
-    blocks_.resize(kVolume.x * kVolume.y * kVolume.z, &blocks::kAir);
     vertex_buffer_ = bgfx::createDynamicVertexBuffer(0u, layout_, BGFX_BUFFER_ALLOW_RESIZE);
     index_buffer_ = bgfx::createDynamicIndexBuffer(0u, BGFX_BUFFER_ALLOW_RESIZE);
 }
@@ -42,25 +41,24 @@ Chunk::~Chunk() noexcept {
     bgfx::destroy(index_buffer_);
 }
 
-void Chunk::setBlock(glm::ivec3 pos, const Block& block) {
-    assert(pos.x >= 0 && pos.x < kVolume.x);
-    assert(pos.y >= 0 && pos.y < kVolume.y);
-    assert(pos.z >= 0 && pos.z < kVolume.z);
-    auto index = pos.z * kVolume.x * kVolume.y + pos.y * kVolume.x + pos.x;
-    if (blocks_[index] != &block) {
+void Chunk::setBlock(glm::ivec3 offset, const Block& block) {
+    assert(offset.x >= 0 && offset.x < kVolume.x);
+    assert(offset.y >= 0 && offset.y < kVolume.y);
+    assert(offset.z >= 0 && offset.z < kVolume.z);
+    if (blocks_[offset.x][offset.y][offset.z] != &block) {
         dirty_ = true;
-        blocks_[index] = &block;
+        blocks_[offset.x][offset.y][offset.z] = &block;
     }
 }
 
-const Block& Chunk::getBlock(glm::ivec3 pos) const {
-    assert(pos.x >= 0 && pos.x < kVolume.x);
-    assert(pos.y >= 0 && pos.y < kVolume.y);
-    assert(pos.z >= 0 && pos.z < kVolume.z);
-    return *blocks_[pos.z * kVolume.x * kVolume.y + pos.y * kVolume.x + pos.x];
+const Block& Chunk::getBlock(glm::ivec3 offset) const {
+    assert(offset.x >= 0 && offset.x < kVolume.x);
+    assert(offset.y >= 0 && offset.y < kVolume.y);
+    assert(offset.z >= 0 && offset.z < kVolume.z);
+    return *blocks_[offset.x][offset.y][offset.z];
 }
 
-void Chunk::rebuild(World& world, glm::ivec3 region) {
+void Chunk::rebuild(World& world, glm::ivec2 region) {
     std::vector<Vertex> vertices;
     std::vector<std::uint16_t> indices;
 
@@ -69,7 +67,7 @@ void Chunk::rebuild(World& world, glm::ivec3 region) {
             for (int z = 0; z < kVolume.z; ++z) {
                 auto& block = getBlock(glm::ivec3(x, y, z));
                 if (!block.isAir()) {
-                    auto pos = region * kVolume + glm::ivec3(x, y, z);
+                    auto pos = World::getPosition(region, glm::ivec3(x, y, z));
 
                     // right
                     if (x == kVolume.x - 1 || getBlock(glm::ivec3(x + 1, y, z)).isAir()) {

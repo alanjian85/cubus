@@ -25,7 +25,7 @@ int main(int argc, char **argv) {
         SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE
     );
 
-    SDL_SetRelativeMouseMode(SDL_TRUE);
+    //SDL_SetRelativeMouseMode(SDL_TRUE);
 
     SDL_SysWMinfo wmi;
     SDL_VERSION(&wmi.version);
