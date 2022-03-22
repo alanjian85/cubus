@@ -33,11 +33,24 @@ namespace cephalon {
             return glm::ivec3(region.x, 0, region.y) * Chunk::kVolume + offset;
         }
 
+        Chunk* getChunk(glm::ivec2 region) {
+            auto it = chunks_.find(region);
+            if (it != chunks_.cend())
+                return &it->second;
+            return nullptr;
+        }
+
+        const Chunk* getChunk(glm::ivec2 region) const {
+            auto it = chunks_.find(region);
+            if (it != chunks_.cend())
+                return &it->second;
+            return nullptr;
+        }
+
         void setBlock(glm::ivec3 pos, const Block& block) {
             blocks_[pos] = &block;
-            auto it = chunks_.find(getRegion(pos));
-            if (it != chunks_.cend())
-                it->second.setBlock(getOffset(pos), block);
+            if (auto chunk = getChunk(getRegion(pos)))
+                chunk->setBlock(getOffset(pos), block);
         }
 
         const Block& getBlock(glm::ivec3 pos) const {

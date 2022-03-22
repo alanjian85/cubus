@@ -21,9 +21,12 @@ void World::update(glm::vec3 player_pos) {
     int load_count = 0;
     for (auto x = player_region.x - Config::kViewDistance; x <= player_region.x + Config::kViewDistance; ++x) {
         for (auto y = player_region.y - Config::kViewDistance; y <= player_region.y + Config::kViewDistance; ++y) {
-            if (load_count < Config::kChunkLoadLimit && chunks_.find(glm::ivec2(x, y)) == chunks_.cend()) {
-                loadChunk(glm::ivec2(x, y), chunks_[glm::ivec2(x, y)]);
-                ++load_count;
+            if (load_count < Config::kChunkLoadLimit) {
+                auto [chunk, loaded] = chunks_.emplace(glm::ivec2(x, y), Chunk(*this, glm::ivec2(x, y)));
+                if (loaded) {
+                    loadChunk(glm::ivec2(x, y), chunk->second);
+                    ++load_count;
+                }
             }
         }
     }
@@ -34,16 +37,6 @@ void World::render() {
         for (auto& [region, chunk] : chunks_) {
             if (chunk.isDirty()) {
                 rebuild_chunks_[region] = &chunk;
-
-                if (auto it = chunks_.find(region + glm::ivec2( 1,  0)); it != chunks_.cend())
-                    rebuild_chunks_[it->first] = &it->second;
-                if (auto it = chunks_.find(region + glm::ivec2(-1,  0)); it != chunks_.cend())
-                    rebuild_chunks_[it->first] = &it->second;
-                if (auto it = chunks_.find(region + glm::ivec2( 0,  1)); it != chunks_.cend())
-                    rebuild_chunks_[it->first] = &it->second;
-                if (auto it = chunks_.find(region + glm::ivec2( 0, -1)); it != chunks_.cend())
-                    rebuild_chunks_[it->first] = &it->second;
-
             }
         }
     }
@@ -52,7 +45,7 @@ void World::render() {
     for (auto it = rebuild_chunks_.begin(); it != rebuild_chunks_.end();) {
         auto& [region, chunk] = *it;
         if (rebuild_count < Config::kChunkRebuildLimit) {
-            chunk->rebuild(*this, region);
+            chunk->rebuild();
             rebuild_chunks_.erase(it++);
             ++rebuild_count;
         } else {
