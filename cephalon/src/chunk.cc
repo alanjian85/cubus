@@ -34,6 +34,13 @@ Chunk::Chunk(World& world, glm::ivec2 region)
 {
     region_ = region;
     dirty_ = false;
+    for (int x = 0; x < kVolume.x; ++x) {
+        for (int y = 0; y < kVolume.y; ++y) {
+            for (int z = 0; z < kVolume.z; ++z) {
+                blocks_[x][y][z] = &blocks::kAir;
+            }
+        }
+    }
     vertex_buffer_ = bgfx::createDynamicVertexBuffer(0u, layout_, BGFX_BUFFER_ALLOW_RESIZE);
     index_buffer_ = bgfx::createDynamicIndexBuffer(0u, BGFX_BUFFER_ALLOW_RESIZE);
 }
@@ -43,6 +50,13 @@ Chunk::Chunk(Chunk&& rhs) noexcept
 {
     region_ = rhs.region_;
     dirty_ = rhs.dirty_;
+    for (int x = 0; x < kVolume.x; ++x) {
+        for (int y = 0; y < kVolume.y; ++y) {
+            for (int z = 0; z < kVolume.z; ++z) {
+                blocks_[x][y][z] = rhs.blocks_[x][y][z];
+            }
+        }
+    }
     vertex_buffer_ = std::exchange(rhs.vertex_buffer_, bgfx::createDynamicVertexBuffer(0u, layout_));
     index_buffer_= std::exchange(rhs.index_buffer_, bgfx::createDynamicIndexBuffer(0u));
 }
