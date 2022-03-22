@@ -4,10 +4,10 @@
 namespace cephalon {
     class Config {
     public:
-        static constexpr int kViewDistance = 10;
-        static constexpr int kDestroyDistance = 10;
+        static constexpr int kViewDistance = 5;
+        static constexpr int kDestroyDistance = 5;
         static constexpr int kChunkLoadLimit = 4;
-        static constexpr int kChunkRebuildLimit = 8;
+        static constexpr int kChunkRebuildLimit = 4;
     };
 }
 

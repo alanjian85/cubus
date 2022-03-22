@@ -70,7 +70,6 @@ namespace cephalon {
         void loadChunk(glm::ivec2 region, Chunk& chunk);
 
         std::unordered_map<glm::ivec2, Chunk> chunks_;
-        std::unordered_map<glm::ivec2, Chunk*> rebuild_chunks_;
         std::unordered_map<glm::ivec3, const Block*> blocks_;
         Generator generator_;
     };

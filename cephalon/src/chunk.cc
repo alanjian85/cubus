@@ -59,6 +59,23 @@ void Chunk::setBlock(glm::ivec3 offset, const Block& block) {
     if (blocks_[offset.x][offset.y][offset.z] != &block) {
         dirty_ = true;
         blocks_[offset.x][offset.y][offset.z] = &block;
+
+        if (offset.x == 0) {
+            if (auto chunk = world_.getChunk(region_ + glm::ivec2(-1,  0)))
+                chunk->dirty_ = true;
+        }
+        if (offset.x == kVolume.x - 1) {
+            if (auto chunk = world_.getChunk(region_ + glm::ivec2( 1,  0)))
+                chunk->dirty_ = true;
+        }
+        if (offset.z == 0) {
+            if (auto chunk = world_.getChunk(region_ + glm::ivec2( 0, -1)))
+                chunk->dirty_ = true;
+        }
+        if (offset.z == kVolume.z - 1) {
+            if (auto chunk = world_.getChunk(region_ + glm::ivec2( 0,  1)))
+                chunk->dirty_ = true;
+        }
     }
 }
 

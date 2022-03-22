@@ -33,23 +33,11 @@ void World::update(glm::vec3 player_pos) {
 }
 
 void World::render() {
-    if (rebuild_chunks_.empty()) {
-        for (auto& [region, chunk] : chunks_) {
-            if (chunk.isDirty()) {
-                rebuild_chunks_[region] = &chunk;
-            }
-        }
-    }
-
     int rebuild_count = 0;
-    for (auto it = rebuild_chunks_.begin(); it != rebuild_chunks_.end();) {
-        auto& [region, chunk] = *it;
-        if (rebuild_count < Config::kChunkRebuildLimit) {
-            chunk->rebuild();
-            rebuild_chunks_.erase(it++);
+    for (auto& [region, chunk] : chunks_) {
+        if (rebuild_count < Config::kChunkRebuildLimit && chunk.isDirty()) {
+            chunk.rebuild();
             ++rebuild_count;
-        } else {
-            break;
         }
     }
     
