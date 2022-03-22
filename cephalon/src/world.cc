@@ -34,16 +34,16 @@ void World::render() {
         for (auto& [region, chunk] : chunks_) {
             if (chunk.isDirty()) {
                 rebuild_chunks_[region] = &chunk;
-/*
-                if (auto it = chunks_.find(region + glm::ivec3( 1, 0,  0)); it != chunks_.cend()) // ( 1,  0)
-                    rebuild_chunks_[region + glm::ivec3( 1, 0,  0)] = &it->second;
-                if (auto it = chunks_.find(region + glm::ivec3(-1, 0,  0)); it != chunks_.cend()) // (-1,  0)
-                    rebuild_chunks_[region + glm::ivec3(-1, 0,  0)] = &it->second;
-                if (auto it = chunks_.find(region + glm::ivec3( 0, 0,  1)); it != chunks_.cend()) // ( 0,  1)
-                    rebuild_chunks_[region + glm::ivec3( 0, 0,  1)] = &it->second;
-                if (auto it = chunks_.find(region + glm::ivec3( 0, 0, -1)); it != chunks_.cend()) // ( 0, -1)
-                    rebuild_chunks_[region + glm::ivec3( 0, 0, -1)] = &it->second;
-*/
+
+                if (auto it = chunks_.find(region + glm::ivec2( 1,  0)); it != chunks_.cend())
+                    rebuild_chunks_[it->first] = &it->second;
+                if (auto it = chunks_.find(region + glm::ivec2(-1,  0)); it != chunks_.cend())
+                    rebuild_chunks_[it->first] = &it->second;
+                if (auto it = chunks_.find(region + glm::ivec2( 0,  1)); it != chunks_.cend())
+                    rebuild_chunks_[it->first] = &it->second;
+                if (auto it = chunks_.find(region + glm::ivec2( 0, -1)); it != chunks_.cend())
+                    rebuild_chunks_[it->first] = &it->second;
+
             }
         }
     }

@@ -20,7 +20,7 @@ namespace cephalon {
         static glm::ivec2 getRegion(glm::ivec3 pos) {
             return glm::ivec2(
                 glm::floor(static_cast<float>(pos.x) / Chunk::kVolume.x),
-                glm::floor(static_cast<float>(pos.y) / Chunk::kVolume.z)
+                glm::floor(static_cast<float>(pos.z) / Chunk::kVolume.z)
             );
         }
 
