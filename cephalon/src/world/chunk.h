@@ -9,7 +9,9 @@
 #include <glm/glm.hpp>
 
 #include "blocks/block.h"
+#include "utils/aabb.h"
 #include "utils/assets.h"
+#include "utils/ray.h"
 
 namespace cephalon {
     struct Vertex {
@@ -37,6 +39,10 @@ namespace cephalon {
 
         ~Chunk() noexcept;
 
+        glm::ivec2 getRegion() const {
+            return region_;
+        }
+
         void setBlock(glm::ivec3 offset, const Block& block);
 
         const Block& getBlock(glm::ivec3 offset) const;
@@ -47,14 +53,16 @@ namespace cephalon {
 
         void rebuild();
 
-        void render();
+        void render() const;
+
+        bool intersect(Ray ray, float dmin, float dmax, Direction& dir, glm::ivec3& offset, float& dist) const;
     private:
         static bgfx::VertexLayout layout_;
         static bgfx::ProgramHandle program_;
         static bgfx::TextureHandle atlas_;
         static bgfx::UniformHandle s_atlas_;
 
-        float vertexAO(glm::ivec3 side1, glm::ivec3 side2, glm::ivec3 corner);
+        float vertexAO(glm::ivec3 side1, glm::ivec3 side2, glm::ivec3 corner) const;
 
         glm::ivec2 region_;
         World& world_;

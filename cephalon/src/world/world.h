@@ -65,7 +65,7 @@ namespace cephalon {
 
         void render();
 
-        std::vector<std::pair<glm::ivec3, AABB>> getBoundingBoxes(AABB range);
+        bool intersect(Ray ray, float dmin, float dmax, Direction& dir, glm::ivec3& pos) const;
     private:
         void loadChunk(glm::ivec2 region, Chunk& chunk);
 

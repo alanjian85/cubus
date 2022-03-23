@@ -1,6 +1,7 @@
 #include "chunk.h"
 using namespace cephalon;
 
+#include <iostream>
 #include <iterator>
 
 #include "utils/assets.h"
@@ -296,18 +297,46 @@ void Chunk::rebuild() {
     dirty_ = false;
 }
 
-void Chunk::render() {
+void Chunk::render() const {
     bgfx::setTexture(0, s_atlas_, atlas_);
     bgfx::setVertexBuffer(0, vertex_buffer_);
     bgfx::setIndexBuffer(index_buffer_);
     bgfx::submit(0, program_);
 }
 
-float Chunk::vertexAO(glm::ivec3 side1, glm::ivec3 side2, glm::ivec3 corner) {
+float Chunk::vertexAO(glm::ivec3 side1, glm::ivec3 side2, glm::ivec3 corner) const {
     auto s1 = !world_.getBlock(side1).isAir();
     auto s2 = !world_.getBlock(side2).isAir();
     auto c = !world_.getBlock(corner).isAir();
     if (s1 && s2)
         return 0.0f;
     return 1.0f - (s1 + s2 + c) / 3.0f;
+}
+
+bool Chunk::intersect(Ray ray, float dmin, float dmax, Direction& dir, glm::ivec3& offset, float& dist) const {
+    float temp_dist;
+    Direction direction;
+    AABB aabb(World::getPosition(region_, glm::ivec3(0)), World::getPosition(region_, kVolume - 1));
+    if (aabb.intersect(ray, dmin, dmax, direction, temp_dist)) {
+        bool intersected = false;
+        for (int x = 0; x < kVolume.x; ++x) {
+            for (int y = 0; y < kVolume.y; ++y) {
+                for (int z = 0; z < kVolume.z; ++z) {
+                    auto pos = World::getPosition(region_, glm::ivec3(x, y, z));
+                    auto& block = getBlock(glm::ivec3(x, y, z));
+                    if (!block.isAir() && block.getBoundingBox(pos).intersect(ray, dmin, dmax, direction, dmax)) {
+                        auto neighbor_pos = pos + directionToVector(direction);
+                        if (world_.getBlock(neighbor_pos).isAir()) {
+                            intersected = true;
+                            dir = direction;
+                            offset = glm::ivec3(x, y, z);
+                            dist = dmax;
+                        }
+                    }
+                }
+            }
+        }
+        return intersected;
+    }
+    return false;
 }

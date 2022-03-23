@@ -14,6 +14,7 @@ set(CEPHALON_SRCS
     src/utils/assets.h
     src/utils/assets.cc
     src/utils/camera.h
+    src/utils/ray.h
     src/world/chunk.h
     src/world/chunk.cc
     src/world/generator.h

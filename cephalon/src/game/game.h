@@ -25,8 +25,8 @@ namespace cephalon {
 
         void render();
     private:
-        bool intersect_;
-        glm::ivec3 break_pos_;
+        bool intersected_;
+        glm::ivec3 destroy_pos_;
         glm::ivec3 place_pos_;
         Direction block_dir_;
         Outline outline_;

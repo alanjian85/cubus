@@ -48,22 +48,6 @@ void World::render() {
     }
 }
 
-std::vector<std::pair<glm::ivec3, AABB>> World::getBoundingBoxes(AABB range) {
-    std::vector<std::pair<glm::ivec3, AABB>> result;
-    for (auto x = range.min.x; x <= range.max.x; ++x) {
-        for (auto y = range.min.y; y <= range.max.y; ++y) {
-            for (auto z = range.min.z; z <= range.max.z; ++z) {
-                if (y > 0 && y < Chunk::kVolume.y) {
-                    auto& block = getBlock(glm::ivec3(x, y, z));
-                    if (!block.isAir())
-                        result.emplace_back(glm::ivec3(x, y, z), block.getBoundingBox(glm::ivec3(x, y, z)));
-                }
-            }
-        }
-    }
-    return result;
-}
-
 void World::loadChunk(glm::ivec2 region, Chunk& chunk) {
     for (int x = 0; x < Chunk::kVolume.x; ++x) {
         for (int y = 0; y < Chunk::kVolume.y; ++y) {
@@ -78,4 +62,16 @@ void World::loadChunk(glm::ivec2 region, Chunk& chunk) {
             chunk.setBlock(getOffset(pos), *block);
         }
     }
+}
+
+bool World::intersect(Ray ray, float dmin, float dmax, Direction& dir, glm::ivec3& pos) const {
+    bool intersected = false;
+    for (auto& [region, chunk] : chunks_) {
+        glm::ivec3 offset;
+        if (chunk.intersect(ray, dmin, dmax, dir, offset, dmax)) {
+            intersected = true;
+            pos = getPosition(chunk.getRegion(), offset);
+        }
+    }
+    return intersected;
 }

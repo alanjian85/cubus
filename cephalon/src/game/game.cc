@@ -25,47 +25,15 @@ void Game::update(float delta) {
 
     world_.update(camera_.pos);
 
-    auto bounding_boxes = world_.getBoundingBoxes(AABB(
-        camera_.pos - glm::vec3(Config::kDestroyDistance),
-        camera_.pos + glm::vec3(Config::kDestroyDistance)
-    ));
-    auto nearest = Config::kDestroyDistance;
-    intersect_ = false;
-    for (auto [pos, bounding_box] : bounding_boxes) {
-        auto dir = bounding_box.intersect(camera_.pos, camera_.dir, 0.1f, nearest);
-        if (dir) {
-            glm::ivec3 place_pos;
-            switch (*dir) {
-                case Direction::kRight:
-                    place_pos = pos + glm::ivec3( 1,  0,  0);
-                    break;
-                case Direction::kLeft:
-                    place_pos = pos + glm::ivec3(-1,  0,  0);
-                    break;
-                case Direction::kTop:
-                    place_pos = pos + glm::ivec3( 0,  1,  0);
-                    break;
-                case Direction::kBottom:
-                    place_pos = pos + glm::ivec3( 0, -1,  0);
-                    break;
-                case Direction::kBack:
-                    place_pos = pos + glm::ivec3( 0,  0,  1);
-                    break;
-                case Direction::kFront:
-                    place_pos = pos + glm::ivec3( 0,  0, -1);
-                    break;
-            }
-
-            if (world_.getBlock(place_pos).isAir()) {
-                intersect_ = true;
-                nearest = glm::length(glm::vec3(pos) - camera_.pos);
-                break_pos_ = pos;
-                block_dir_ = *dir;
-                place_pos_ = place_pos;
-
-                outline_.update(break_pos_, block_dir_);
-            }
-        }
+    intersected_ = world_.intersect(
+        Ray(camera_.pos, camera_.dir), 
+        camera_.near, 
+        Config::kDestroyDistance, 
+        block_dir_, destroy_pos_
+    );
+    if (intersected_) {
+        place_pos_ = destroy_pos_ + directionToVector(block_dir_);
+        outline_.update(destroy_pos_, block_dir_);
     }
 }
 
@@ -85,8 +53,8 @@ void Game::onCursorMove(float relative_x, float relative_y) {
 }
 
 void Game::onMouseLeftClick() {
-    if (intersect_) {
-        world_.setBlock(break_pos_, blocks::kAir);
+    if (intersected_) {
+        world_.setBlock(destroy_pos_, blocks::kAir);
     }
 }
 
@@ -98,7 +66,7 @@ void Game::render() {
     bgfx::setViewTransform(0, glm::value_ptr(camera_.view), glm::value_ptr(camera_.proj));
     world_.render();
 
-    if (intersect_) {
+    if (intersected_) {
         outline_.render();
     }
 }
