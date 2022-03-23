@@ -37,16 +37,16 @@ void World::render(PerspectiveCamera cam) {
 
     int rebuild_count = 0;
     for (auto& [region, chunk] : chunks_) {
-        if (rebuild_count < Config::kChunkRebuildLimit && chunk.inbound(cam) && chunk.isDirty() && chunk.inbound(cam)) {
-            chunk.rebuild();
-            ++rebuild_count;
+        if (chunk.inbound(cam)) {
+            if (rebuild_count < Config::kChunkRebuildLimit && chunk.isDirty()) {
+                chunk.rebuild();
+                ++rebuild_count;
+            }
+
+            auto transform = glm::translate(glm::mat4(1.0f), glm::vec3(getPosition(region, glm::ivec3(0))));
+            bgfx::setTransform(glm::value_ptr(transform));
+            chunk.render();
         }
-    }
-    
-    for (auto& [region, chunk] : chunks_) {
-        auto transform = glm::translate(glm::mat4(1.0f), glm::vec3(getPosition(region, glm::ivec3(0))));
-        bgfx::setTransform(glm::value_ptr(transform));
-        chunk.render();
     }
 }
 
@@ -68,10 +68,10 @@ void World::loadChunk(glm::ivec2 region, Chunk& chunk) {
 
 bool World::intersect(PerspectiveCamera cam, Direction& dir, glm::ivec3& pos) const {
     bool intersected = false;
-    auto dmax = cam.near;
+    auto dmax = static_cast<float>(Config::kDestroyDistance);
     for (auto& [region, chunk] : chunks_) {
         glm::ivec3 offset;
-        if (chunk.inbound(cam) && chunk.intersect(Ray(cam.pos, cam.dir), dmax, Config::kDestroyDistance, dir, offset, dmax)) {
+        if (chunk.inbound(cam) && chunk.intersect(Ray(cam.pos, cam.dir), cam.near, dmax, dir, offset, dmax)) {
             intersected = true;
             pos = getPosition(chunk.getRegion(), offset);
         }
