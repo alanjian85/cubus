@@ -365,9 +365,9 @@ bool Chunk::inbound(PerspectiveCamera cam) const {
         bottom &= corner.y < -corner.w;
         back   &= corner.z >  corner.w;
         if (bgfx::getCaps()->homogeneousDepth)
-            front &= corner.z < 0;
-        else
             front &= corner.z < -corner.w;
+        else
+            front &= corner.z < 0;
     }
     return !right && !left &&
            !top && !bottom &&
