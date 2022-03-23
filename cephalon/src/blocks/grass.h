@@ -1,5 +1,5 @@
-#ifndef CEPHALON_GRASS_H_
-#define CEPHALON_GRASS_H_
+#ifndef CEPHALON_BLOCKS_GRASS_H_
+#define CEPHALON_BLOCKS_GRASS_H_
 
 namespace cephalon {
     class Grass : public Block {
@@ -10,4 +10,4 @@ namespace cephalon {
     };
 }
 
-#endif // CEPHALON_DIRT_H_
+#endif // CEPHALON_BLOCKS_GRASS_H_

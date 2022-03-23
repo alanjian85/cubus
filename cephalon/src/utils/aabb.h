@@ -1,5 +1,5 @@
-#ifndef CEPHALON_AABB_H_
-#define CEPHALON_AABB_H_
+#ifndef CEPHALON_UTILS_AABB_H_
+#define CEPHALON_UTILS_AABB_H_
 
 #include <optional>
 
@@ -62,4 +62,4 @@ namespace cephalon {
     };
 }
 
-#endif // CEPHALON_AABB_H_
+#endif // CEPHALON_UTILS_AABB_H_

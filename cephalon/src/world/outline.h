@@ -1,10 +1,10 @@
-#ifndef CEPHALON_OUTLINE_H_
-#define CEPHALON_OUTLINE_H_
+#ifndef CEPHALON_WORLD_OUTLINE_H_
+#define CEPHALON_WORLD_OUTLINE_H_
 
 #include <bgfx/bgfx.h>
 #include <glm/glm.hpp>
 
-#include "aabb.h"
+#include "utils/aabb.h"
 
 namespace cephalon {
     class Outline {
@@ -32,4 +32,4 @@ namespace cephalon {
     };
 }
 
-#endif // CEPHALON_OUTLINE_H_
+#endif // CEPHALON_WORLD_OUTLINE_H_

@@ -6,11 +6,11 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_syswm.h>
 
-#include "camera.h"
 #include "cephalon_config.h"
-#include "game.h"
-#include "input.h"
-#include "timer.h"
+#include "game/game.h"
+#include "game/input.h"
+#include "game/timer.h"
+#include "utils/camera.h"
 using namespace cephalon;
 
 int main(int argc, char **argv) {

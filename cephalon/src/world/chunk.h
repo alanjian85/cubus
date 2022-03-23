@@ -1,5 +1,5 @@
-#ifndef CEPHALON_CHUNK_H_
-#define CEPHALON_CHUNK_H_
+#ifndef CEPHALON_WORLD_CHUNK_H_
+#define CEPHALON_WORLD_CHUNK_H_
 
 #include <cassert>
 #include <cstdint>
@@ -9,7 +9,7 @@
 #include <glm/glm.hpp>
 
 #include "blocks/block.h"
-#include "utils.h"
+#include "utils/assets.h"
 
 namespace cephalon {
     struct Vertex {
@@ -65,4 +65,4 @@ namespace cephalon {
     };
 }
 
-#endif // CEPHALON_CHUNK_H_
+#endif // CEPHALON_WORLD_CHUNK_H_

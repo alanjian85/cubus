@@ -1,5 +1,5 @@
-#ifndef CEPHALON_UTILS_H_
-#define CEPHALON_UTILS_H_
+#ifndef CEPHALON_UTILS_ASSETS_H_
+#define CEPHALON_UTILS_ASSETS_H_
 
 #include <cstdint>
 
@@ -13,4 +13,4 @@ namespace cephalon {
     bgfx::TextureHandle LoadTexture(const char* path, std::uint64_t flags = 0);
 }
 
-#endif // CEPHALON_BGFX_UTILS_H_
+#endif // CEPHALON_BGFX_UTILS_ASSETS_H_

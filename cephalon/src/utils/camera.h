@@ -1,5 +1,5 @@
-#ifndef CEPHALON_CAMERA_H_
-#define CEPHALON_CAMERA_H_
+#ifndef CEPHALON_UTILS_CAMERA_H_
+#define CEPHALON_UTILS_CAMERA_H_
 
 #include <bgfx/bgfx.h>
 #include <glm/glm.hpp>
@@ -35,4 +35,4 @@ namespace cephalon {
     };
 }
 
-#endif // CEPHALON_CAMERA_H_
+#endif // CEPHALON_UTILS_CAMERA_H_

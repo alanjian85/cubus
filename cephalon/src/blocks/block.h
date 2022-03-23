@@ -1,10 +1,9 @@
-#ifndef CEPHALON_BLOCK_H_
-#define CEPHALON_BLOCK_H_
+#ifndef CEPHALON_BLOCKS_BLOCK_H_
+#define CEPHALON_BLOCKS_BLOCK_H_
 
 #include <glm/glm.hpp>
 
-#include "aabb.h"
-#include "utils.h"
+#include "utils/aabb.h"
 
 namespace cephalon {
     class Block {
@@ -39,4 +38,4 @@ namespace cephalon {
     }
 }
 
-#endif // CEPHALON_BLOCK_H_
+#endif // CEPHALON_BLOCKS_BLOCK_H_

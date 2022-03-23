@@ -1,14 +1,14 @@
-#ifndef CEPHALON_GAME_H_
-#define CEPHALON_GAME_H_
+#ifndef CEPHALON_GAME_GAME_H_
+#define CEPHALON_GAME_GAME_H_
 
 #include <memory>
 
 #include <glm/glm.hpp>
 
-#include "camera.h"
-#include "outline.h"
-#include "utils.h"
-#include "world.h"
+#include "utils/assets.h"
+#include "utils/camera.h"
+#include "world/outline.h"
+#include "world/world.h"
 
 namespace cephalon {
     class Game {
@@ -36,4 +36,4 @@ namespace cephalon {
     };
 }
 
-#endif // CEPHALON_GAME_H_
+#endif // CEPHALON_GAME_GAME_H_

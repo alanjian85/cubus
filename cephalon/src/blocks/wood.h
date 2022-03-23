@@ -1,5 +1,5 @@
-#ifndef CEPHALON_WOOD_H_
-#define CEPHALON_WOOD_H_
+#ifndef CEPHALON_BLOCKS_WOOD_H_
+#define CEPHALON_BLOCKS_WOOD_H_
 
 namespace cephalon {
     class Wood : public Block {
@@ -10,4 +10,4 @@ namespace cephalon {
     };
 }
 
-#endif // CEPHALON_STONE_H_
+#endif // CEPHALON_BLOCKS_WOOD_H_

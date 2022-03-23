@@ -3,7 +3,7 @@ using namespace cephalon;
 
 #include <iterator>
 
-#include "utils.h"
+#include "utils/assets.h"
 #include "world.h"
 
 bgfx::VertexLayout Chunk::layout_;

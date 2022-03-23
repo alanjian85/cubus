@@ -166,7 +166,7 @@ function( add_bgfx_shader TARGET )
         endif()
 
         if( NOT "${TYPE}" STREQUAL "" )
-            set( COMMON FILE ${CMAKE_CURRENT_SOURCE_DIR}/${FILE} ${TYPE} INCLUDES ${CMAKE_CURRENT_SOURCE_DIR}/src )
+            set( COMMON FILE ${CMAKE_CURRENT_SOURCE_DIR}/${FILE} ${TYPE} INCLUDES ${CMAKE_CURRENT_SOURCE_DIR}/shaders )
             set( OUTPUTS "" )
             set( OUTPUTS_PRETTY "" )
 

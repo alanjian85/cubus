@@ -1,5 +1,5 @@
-#ifndef CEPHALON_TIMER_H_
-#define CEPHALON_TIMER_H_
+#ifndef CEPHALON_GAME_TIMER_H_
+#define CEPHALON_GAME_TIMER_H_
 
 #include <SDL2/SDL.h>
 
@@ -12,4 +12,4 @@ namespace cephalon {
     };
 }
 
-#endif // CEPHALON_TIMER_H_
+#endif // CEPHALON_GAME_TIMER_H_

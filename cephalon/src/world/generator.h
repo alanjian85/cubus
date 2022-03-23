@@ -1,5 +1,5 @@
-#ifndef CEPHALON_GENERATOR_H_
-#define CEPHALON_GENERATOR_H_
+#ifndef CEPHALON_WORLD_GENERATOR_H_
+#define CEPHALON_WORLD_GENERATOR_H_
 
 #include <glm/glm.hpp>
 
@@ -21,4 +21,4 @@ namespace cephalon {
     };
 }
 
-#endif // CEPHALON_GENERATOR_H_
+#endif // CEPHALON_WORLD_GENERATOR_H_

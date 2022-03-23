@@ -1,5 +1,5 @@
-#ifndef CEPHALON_INPUT_H_
-#define CEPHALON_INPUT_H_
+#ifndef CEPHALON_GAME_INPUT_H_
+#define CEPHALON_GAME_INPUT_H_
 
 #include <SDL2/SDL.h>
 
@@ -30,4 +30,4 @@ namespace cephalon {
     };
 }
 
-#endif // CEPHALON_INPUT_H_
+#endif // CEPHALON_GAME_INPUT_H_

@@ -13,7 +13,6 @@ void main()
 	vec3 ambient = ambientStrength * vec3(v_color0) * vec3(texture2D(s_atlas, v_texcoord0));
 
 	float diff = max(dot(normal, -lightDir), 0.0);
-	diff = 1.0;
 	vec3 diffuse = diff * vec3(texture2D(s_atlas, v_texcoord0));
 
 	gl_FragColor = vec4(ambient + diffuse, 1.0);

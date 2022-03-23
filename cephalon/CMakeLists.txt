@@ -4,26 +4,29 @@ configure_file(cephalon_config.h.in cephalon_config.h)
 
 set(CEPHALON_SRCS
     src/blocks/air.h
-    src/blocks/block.h
     src/blocks/block.cc
+    src/blocks/block.h
     src/blocks/dirt.h
     src/blocks/grass.h
     src/blocks/stone.h
-    src/camera.h
-    src/chunk.h
-    src/chunk.cc
-    src/game.h
-    src/game.cc
-    src/input.cc
-    src/input.h
+    src/blocks/wood.h
+    src/utils/aabb.h
+    src/utils/assets.h
+    src/utils/assets.cc
+    src/utils/camera.h
+    src/world/chunk.h
+    src/world/chunk.cc
+    src/world/generator.h
+    src/world/outline.h
+    src/world/outline.cc
+    src/world/world.cc
+    src/world/world.h
+    src/game/game.cc
+    src/game/game.h
+    src/game/input.cc
+    src/game/input.h
+    src/game/timer.h
     src/main.cc
-    src/outline.h
-    src/outline.cc
-    src/timer.h
-    src/utils.cc
-    src/utils.h
-    src/world.cc
-    src/world.h
 )
 add_executable(cephalon ${CEPHALON_SRCS})
 

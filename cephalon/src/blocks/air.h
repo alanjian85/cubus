@@ -1,5 +1,5 @@
-#ifndef CEPHALON_AIR_H_
-#define CEPHALON_AIR_H_
+#ifndef CEPHALON_BLOCKS_AIR_H_
+#define CEPHALON_BLOCKS_AIR_H_
 
 namespace cephalon {
     class Air : public Block {
@@ -14,4 +14,4 @@ namespace cephalon {
     };
 }
 
-#endif // CEPHALON_AIR_H_
+#endif // CEPHALON_BLOCKS_AIR_H_

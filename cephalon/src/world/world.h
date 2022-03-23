@@ -1,5 +1,5 @@
-#ifndef CEPHALON_WORLD_H_
-#define CEPHALON_WORLD_H_
+#ifndef CEPHALON_WORLD_WORLD_H_
+#define CEPHALON_WORLD_WORLD_H_
 
 #include <cmath>
 #include <unordered_map>
@@ -9,7 +9,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtx/hash.hpp>
 
-#include "aabb.h"
+#include "utils/aabb.h"
 #include "chunk.h"
 #include "config.h"
 #include "generator.h"
@@ -75,4 +75,4 @@ namespace cephalon {
     };
 }
 
-#endif // CEPHALON_WORLD_H_
+#endif // CEPHALON_WORLD_WORLD_H_

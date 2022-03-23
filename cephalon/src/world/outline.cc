@@ -4,8 +4,8 @@ using namespace cephalon;
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#include "timer.h"
-#include "utils.h"
+#include "game/timer.h"
+#include "utils/assets.h"
 
 Outline::Outline() {
     program_ = LoadProgram("vs_outline", "fs_outline");
