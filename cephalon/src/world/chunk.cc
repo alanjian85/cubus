@@ -1,7 +1,6 @@
 #include "chunk.h"
 using namespace cephalon;
 
-#include <iostream>
 #include <iterator>
 
 #include "utils/assets.h"

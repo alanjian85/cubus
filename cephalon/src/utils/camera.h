@@ -15,7 +15,10 @@ namespace cephalon {
             );
             right = glm::normalize(glm::cross(glm::vec3(0.0f, 1.0f, 0.0f), dir));
             view = glm::lookAt(pos, pos + dir, glm::vec3(0.0f, 1.0f, 0.0f));
-            proj = glm::perspective(glm::radians(fov), aspect, near, far);
+            if (bgfx::getCaps()->homogeneousDepth)
+                proj = glm::perspectiveNO(glm::radians(fov), aspect, near, far);
+            else
+                proj = glm::perspectiveZO(glm::radians(fov), aspect, near, far);
         }
 
         glm::vec3 pos { 0.0f, 0.0f, 0.0f };
