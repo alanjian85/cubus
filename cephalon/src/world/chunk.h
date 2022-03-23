@@ -11,6 +11,7 @@
 #include "blocks/block.h"
 #include "utils/aabb.h"
 #include "utils/assets.h"
+#include "utils/camera.h"
 #include "utils/ray.h"
 
 namespace cephalon {
@@ -56,6 +57,8 @@ namespace cephalon {
         void render() const;
 
         bool intersect(Ray ray, float dmin, float dmax, Direction& dir, glm::ivec3& offset, float& dist) const;
+
+        bool inbound(PerspectiveCamera cam) const;
     private:
         static bgfx::VertexLayout layout_;
         static bgfx::ProgramHandle program_;

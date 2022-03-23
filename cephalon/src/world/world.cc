@@ -32,10 +32,12 @@ void World::update(glm::vec3 player_pos) {
     }
 }
 
-void World::render() {
+void World::render(PerspectiveCamera cam) {
+    bgfx::setViewTransform(0, glm::value_ptr(cam.view), glm::value_ptr(cam.proj));
+
     int rebuild_count = 0;
     for (auto& [region, chunk] : chunks_) {
-        if (rebuild_count < Config::kChunkRebuildLimit && chunk.isDirty()) {
+        if (rebuild_count < Config::kChunkRebuildLimit && chunk.inbound(cam) && chunk.isDirty() && chunk.inbound(cam)) {
             chunk.rebuild();
             ++rebuild_count;
         }
@@ -64,11 +66,12 @@ void World::loadChunk(glm::ivec2 region, Chunk& chunk) {
     }
 }
 
-bool World::intersect(Ray ray, float dmin, float dmax, Direction& dir, glm::ivec3& pos) const {
+bool World::intersect(PerspectiveCamera cam, Direction& dir, glm::ivec3& pos) const {
     bool intersected = false;
+    auto dmax = cam.near;
     for (auto& [region, chunk] : chunks_) {
         glm::ivec3 offset;
-        if (chunk.intersect(ray, dmin, dmax, dir, offset, dmax)) {
+        if (chunk.inbound(cam) && chunk.intersect(Ray(cam.pos, cam.dir), dmax, Config::kDestroyDistance, dir, offset, dmax)) {
             intersected = true;
             pos = getPosition(chunk.getRegion(), offset);
         }

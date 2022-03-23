@@ -1,5 +1,5 @@
-#ifndef CEPHALON_CONFIG_H_
-#define CEPHALON_CONFIG_H_
+#ifndef CEPHALON_GAME_CONFIG_H_
+#define CEPHALON_GAME_CONFIG_H_
 
 namespace cephalon {
     class Config {
@@ -11,4 +11,4 @@ namespace cephalon {
     };
 }
 
-#endif // CEPHALON_CONFIG_H_
+#endif // CEPHALON_GAME_CONFIG_H_

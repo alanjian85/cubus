@@ -339,3 +339,31 @@ bool Chunk::intersect(Ray ray, float dmin, float dmax, Direction& dir, glm::ivec
     }
     return false;
 }
+
+bool Chunk::inbound(PerspectiveCamera cam) const {
+    auto min = World::getPosition(region_, glm::ivec3(0));
+    auto max = World::getPosition(region_, glm::ivec3(kVolume - 1));
+    glm::vec4 corners[] = {
+        glm::vec4(min.x, min.y, min.z, 1.0f),
+        glm::vec4(min.x, min.y, max.z, 1.0f),
+        glm::vec4(min.x, max.y, min.z, 1.0f),
+        glm::vec4(min.x, max.y, max.z, 1.0f),
+        glm::vec4(max.x, min.y, min.z, 1.0f),
+        glm::vec4(max.x, min.y, max.z, 1.0f),
+        glm::vec4(max.x, max.y, min.z, 1.0f),
+        glm::vec4(max.x, max.y, max.z, 1.0f),
+    };
+    bool result = false;
+    for (auto corner : corners) {
+        corner = cam.proj * cam.view * corner;
+        if (bgfx::getCaps()->homogeneousDepth)
+            result |= -corner.w <= corner.x && corner.x <= corner.w &&
+                      -corner.w <= corner.y && corner.y <= corner.w &&
+                      -corner.w <= corner.z && corner.z <= corner.w;
+        else
+            result |= -corner.w <= corner.x && corner.x <= corner.w &&
+                      -corner.w <= corner.y && corner.y <= corner.w &&
+                      0 <= corner.z && corner.z <= corner.w;
+    }
+    return result;
+}

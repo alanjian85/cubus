@@ -25,12 +25,7 @@ void Game::update(float delta) {
 
     world_.update(camera_.pos);
 
-    intersected_ = world_.intersect(
-        Ray(camera_.pos, camera_.dir), 
-        camera_.near, 
-        Config::kDestroyDistance, 
-        block_dir_, destroy_pos_
-    );
+    intersected_ = world_.intersect(camera_, block_dir_, destroy_pos_);
     if (intersected_) {
         place_pos_ = destroy_pos_ + directionToVector(block_dir_);
         outline_.update(destroy_pos_, block_dir_);
@@ -63,10 +58,9 @@ void Game::onMouseRightClick() {
 }
 
 void Game::render() {
-    bgfx::setViewTransform(0, glm::value_ptr(camera_.view), glm::value_ptr(camera_.proj));
-    world_.render();
+    world_.render(camera_);
 
     if (intersected_) {
-        outline_.render();
+        outline_.render(camera_);
     }
 }

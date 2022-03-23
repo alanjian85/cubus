@@ -5,6 +5,7 @@
 #include <glm/glm.hpp>
 
 #include "utils/aabb.h"
+#include "utils/camera.h"
 
 namespace cephalon {
     class Outline {
@@ -19,7 +20,7 @@ namespace cephalon {
 
         void update(glm::ivec3 pos, Direction dir);
 
-        void render();
+        void render(PerspectiveCamera cam);
     private:
         bgfx::ProgramHandle program_;
         bgfx::VertexLayout layout_;

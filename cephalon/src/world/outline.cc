@@ -105,7 +105,9 @@ void Outline::update(glm::ivec3 pos, Direction dir) {
     transform_ = glm::translate(glm::mat4(1.0f), glm::vec3(pos));
 }
 
-void Outline::render() {
+void Outline::render(PerspectiveCamera cam) {
+    bgfx::setViewTransform(0, glm::value_ptr(cam.view), glm::value_ptr(cam.proj));
+
     auto a = (std::sin(Timer::getTime() * 5) * 0.5f + 0.5f) * 0.5f + 0.25f;
     float color[4] = { 1.0f, 1.0f, 1.0f, a };
     bgfx::setUniform(u_color_, color);

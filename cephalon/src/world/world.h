@@ -11,7 +11,7 @@
 
 #include "utils/aabb.h"
 #include "chunk.h"
-#include "config.h"
+#include "game/config.h"
 #include "generator.h"
 
 namespace cephalon {
@@ -63,9 +63,9 @@ namespace cephalon {
 
         void update(glm::vec3 player_pos);
 
-        void render();
+        void render(PerspectiveCamera cam);
 
-        bool intersect(Ray ray, float dmin, float dmax, Direction& dir, glm::ivec3& pos) const;
+        bool intersect(PerspectiveCamera cam, Direction& dir, glm::ivec3& pos) const;
     private:
         void loadChunk(glm::ivec2 region, Chunk& chunk);
 
