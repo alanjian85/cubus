@@ -59,11 +59,11 @@ void Game::update(float delta) {
             if (world_.getBlock(place_pos).isAir()) {
                 intersect_ = true;
                 nearest = glm::length(glm::vec3(pos) - camera_.pos);
-                intersect_pos_ = pos;
-                intersect_dir_ = *dir;
+                break_pos_ = pos;
+                block_dir_ = *dir;
                 place_pos_ = place_pos;
 
-                outline_.update(intersect_pos_, intersect_dir_);
+                outline_.update(break_pos_, block_dir_);
             }
         }
     }
@@ -86,7 +86,7 @@ void Game::onCursorMove(float relative_x, float relative_y) {
 
 void Game::onMouseLeftClick() {
     if (intersect_) {
-        world_.setBlock(intersect_pos_, blocks::kAir);
+        world_.setBlock(break_pos_, blocks::kAir);
     }
 }
 

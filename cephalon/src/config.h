@@ -7,7 +7,7 @@ namespace cephalon {
         static constexpr int kViewDistance = 5;
         static constexpr int kDestroyDistance = 5;
         static constexpr int kChunkLoadLimit = 4;
-        static constexpr int kChunkRebuildLimit = 4;
+        static constexpr int kChunkRebuildLimit = 8;
     };
 }
 

@@ -57,13 +57,15 @@ Chunk::Chunk(Chunk&& rhs) noexcept
             }
         }
     }
-    vertex_buffer_ = std::exchange(rhs.vertex_buffer_, bgfx::createDynamicVertexBuffer(0u, layout_));
-    index_buffer_= std::exchange(rhs.index_buffer_, bgfx::createDynamicIndexBuffer(0u));
+    vertex_buffer_ = std::exchange(rhs.vertex_buffer_, BGFX_INVALID_HANDLE);
+    index_buffer_= std::exchange(rhs.index_buffer_, BGFX_INVALID_HANDLE);
 }
 
 Chunk::~Chunk() noexcept {
-    bgfx::destroy(vertex_buffer_);
-    bgfx::destroy(index_buffer_);
+    if (vertex_buffer_.idx != bgfx::kInvalidHandle) {
+        bgfx::destroy(vertex_buffer_);
+        bgfx::destroy(index_buffer_);
+    }
 }
 
 void Chunk::setBlock(glm::ivec3 offset, const Block& block) {
@@ -88,6 +90,22 @@ void Chunk::setBlock(glm::ivec3 offset, const Block& block) {
         }
         if (offset.z == kVolume.z - 1) {
             if (auto chunk = world_.getChunk(region_ + glm::ivec2( 0,  1)))
+                chunk->dirty_ = true;
+        }
+        if (offset.x == 0 && offset.z == 0) {
+            if (auto chunk = world_.getChunk(region_ + glm::ivec2(-1, -1)))
+                chunk->dirty_ = true;
+        }
+        if (offset.x == 0 && offset.z == kVolume.z - 1) {
+            if (auto chunk = world_.getChunk(region_ + glm::ivec2(-1,  1)))
+                chunk->dirty_ = true;
+        }
+        if (offset.x == kVolume.x - 1 && offset.z == 0) {
+            if (auto chunk = world_.getChunk(region_ + glm::ivec2( 1, -1)))
+                chunk->dirty_ = true;
+        }
+        if (offset.x == kVolume.x - 1 && offset.z == kVolume.z - 1) {
+            if (auto chunk = world_.getChunk(region_ + glm::ivec2( 1,  1)))
                 chunk->dirty_ = true;
         }
     }
