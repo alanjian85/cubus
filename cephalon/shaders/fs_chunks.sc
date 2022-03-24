@@ -23,7 +23,7 @@ void main()
 	float fogMin = u_fog.z;
 	float fogMax = u_fog.w;
 
-	float distance = length(vec3(v_position));
+	float distance = length(vec2(v_position.x, v_position.z));
 	float intensity = clamp(
 		(fogFar - distance) / (fogFar - fogNear),
 		fogMin,

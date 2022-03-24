@@ -54,7 +54,8 @@ void Game::onMouseLeftClick() {
 }
 
 void Game::onMouseRightClick() {
-    world_.setBlock(place_pos_, blocks::kWood);
+    if (place_pos_.y >= 0 && place_pos_.y < Chunk::kVolume.y)
+        world_.setBlock(place_pos_, blocks::kWood);
 }
 
 void Game::render() {
