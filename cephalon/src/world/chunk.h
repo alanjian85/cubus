@@ -19,7 +19,9 @@ namespace cephalon {
         glm::vec3 pos;
         glm::vec3 normal;
         float ao;
-        glm::vec2 tex_coord;
+        float height;
+        glm::vec2 texcoord0;
+        glm::vec2 texcoord1;
     };
 
     class World;
@@ -65,6 +67,7 @@ namespace cephalon {
         static bgfx::TextureHandle atlas_;
         static bgfx::UniformHandle u_fog_;
         static bgfx::UniformHandle s_atlas_;
+        static bgfx::UniformHandle s_heightmap_;
 
         float vertexAO(glm::ivec3 side1, glm::ivec3 side2, glm::ivec3 corner) const;
 
@@ -74,6 +77,7 @@ namespace cephalon {
         const Block* blocks_[kVolume.x][kVolume.y][kVolume.z];
         bgfx::DynamicVertexBufferHandle vertex_buffer_;
         bgfx::DynamicIndexBufferHandle index_buffer_;
+        bgfx::TextureHandle heightmap_;
     };
 }
 

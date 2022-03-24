@@ -13,18 +13,22 @@ bgfx::ProgramHandle Chunk::program_;
 bgfx::TextureHandle Chunk::atlas_;
 bgfx::UniformHandle Chunk::u_fog_;
 bgfx::UniformHandle Chunk::s_atlas_;
+bgfx::UniformHandle Chunk::s_heightmap_;
 
 void Chunk::init() {
     layout_.begin()
         .add(bgfx::Attrib::Position, 3, bgfx::AttribType::Float)
         .add(bgfx::Attrib::Normal, 3, bgfx::AttribType::Float)
         .add(bgfx::Attrib::Color0, 1, bgfx::AttribType::Float)
-        .add(bgfx::Attrib::TexCoord0, 2, bgfx::AttribType::Float, true)
+        .add(bgfx::Attrib::Color1, 1, bgfx::AttribType::Float)
+        .add(bgfx::Attrib::TexCoord0, 2, bgfx::AttribType::Float)
+        .add(bgfx::Attrib::TexCoord1, 2, bgfx::AttribType::Float)
     .end();
     program_ = LoadProgram("vs_chunks", "fs_chunks");
     atlas_ = LoadTexture("textures/atlas.dds", BGFX_SAMPLER_MIN_POINT | BGFX_SAMPLER_MAG_POINT);
     u_fog_ = bgfx::createUniform("u_fog", bgfx::UniformType::Vec4);
     s_atlas_ = bgfx::createUniform("s_atlas", bgfx::UniformType::Sampler);
+    s_heightmap_ = bgfx::createUniform("s_heightmap", bgfx::UniformType::Sampler);
 }
 
 void Chunk::cleanup() {
@@ -47,6 +51,12 @@ Chunk::Chunk(World& world, glm::ivec2 region)
     }
     vertex_buffer_ = bgfx::createDynamicVertexBuffer(0u, layout_, BGFX_BUFFER_ALLOW_RESIZE);
     index_buffer_ = bgfx::createDynamicIndexBuffer(0u, BGFX_BUFFER_ALLOW_RESIZE);
+    heightmap_ = bgfx::createTexture2D(
+        kVolume.x, kVolume.z, 
+        false, 1,
+        bgfx::TextureFormat::R8, 
+        BGFX_SAMPLER_MIN_POINT | BGFX_SAMPLER_MAG_POINT
+    );
 }
 
 Chunk::Chunk(Chunk&& rhs) noexcept 
@@ -63,12 +73,14 @@ Chunk::Chunk(Chunk&& rhs) noexcept
     }
     vertex_buffer_ = std::exchange(rhs.vertex_buffer_, BGFX_INVALID_HANDLE);
     index_buffer_= std::exchange(rhs.index_buffer_, BGFX_INVALID_HANDLE);
+    heightmap_ = std::exchange(rhs.heightmap_, BGFX_INVALID_HANDLE);
 }
 
 Chunk::~Chunk() noexcept {
-    if (vertex_buffer_.idx != bgfx::kInvalidHandle) {
+    if (bgfx::isValid(vertex_buffer_)) {
         bgfx::destroy(vertex_buffer_);
         bgfx::destroy(index_buffer_);
+        bgfx::destroy(heightmap_);
     }
 }
 
@@ -125,16 +137,48 @@ const Block& Chunk::getBlock(glm::ivec3 offset) const {
 void Chunk::rebuild() {
     std::vector<Vertex> vertices;
     std::vector<std::uint16_t> indices;
+    std::uint8_t heightmap[kVolume.x][kVolume.z] = {};
 
     for (int x = 0; x < kVolume.x; ++x) {
         for (int y = 0; y < kVolume.y; ++y) {
             for (int z = 0; z < kVolume.z; ++z) {
-                auto& block = getBlock(glm::ivec3(x, y, z));
+                auto offset = glm::ivec3(x, y, z);
+                auto& block = getBlock(offset);
                 if (!block.isAir()) {
-                    auto pos = World::getPosition(region_, glm::ivec3(x, y, z));
+                    auto pos = World::getPosition(region_, offset);
+                    glm::vec2 block_texcoord1;
+                    if (bgfx::getCaps()->originBottomLeft)
+                        block_texcoord1 = glm::vec2(
+                            static_cast<float>(z) / kVolume.z, 
+                            1.0f - static_cast<float>(x) / kVolume.x
+                        );
+                    else
+                        block_texcoord1 = glm::vec2(
+                            static_cast<float>(z) / kVolume.z, 
+                            static_cast<float>(x) / kVolume.x
+                        );
+                    auto height = static_cast<float>(y) / kVolume.y;
+                    auto iheight = static_cast<std::uint8_t>(height * 255);
+                    if (iheight > heightmap[x][z]) {
+                        heightmap[x][z] = iheight;
+                    }
 
                     // right
                     if (world_.getBlock(pos + glm::ivec3(1, 0, 0)).isAir()) {
+                        glm::vec3 block_pos[] = {
+                            glm::vec3(x + 0.5f, y - 0.5f, z - 0.5f),
+                            glm::vec3(x + 0.5f, y - 0.5f, z + 0.5f),
+                            glm::vec3(x + 0.5f, y + 0.5f, z - 0.5f),
+                            glm::vec3(x + 0.5f, y + 0.5f, z + 0.5f)
+                        };
+
+                        glm::vec3 block_normal[] = {
+                            glm::vec3( 1.0f,  0.0f,  0.0f),
+                            glm::vec3( 1.0f,  0.0f,  0.0f),
+                            glm::vec3( 1.0f,  0.0f,  0.0f),
+                            glm::vec3( 1.0f,  0.0f,  0.0f)
+                        };
+
                         float block_ao[] = {
                             vertexAO(pos + glm::ivec3(1, 0, -1), pos + glm::ivec3(1, -1, 0), pos + glm::ivec3(1, -1, -1)),
                             vertexAO(pos + glm::ivec3(1, 0,  1), pos + glm::ivec3(1, -1, 0), pos + glm::ivec3(1, -1,  1)),
@@ -142,11 +186,18 @@ void Chunk::rebuild() {
                             vertexAO(pos + glm::ivec3(1, 0,  1), pos + glm::ivec3(1,  1, 0), pos + glm::ivec3(1,  1,  1)),
                         };
 
+                        glm::vec2 block_texcoord0[] = {
+                            block.getTexCoord() + glm::vec2(0.0f,  0.0f),
+                            block.getTexCoord() + glm::vec2(0.0f,  1.0f),
+                            block.getTexCoord() + glm::vec2(0.25f, 0.0f),
+                            block.getTexCoord() + glm::vec2(0.25f, 1.0f)
+                        };
+
                         Vertex block_vertices[] = {
-                            { glm::vec3(x + 0.5f, y - 0.5f, z - 0.5f), glm::vec3( 1.0f,  0.0f,  0.0f), block_ao[0], block.getTexCoord() + glm::vec2(0.0f,  0.0f) },
-                            { glm::vec3(x + 0.5f, y - 0.5f, z + 0.5f), glm::vec3( 1.0f,  0.0f,  0.0f), block_ao[1], block.getTexCoord() + glm::vec2(0.0f,  1.0f) },
-                            { glm::vec3(x + 0.5f, y + 0.5f, z - 0.5f), glm::vec3( 1.0f,  0.0f,  0.0f), block_ao[2], block.getTexCoord() + glm::vec2(0.25f, 0.0f) },
-                            { glm::vec3(x + 0.5f, y + 0.5f, z + 0.5f), glm::vec3( 1.0f,  0.0f,  0.0f), block_ao[3], block.getTexCoord() + glm::vec2(0.25f, 1.0f) }
+                            { block_pos[0], block_normal[0], block_ao[0], 1.0f, block_texcoord0[0], block_texcoord1 },
+                            { block_pos[1], block_normal[1], block_ao[1], 1.0f, block_texcoord0[1], block_texcoord1 },
+                            { block_pos[2], block_normal[2], block_ao[2], 1.0f, block_texcoord0[2], block_texcoord1 },
+                            { block_pos[3], block_normal[3], block_ao[3], 1.0f, block_texcoord0[3], block_texcoord1 }
                         };
 
                         auto index_base = static_cast<int>(vertices.size());
@@ -161,6 +212,20 @@ void Chunk::rebuild() {
 
                     // left
                     if (world_.getBlock(pos + glm::ivec3(-1, 0, 0)).isAir()) {
+                        glm::vec3 block_pos[] = {
+                            glm::vec3(x - 0.5f, y - 0.5f, z - 0.5f),
+                            glm::vec3(x - 0.5f, y - 0.5f, z + 0.5f),
+                            glm::vec3(x - 0.5f, y + 0.5f, z - 0.5f),
+                            glm::vec3(x - 0.5f, y + 0.5f, z + 0.5f)
+                        };
+
+                        glm::vec3 block_normal[] = {
+                            glm::vec3(-1.0f,  0.0f,  0.0f),
+                            glm::vec3(-1.0f,  0.0f,  0.0f),
+                            glm::vec3(-1.0f,  0.0f,  0.0f),
+                            glm::vec3(-1.0f,  0.0f,  0.0f)
+                        };
+
                         float block_ao[] = {
                             vertexAO(pos + glm::ivec3(-1, 0, -1), pos + glm::ivec3(-1, -1, 0), pos + glm::ivec3(-1, -1, -1)),
                             vertexAO(pos + glm::ivec3(-1, 0,  1), pos + glm::ivec3(-1, -1, 0), pos + glm::ivec3(-1, -1,  1)),
@@ -168,11 +233,18 @@ void Chunk::rebuild() {
                             vertexAO(pos + glm::ivec3(-1, 0,  1), pos + glm::ivec3(-1,  1, 0), pos + glm::ivec3(-1,  1,  1)),
                         };
                         
+                        glm::vec2 block_texcoord0[] = {
+                            block.getTexCoord() + glm::vec2(0.0f,  0.0f), 
+                            block.getTexCoord() + glm::vec2(0.0f,  1.0f), 
+                            block.getTexCoord() + glm::vec2(0.25f, 0.0f), 
+                            block.getTexCoord() + glm::vec2(0.25f, 1.0f) 
+                        };
+
                         Vertex block_vertices[] = {
-                            { glm::vec3(x - 0.5f, y - 0.5f, z - 0.5f), glm::vec3(-1.0f,  0.0f,  0.0f), block_ao[0], block.getTexCoord() + glm::vec2(0.0f,  0.0f) },
-                            { glm::vec3(x - 0.5f, y - 0.5f, z + 0.5f), glm::vec3(-1.0f,  0.0f,  0.0f), block_ao[1], block.getTexCoord() + glm::vec2(0.0f,  1.0f) },
-                            { glm::vec3(x - 0.5f, y + 0.5f, z - 0.5f), glm::vec3(-1.0f,  0.0f,  0.0f), block_ao[2], block.getTexCoord() + glm::vec2(0.25f, 0.0f) },
-                            { glm::vec3(x - 0.5f, y + 0.5f, z + 0.5f), glm::vec3(-1.0f,  0.0f,  0.0f), block_ao[3], block.getTexCoord() + glm::vec2(0.25f, 1.0f) }
+                            { block_pos[0], block_normal[0], block_ao[0], 1.0f, block_texcoord0[0], block_texcoord1 },
+                            { block_pos[1], block_normal[1], block_ao[1], 1.0f, block_texcoord0[1], block_texcoord1 },
+                            { block_pos[2], block_normal[2], block_ao[2], 1.0f, block_texcoord0[2], block_texcoord1 },
+                            { block_pos[3], block_normal[3], block_ao[3], 1.0f, block_texcoord0[3], block_texcoord1 }
                         };
 
                         auto index_base = static_cast<int>(vertices.size());
@@ -187,6 +259,20 @@ void Chunk::rebuild() {
 
                     // top
                     if (world_.getBlock(pos + glm::ivec3(0, 1, 0)).isAir()) {
+                        glm::vec3 block_pos[] = {
+                            glm::vec3(x - 0.5f, y + 0.5f, z - 0.5f),
+                            glm::vec3(x - 0.5f, y + 0.5f, z + 0.5f),
+                            glm::vec3(x + 0.5f, y + 0.5f, z - 0.5f),
+                            glm::vec3(x + 0.5f, y + 0.5f, z + 0.5f)
+                        };
+
+                        glm::vec3 block_normal[] = {
+                            glm::vec3( 0.0f,  1.0f,  0.0f),
+                            glm::vec3( 0.0f,  1.0f,  0.0f),
+                            glm::vec3( 0.0f,  1.0f,  0.0f),
+                            glm::vec3( 0.0f,  1.0f,  0.0f)
+                        };
+
                         float block_ao[] = {
                             vertexAO(pos + glm::ivec3(0,  1, -1), pos + glm::ivec3(-1, 1, 0), pos + glm::ivec3(-1, 1, -1)),
                             vertexAO(pos + glm::ivec3(0,  1,  1), pos + glm::ivec3(-1, 1, 0), pos + glm::ivec3(-1, 1,  1)),
@@ -194,11 +280,18 @@ void Chunk::rebuild() {
                             vertexAO(pos + glm::ivec3(0,  1,  1), pos + glm::ivec3( 1, 1, 0), pos + glm::ivec3( 1, 1,  1)),
                         };
 
+                        glm::vec2 block_texcoord0[] = {
+                            block.getTexCoord() + glm::vec2(0.0f,  0.0f),
+                            block.getTexCoord() + glm::vec2(0.0f,  1.0f),
+                            block.getTexCoord() + glm::vec2(0.25f, 0.0f),
+                            block.getTexCoord() + glm::vec2(0.25f, 1.0f)
+                        };
+
                         Vertex block_vertices[] = {
-                            { glm::vec3(x - 0.5f, y + 0.5f, z - 0.5f), glm::vec3( 0.0f,  1.0f,  0.0f), block_ao[0], block.getTexCoord() + glm::vec2(0.0f,  0.0f) },
-                            { glm::vec3(x - 0.5f, y + 0.5f, z + 0.5f), glm::vec3( 0.0f,  1.0f,  0.0f), block_ao[1], block.getTexCoord() + glm::vec2(0.0f,  1.0f) },
-                            { glm::vec3(x + 0.5f, y + 0.5f, z - 0.5f), glm::vec3( 0.0f,  1.0f,  0.0f), block_ao[2], block.getTexCoord() + glm::vec2(0.25f, 0.0f) },
-                            { glm::vec3(x + 0.5f, y + 0.5f, z + 0.5f), glm::vec3( 0.0f,  1.0f,  0.0f), block_ao[3], block.getTexCoord() + glm::vec2(0.25f, 1.0f) }
+                            { block_pos[0], block_normal[0], block_ao[0], height, block_texcoord0[0], block_texcoord1 },
+                            { block_pos[1], block_normal[1], block_ao[1], height, block_texcoord0[1], block_texcoord1 },
+                            { block_pos[2], block_normal[2], block_ao[2], height, block_texcoord0[2], block_texcoord1 },
+                            { block_pos[3], block_normal[3], block_ao[3], height, block_texcoord0[3], block_texcoord1 }
                         };
 
                         auto index_base = static_cast<int>(vertices.size());
@@ -213,6 +306,20 @@ void Chunk::rebuild() {
 
                     // bottom
                     if (world_.getBlock(pos + glm::ivec3(0, -1, 0)).isAir()) {
+                        glm::vec3 block_pos[] = {
+                            glm::vec3(x - 0.5f, y - 0.5f, z - 0.5f),
+                            glm::vec3(x - 0.5f, y - 0.5f, z + 0.5f),
+                            glm::vec3(x + 0.5f, y - 0.5f, z - 0.5f),
+                            glm::vec3(x + 0.5f, y - 0.5f, z + 0.5f)
+                        };
+
+                        glm::vec3 block_normal[] = {
+                            glm::vec3( 0.0f, -1.0f,  0.0f),
+                            glm::vec3( 0.0f, -1.0f,  0.0f),
+                            glm::vec3( 0.0f, -1.0f,  0.0f),
+                            glm::vec3( 0.0f, -1.0f,  0.0f)
+                        };
+
                         float block_ao[] = {
                             vertexAO(pos + glm::ivec3(0, -1, -1), pos + glm::ivec3(-1, -1, 0), pos + glm::ivec3(-1, -1, -1)),
                             vertexAO(pos + glm::ivec3(0, -1,  1), pos + glm::ivec3(-1, -1, 0), pos + glm::ivec3(-1, -1,  1)),
@@ -220,11 +327,18 @@ void Chunk::rebuild() {
                             vertexAO(pos + glm::ivec3(0, -1,  1), pos + glm::ivec3( 1, -1, 0), pos + glm::ivec3( 1, -1,  1)),
                         };
 
+                        glm::vec2 block_texcoord0[] = {
+                            block.getTexCoord() + glm::vec2(0.0f,  0.0f),
+                            block.getTexCoord() + glm::vec2(0.0f,  1.0f),
+                            block.getTexCoord() + glm::vec2(0.25f, 0.0f),
+                            block.getTexCoord() + glm::vec2(0.25f, 1.0f)
+                        };
+
                         Vertex block_vertices[] = {
-                            { glm::vec3(x - 0.5f, y - 0.5f, z - 0.5f), glm::vec3( 0.0f, -1.0f,  0.0f), block_ao[0], block.getTexCoord() + glm::vec2(0.0f,  0.0f) },
-                            { glm::vec3(x - 0.5f, y - 0.5f, z + 0.5f), glm::vec3( 0.0f, -1.0f,  0.0f), block_ao[1], block.getTexCoord() + glm::vec2(0.0f,  1.0f) },
-                            { glm::vec3(x + 0.5f, y - 0.5f, z - 0.5f), glm::vec3( 0.0f, -1.0f,  0.0f), block_ao[2], block.getTexCoord() + glm::vec2(0.25f, 0.0f) },
-                            { glm::vec3(x + 0.5f, y - 0.5f, z + 0.5f), glm::vec3( 0.0f, -1.0f,  0.0f), block_ao[3], block.getTexCoord() + glm::vec2(0.25f, 1.0f) }
+                            { block_pos[0], block_normal[0], block_ao[0], 1.0f, block_texcoord0[0], block_texcoord1 },
+                            { block_pos[1], block_normal[1], block_ao[1], 1.0f, block_texcoord0[1], block_texcoord1 },
+                            { block_pos[2], block_normal[2], block_ao[2], 1.0f, block_texcoord0[2], block_texcoord1 },
+                            { block_pos[3], block_normal[3], block_ao[3], 1.0f, block_texcoord0[3], block_texcoord1 }
                         };
 
                         auto index_base = static_cast<int>(vertices.size());
@@ -239,6 +353,20 @@ void Chunk::rebuild() {
 
                     // back
                     if (world_.getBlock(pos + glm::ivec3(0, 0, 1)).isAir()) {
+                        glm::vec3 block_pos[] = { 
+                            glm::vec3(x - 0.5f, y - 0.5f, z + 0.5f),
+                            glm::vec3(x - 0.5f, y + 0.5f, z + 0.5f),
+                            glm::vec3(x + 0.5f, y - 0.5f, z + 0.5f),
+                            glm::vec3(x + 0.5f, y + 0.5f, z + 0.5f)
+                        };
+
+                        glm::vec3 block_normal[] = {
+                            glm::vec3( 0.0f,  0.0f,  1.0f),
+                            glm::vec3( 0.0f,  0.0f,  1.0f),
+                            glm::vec3( 0.0f,  0.0f,  1.0f),
+                            glm::vec3( 0.0f,  0.0f,  1.0f)
+                        };
+                        
                         float block_ao[] = {
                             vertexAO(pos + glm::ivec3(0, -1, 1), pos + glm::ivec3(-1, 0, 1), pos + glm::ivec3(-1, -1, 1)),
                             vertexAO(pos + glm::ivec3(0,  1, 1), pos + glm::ivec3(-1, 0, 1), pos + glm::ivec3(-1,  1, 1)),
@@ -246,11 +374,18 @@ void Chunk::rebuild() {
                             vertexAO(pos + glm::ivec3(0,  1, 1), pos + glm::ivec3( 1, 0, 1), pos + glm::ivec3( 1,  1, 1)),
                         };
 
+                        glm::vec2 block_texcoord0[] = {
+                            block.getTexCoord() + glm::vec2(0.0f,  0.0f),
+                            block.getTexCoord() + glm::vec2(0.0f,  1.0f),
+                            block.getTexCoord() + glm::vec2(0.25f, 0.0f),
+                            block.getTexCoord() + glm::vec2(0.25f, 1.0f)
+                        };
+
                         Vertex block_vertices[] = {
-                            { glm::vec3(x - 0.5f, y - 0.5f, z + 0.5f), glm::vec3( 0.0f,  0.0f,  1.0f), block_ao[0], block.getTexCoord() + glm::vec2(0.0f,  0.0f) },
-                            { glm::vec3(x - 0.5f, y + 0.5f, z + 0.5f), glm::vec3( 0.0f,  0.0f,  1.0f), block_ao[1], block.getTexCoord() + glm::vec2(0.0f,  1.0f) },
-                            { glm::vec3(x + 0.5f, y - 0.5f, z + 0.5f), glm::vec3( 0.0f,  0.0f,  1.0f), block_ao[2], block.getTexCoord() + glm::vec2(0.25f, 0.0f) },
-                            { glm::vec3(x + 0.5f, y + 0.5f, z + 0.5f), glm::vec3( 0.0f,  0.0f,  1.0f), block_ao[3], block.getTexCoord() + glm::vec2(0.25f, 1.0f) }
+                            { block_pos[0], block_normal[0], block_ao[0], 1.0f, block_texcoord0[0], block_texcoord1 },
+                            { block_pos[1], block_normal[1], block_ao[1], 1.0f, block_texcoord0[1], block_texcoord1 },
+                            { block_pos[2], block_normal[2], block_ao[2], 1.0f, block_texcoord0[2], block_texcoord1 },
+                            { block_pos[3], block_normal[3], block_ao[3], 1.0f, block_texcoord0[3], block_texcoord1 }
                         };
 
                         auto index_base = static_cast<int>(vertices.size());
@@ -265,18 +400,39 @@ void Chunk::rebuild() {
 
                     // front
                     if (world_.getBlock(pos + glm::ivec3(0, 0, -1)).isAir()) {
+                        glm::vec3 block_pos[] = {
+                            glm::vec3(x - 0.5f, y - 0.5f, z - 0.5f),
+                            glm::vec3(x - 0.5f, y + 0.5f, z - 0.5f),
+                            glm::vec3(x + 0.5f, y - 0.5f, z - 0.5f),
+                            glm::vec3(x + 0.5f, y + 0.5f, z - 0.5f)
+                        };
+
+                        glm::vec3 block_normal[] = {
+                            glm::vec3( 0.0f,  0.0f, -1.0f),
+                            glm::vec3( 0.0f,  0.0f, -1.0f),
+                            glm::vec3( 0.0f,  0.0f, -1.0f),
+                            glm::vec3( 0.0f,  0.0f, -1.0f)
+                        };
+
                         float block_ao[] = {
                             vertexAO(pos + glm::ivec3(0, -1, -1), pos + glm::ivec3(-1, 0, -1), pos + glm::ivec3(-1, -1, -1)),
                             vertexAO(pos + glm::ivec3(0,  1, -1), pos + glm::ivec3(-1, 0, -1), pos + glm::ivec3(-1,  1, -1)),
                             vertexAO(pos + glm::ivec3(0, -1, -1), pos + glm::ivec3( 1, 0, -1), pos + glm::ivec3( 1, -1, -1)),
-                            vertexAO(pos + glm::ivec3(0,  1, -1), pos + glm::ivec3( 1, 0, -1), pos + glm::ivec3( 1,  1, -1)),
+                            vertexAO(pos + glm::ivec3(0,  1, -1), pos + glm::ivec3( 1, 0, -1), pos + glm::ivec3( 1,  1, -1))
+                        };
+
+                        glm::vec2 block_texcoord0[] = {
+                            block.getTexCoord() + glm::vec2(0.0f,  0.0f),
+                            block.getTexCoord() + glm::vec2(0.0f,  1.0f),
+                            block.getTexCoord() + glm::vec2(0.25f, 0.0f),
+                            block.getTexCoord() + glm::vec2(0.25f, 1.0f)
                         };
 
                         Vertex block_vertices[] = {
-                            { glm::vec3(x - 0.5f, y - 0.5f, z - 0.5f), glm::vec3( 0.0f,  0.0f, -1.0f), block_ao[0], block.getTexCoord() + glm::vec2(0.0f,  0.0f) },
-                            { glm::vec3(x - 0.5f, y + 0.5f, z - 0.5f), glm::vec3( 0.0f,  0.0f, -1.0f), block_ao[1], block.getTexCoord() + glm::vec2(0.0f,  1.0f) },
-                            { glm::vec3(x + 0.5f, y - 0.5f, z - 0.5f), glm::vec3( 0.0f,  0.0f, -1.0f), block_ao[2], block.getTexCoord() + glm::vec2(0.25f, 0.0f) },
-                            { glm::vec3(x + 0.5f, y + 0.5f, z - 0.5f), glm::vec3( 0.0f,  0.0f, -1.0f), block_ao[3], block.getTexCoord() + glm::vec2(0.25f, 1.0f) }
+                            { block_pos[0], block_normal[0], block_ao[0], 1.0f, block_texcoord0[0], block_texcoord1 },
+                            { block_pos[1], block_normal[1], block_ao[1], 1.0f, block_texcoord0[1], block_texcoord1 },
+                            { block_pos[2], block_normal[2], block_ao[2], 1.0f, block_texcoord0[2], block_texcoord1 },
+                            { block_pos[3], block_normal[3], block_ao[3], 1.0f, block_texcoord0[3], block_texcoord1 }
                         };
 
                         auto index_base = static_cast<int>(vertices.size());
@@ -297,6 +453,7 @@ void Chunk::rebuild() {
         bgfx::update(vertex_buffer_, 0, bgfx::copy(vertices.data(), vertices.size() * sizeof(Vertex)));
         bgfx::update(index_buffer_, 0, bgfx::copy(indices.data(), indices.size() * sizeof(std::uint16_t)));
     }
+    bgfx::updateTexture2D(heightmap_, 0, 0, 0, 0, kVolume.x, kVolume.z, bgfx::copy(heightmap, sizeof(heightmap)));
     dirty_ = false;
 }
 
@@ -309,6 +466,7 @@ void Chunk::render(PerspectiveCamera cam) const {
     auto view_pos = cam.pos;
     bgfx::setUniform(u_fog_, fog);
     bgfx::setTexture(0, s_atlas_, atlas_);
+    bgfx::setTexture(1, s_heightmap_, heightmap_);
     bgfx::setViewTransform(0, glm::value_ptr(cam.view), glm::value_ptr(cam.proj));
     bgfx::setState(
         BGFX_STATE_WRITE_RGB       |

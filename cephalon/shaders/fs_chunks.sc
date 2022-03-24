@@ -1,11 +1,11 @@
-$input v_position, v_normal, v_color0, v_texcoord0
+$input v_position, v_normal, v_color0, v_color1, v_texcoord0, v_texcoord1
 
 #include <bgfx_shader.sh>
 
 uniform vec4 u_fog;
-uniform vec4 u_viewPos;
 
 SAMPLER2D(s_atlas, 0);
+SAMPLER2D(s_heightmap, 1);
 
 void main()
 {
@@ -30,5 +30,8 @@ void main()
 		fogFar
 	);
 
-	gl_FragColor = vec4(ambient + diffuse, intensity);
+	float height = texture2D(s_heightmap, v_texcoord1).r;
+	float shadow = v_color1 < height ? 1.0 : 0.0;
+
+	gl_FragColor = vec4((ambient + diffuse) * (1.0 - shadow * 0.5), intensity);
 }
