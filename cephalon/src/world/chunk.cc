@@ -353,23 +353,19 @@ bool Chunk::inbound(PerspectiveCamera cam) const {
         glm::vec4(max.x, max.y, min.z, 1.0f),
         glm::vec4(max.x, max.y, max.z, 1.0f),
     };
-    bool right = true, left = true;
-    bool top = true, bottom = true;
-    bool back = true, front = true;
+    bool result = true;
     for (auto corner : corners) {
         corner = cam.proj * cam.view * corner;
 
-        right  &= corner.x >  corner.w;
-        left   &= corner.x < -corner.w;
-        top    &= corner.y >  corner.w;
-        bottom &= corner.y < -corner.w;
-        back   &= corner.z >  corner.w;
+        result &= corner.x >  corner.w;
+        result &= corner.x < -corner.w;
+        result &= corner.y >  corner.w;
+        result &= corner.y < -corner.w;
+        result &= corner.z >  corner.w;
         if (bgfx::getCaps()->homogeneousDepth)
-            front &= corner.z < -corner.w;
+            result &= corner.z < -corner.w;
         else
-            front &= corner.z < 0;
+            result &= corner.z < 0;
     }
-    return !right && !left &&
-           !top && !bottom &&
-           !back && !front;
+    return !result;
 }
