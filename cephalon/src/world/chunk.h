@@ -54,7 +54,7 @@ namespace cephalon {
 
         void rebuild();
 
-        void render() const;
+        void render(PerspectiveCamera cam) const;
 
         bool intersect(Ray ray, float dmin, float dmax, Direction& dir, glm::ivec3& offset, float& dist) const;
 
@@ -63,6 +63,7 @@ namespace cephalon {
         static bgfx::VertexLayout layout_;
         static bgfx::ProgramHandle program_;
         static bgfx::TextureHandle atlas_;
+        static bgfx::UniformHandle u_fog_;
         static bgfx::UniformHandle s_atlas_;
 
         float vertexAO(glm::ivec3 side1, glm::ivec3 side2, glm::ivec3 corner) const;

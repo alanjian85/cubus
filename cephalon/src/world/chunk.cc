@@ -3,12 +3,15 @@ using namespace cephalon;
 
 #include <iterator>
 
+#include <glm/gtc/type_ptr.hpp>
+
 #include "utils/assets.h"
 #include "world.h"
 
 bgfx::VertexLayout Chunk::layout_;
 bgfx::ProgramHandle Chunk::program_;
 bgfx::TextureHandle Chunk::atlas_;
+bgfx::UniformHandle Chunk::u_fog_;
 bgfx::UniformHandle Chunk::s_atlas_;
 
 void Chunk::init() {
@@ -20,6 +23,7 @@ void Chunk::init() {
     .end();
     program_ = LoadProgram("vs_chunks", "fs_chunks");
     atlas_ = LoadTexture("textures/atlas.png", BGFX_SAMPLER_MIN_POINT | BGFX_SAMPLER_MAG_POINT);
+    u_fog_ = bgfx::createUniform("u_fog", bgfx::UniformType::Vec4);
     s_atlas_ = bgfx::createUniform("s_atlas", bgfx::UniformType::Sampler);
 }
 
@@ -296,8 +300,24 @@ void Chunk::rebuild() {
     dirty_ = false;
 }
 
-void Chunk::render() const {
+void Chunk::render(PerspectiveCamera cam) const {
+    float fog[4] = { 
+        Config::kViewDistance * kVolume.x - 12.0f, 
+        Config::kViewDistance * kVolume.x - 2.0f, 
+        0.0f, 0.97f 
+    };
+    auto view_pos = cam.pos;
+    bgfx::setUniform(u_fog_, fog);
     bgfx::setTexture(0, s_atlas_, atlas_);
+    bgfx::setViewTransform(0, glm::value_ptr(cam.view), glm::value_ptr(cam.proj));
+    bgfx::setState(
+        BGFX_STATE_WRITE_RGB       |
+        BGFX_STATE_WRITE_A         |
+        BGFX_STATE_WRITE_Z         | 
+        BGFX_STATE_DEPTH_TEST_LESS |
+        BGFX_STATE_CULL_CW |
+        BGFX_STATE_BLEND_FUNC(BGFX_STATE_BLEND_SRC_ALPHA, BGFX_STATE_BLEND_INV_SRC_ALPHA)
+    );
     bgfx::setVertexBuffer(0, vertex_buffer_);
     bgfx::setIndexBuffer(index_buffer_);
     bgfx::submit(0, program_);
@@ -353,19 +373,23 @@ bool Chunk::inbound(PerspectiveCamera cam) const {
         glm::vec4(max.x, max.y, min.z, 1.0f),
         glm::vec4(max.x, max.y, max.z, 1.0f),
     };
-    bool result = true;
+    bool right = true, left = true;
+    bool top = true, bottom = true;
+    bool back = true, front = true;
     for (auto corner : corners) {
         corner = cam.proj * cam.view * corner;
 
-        result &= corner.x >  corner.w;
-        result &= corner.x < -corner.w;
-        result &= corner.y >  corner.w;
-        result &= corner.y < -corner.w;
-        result &= corner.z >  corner.w;
+        right  &= corner.x >  corner.w;
+        left   &= corner.x < -corner.w;
+        top    &= corner.y >  corner.w;
+        bottom &= corner.y < -corner.w;
+        back   &= corner.z >  corner.w;
         if (bgfx::getCaps()->homogeneousDepth)
-            result &= corner.z < -corner.w;
+            front &= corner.z < -corner.w;
         else
-            result &= corner.z < 0;
+            front &= corner.z < 0;
     }
-    return !result;
+    return !right && !left &&
+           !top && !bottom &&
+           !back && !front;
 }

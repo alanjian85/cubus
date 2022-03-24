@@ -1,3 +1,4 @@
+vec3 v_position    : POSITION;
 vec3 v_normal      : NORMAL;
 float v_color0     : COLOR0;
 vec2 v_texcoord0   : TEXCOORD0;

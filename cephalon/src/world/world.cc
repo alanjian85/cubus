@@ -33,8 +33,6 @@ void World::update(glm::vec3 player_pos) {
 }
 
 void World::render(PerspectiveCamera cam) {
-    bgfx::setViewTransform(0, glm::value_ptr(cam.view), glm::value_ptr(cam.proj));
-
     int rebuild_count = 0;
     for (auto& [region, chunk] : chunks_) {
         if (chunk.inbound(cam)) {
@@ -45,7 +43,7 @@ void World::render(PerspectiveCamera cam) {
 
             auto transform = glm::translate(glm::mat4(1.0f), glm::vec3(getPosition(region, glm::ivec3(0))));
             bgfx::setTransform(glm::value_ptr(transform));
-            chunk.render();
+            chunk.render(cam);
         }
     }
 }

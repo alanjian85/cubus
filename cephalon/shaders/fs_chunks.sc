@@ -1,6 +1,9 @@
-$input v_normal, v_color0, v_texcoord0
+$input v_position, v_normal, v_color0, v_texcoord0
 
 #include <bgfx_shader.sh>
+
+uniform vec4 u_fog;
+uniform vec4 u_viewPos;
 
 SAMPLER2D(s_atlas, 0);
 
@@ -15,5 +18,17 @@ void main()
 	float diff = max(dot(normal, -lightDir), 0.0);
 	vec3 diffuse = diff * vec3(texture2D(s_atlas, v_texcoord0));
 
-	gl_FragColor = vec4(ambient + diffuse, 1.0);
+	float fogNear = u_fog.x;
+	float fogFar = u_fog.y;
+	float fogMin = u_fog.z;
+	float fogMax = u_fog.w;
+
+	float distance = length(vec3(v_position));
+	float intensity = clamp(
+		(fogFar - distance) / (fogFar - fogNear),
+		fogMin,
+		fogFar
+	);
+
+	gl_FragColor = vec4(ambient + diffuse, intensity);
 }
