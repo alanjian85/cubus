@@ -1,4 +1,5 @@
 include(Shader)
+include(Texture)
 
 configure_file(cephalon_config.h.in cephalon_config.h)
 
@@ -39,7 +40,10 @@ set(CEPHALON_SHADERS
 )
 add_shader(cephalon ${CEPHALON_SHADERS})
 
-file(COPY textures DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+set(CEPHALON_TEXTURES
+    textures/atlas.png
+)
+add_texture(cephalon ${CEPHALON_TEXTURES})
 
 find_package(SDL2 REQUIRED)
 find_package(bgfx REQUIRED)

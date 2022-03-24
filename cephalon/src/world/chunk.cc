@@ -22,7 +22,7 @@ void Chunk::init() {
         .add(bgfx::Attrib::TexCoord0, 2, bgfx::AttribType::Float, true)
     .end();
     program_ = LoadProgram("vs_chunks", "fs_chunks");
-    atlas_ = LoadTexture("textures/atlas.png", BGFX_SAMPLER_MIN_POINT | BGFX_SAMPLER_MAG_POINT);
+    atlas_ = LoadTexture("textures/atlas.dds", BGFX_SAMPLER_MIN_POINT | BGFX_SAMPLER_MAG_POINT);
     u_fog_ = bgfx::createUniform("u_fog", bgfx::UniformType::Vec4);
     s_atlas_ = bgfx::createUniform("s_atlas", bgfx::UniformType::Sampler);
 }

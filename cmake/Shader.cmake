@@ -247,6 +247,6 @@ function( add_shader TARGET )
         endif()
     endforeach()
 
-	add_custom_target( bgfx_shader_${TARGET} ALL DEPENDS ${OUTPUT_LIST} )
-    add_dependencies( ${TARGET} bgfx_shader_${TARGET} )
+	add_custom_target( shader_${TARGET} ALL DEPENDS ${OUTPUT_LIST} )
+    add_dependencies( ${TARGET} shader_${TARGET} )
 endfunction()
