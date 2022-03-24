@@ -146,7 +146,7 @@ function( shaderc_parse ARG_OUT )
 	set( ${ARG_OUT} ${CLI} PARENT_SCOPE )
 endfunction()
 
-function( add_bgfx_shader TARGET )
+function( add_shader TARGET )
     list( SUBLIST ARGV 1 -1 FILES )
 	set( OUTPUT_LIST "" )
     foreach (FILE ${FILES})

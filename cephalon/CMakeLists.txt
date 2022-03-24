@@ -1,4 +1,4 @@
-include(BgfxShader)
+include(Shader)
 
 configure_file(cephalon_config.h.in cephalon_config.h)
 
@@ -37,7 +37,7 @@ set(CEPHALON_SHADERS
     shaders/vs_outline.sc
     shaders/fs_outline.sc
 )
-add_bgfx_shader(cephalon ${CEPHALON_SHADERS})
+add_shader(cephalon ${CEPHALON_SHADERS})
 
 file(COPY textures DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
