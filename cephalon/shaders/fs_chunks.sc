@@ -13,10 +13,10 @@ void main()
 	vec3 lightDir = vec3(-0.2, -1.0, 0.3);
 
 	float ambientStrength = 0.4f;
-	vec3 ambient = ambientStrength * vec3(v_color0) * vec3(texture2DBias(s_atlas, v_texcoord0, -3.5));
+	vec3 ambient = ambientStrength * vec3(v_color0) * vec3(texture2D(s_atlas, v_texcoord0));
 
 	float diff = max(dot(normal, -lightDir), 0.0);
-	vec3 diffuse = diff * vec3(texture2DBias(s_atlas, v_texcoord0, -3.5));
+	vec3 diffuse = diff * vec3(texture2D(s_atlas, v_texcoord0));
 
 	float fogNear = u_fog.x;
 	float fogFar = u_fog.y;

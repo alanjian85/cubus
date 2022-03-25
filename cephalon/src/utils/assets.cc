@@ -69,7 +69,6 @@ bgfx::TextureHandle cephalon::LoadTexture(const char* path, std::uint64_t flags)
         image->m_numLayers, 
         bgfx::TextureFormat::Enum(image->m_format),
         flags,
-        bgfx::copy(image->m_data, image->m_size)
+        bgfx::makeRef(image->m_data, image->m_size)
     );
-    bimg::imageFree(image);
 }

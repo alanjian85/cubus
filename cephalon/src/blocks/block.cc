@@ -13,11 +13,3 @@ void Block::init(Atlas& atlas) {
     blocks::stone.init(atlas);
     blocks::wood.init(atlas);
 }
-
-void Block::cleanup() {
-    blocks::dirt.destroy();
-    blocks::grass.destroy();
-    blocks::stone.destroy();
-    blocks::wood.destroy();
-    
-}

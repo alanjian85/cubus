@@ -9,10 +9,6 @@ namespace cephalon {
             region_ = atlas.add(image_);
         }
 
-        void destroy() {
-            bimg::imageFree(image_);
-        }
-
         virtual Region getRegion() const override {
             return region_;
         }

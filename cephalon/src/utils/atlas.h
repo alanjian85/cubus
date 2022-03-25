@@ -41,9 +41,9 @@ namespace cephalon {
             if (size_.x - insert_pos_.x < image->m_width) {
                 insert_pos_.x = 0;
                 insert_pos_.y += image->m_height;
-                if (insert_pos_.y >= size_.y) {
-                    return Region();
-                }
+            }
+            if (insert_pos_.y >= size_.y) {
+                return Region();
             }
             bgfx::updateTexture2D(
                 texture_, 0, 0, 

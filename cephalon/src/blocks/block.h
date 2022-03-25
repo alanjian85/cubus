@@ -12,8 +12,6 @@ namespace cephalon {
     public:
         static void init(Atlas& atlas);
 
-        static void cleanup();
-
         virtual ~Block() noexcept = default;
 
         virtual bool isAir() const {
