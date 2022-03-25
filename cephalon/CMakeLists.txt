@@ -41,7 +41,10 @@ set(CEPHALON_SHADERS
 add_shader(cephalon ${CEPHALON_SHADERS})
 
 set(CEPHALON_TEXTURES
-    textures/atlas.png
+    textures/dirt.png
+    textures/grass.png
+    textures/stone.png
+    textures/wood.png
 )
 add_texture(cephalon ${CEPHALON_TEXTURES})
 

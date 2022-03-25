@@ -28,7 +28,7 @@ namespace cephalon {
         void init(std::uint16_t width, std::uint16_t height) {
             size_.x = width;
             size_.y = height;
-            texture_ = bgfx::createTexture2D(width, height, false, 1, kFormat);
+            texture_ = bgfx::createTexture2D(width, height, false, 1, kFormat, BGFX_SAMPLER_MIN_POINT | BGFX_SAMPLER_MAG_POINT);
         }
 
         void destroy() {
@@ -38,10 +38,10 @@ namespace cephalon {
         Region add(bimg::ImageContainer* image) {
             assert(image->m_format == static_cast<bimg::TextureFormat::Enum>(kFormat));
 
-            if (size_.x - 1 - insert_pos_.x < image->m_width) {
+            if (size_.x - insert_pos_.x < image->m_width) {
                 insert_pos_.x = 0;
-                insert_pos_ += image->m_height;
-                if (insert_pos_.y >= image->m_height) {
+                insert_pos_.y += image->m_height;
+                if (insert_pos_.y >= size_.y) {
                     return Region();
                 }
             }
@@ -51,7 +51,7 @@ namespace cephalon {
                 image->m_width, image->m_height, 
                 bgfx::copy(image->m_data, image->m_width * image->m_height * 4)
             );
-            Region region(insert_pos_, insert_pos_ + glm::ivec2(image->m_width, image->m_height));
+            Region region(insert_pos_, insert_pos_ + glm::ivec2(image->m_width - 1, image->m_height - 1));
             insert_pos_.x += image->m_width;
             return region;
         }

@@ -14,7 +14,7 @@ namespace cephalon {
         }
 
         virtual Region getRegion() const override {
-            return region_;;
+            return region_;
         }
     private:
         static inline bimg::ImageContainer* image_;
