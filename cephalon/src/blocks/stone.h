@@ -5,7 +5,7 @@ namespace cephalon {
     class Stone : public Block {
     public:
         void init(Atlas& atlas) {
-            image_ = LoadImage("textures/stone.dds", static_cast<bimg::TextureFormat::Enum>(Atlas::kFormat));
+            image_ = LoadImage("textures/blocks/stone.dds", static_cast<bimg::TextureFormat::Enum>(Atlas::kFormat));
             region_ = atlas.add(image_);
         }
 

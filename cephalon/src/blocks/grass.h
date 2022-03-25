@@ -5,7 +5,7 @@ namespace cephalon {
     class Grass : public Block {
     public:
         void init(Atlas& atlas) {
-            image_ = LoadImage("textures/grass.dds", static_cast<bimg::TextureFormat::Enum>(Atlas::kFormat));
+            image_ = LoadImage("textures/blocks/grass.dds", static_cast<bimg::TextureFormat::Enum>(Atlas::kFormat));
             region_ = atlas.add(image_);
         }
 
