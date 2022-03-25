@@ -10,7 +10,7 @@ using namespace cephalon;
 
 bgfx::VertexLayout Chunk::layout_;
 bgfx::ProgramHandle Chunk::program_;
-bgfx::TextureHandle Chunk::atlas_;
+Atlas Chunk::atlas_;
 bgfx::UniformHandle Chunk::u_fog_;
 bgfx::UniformHandle Chunk::s_atlas_;
 bgfx::UniformHandle Chunk::s_heightmap_;
@@ -25,7 +25,7 @@ void Chunk::init() {
         .add(bgfx::Attrib::TexCoord1, 2, bgfx::AttribType::Float)
     .end();
     program_ = LoadProgram("vs_chunks", "fs_chunks");
-    atlas_ = LoadTexture("textures/atlas.dds", BGFX_SAMPLER_MIN_POINT | BGFX_SAMPLER_MAG_POINT);
+    atlas_.init(512, 512);
     u_fog_ = bgfx::createUniform("u_fog", bgfx::UniformType::Vec4);
     s_atlas_ = bgfx::createUniform("s_atlas", bgfx::UniformType::Sampler);
     s_heightmap_ = bgfx::createUniform("s_heightmap", bgfx::UniformType::Sampler);
@@ -33,7 +33,7 @@ void Chunk::init() {
 
 void Chunk::cleanup() {
     bgfx::destroy(s_atlas_);
-    bgfx::destroy(atlas_);
+    atlas_.destroy();
     bgfx::destroy(program_);
 }
 
@@ -45,7 +45,7 @@ Chunk::Chunk(World& world, glm::ivec2 region)
     for (int x = 0; x < kVolume.x; ++x) {
         for (int y = 0; y < kVolume.y; ++y) {
             for (int z = 0; z < kVolume.z; ++z) {
-                blocks_[x][y][z] = &blocks::kAir;
+                blocks_[x][y][z] = &blocks::air;
             }
         }
     }
@@ -146,6 +146,11 @@ void Chunk::rebuild() {
                 auto& block = getBlock(offset);
                 if (!block.isAir()) {
                     auto pos = World::getPosition(region_, offset);
+                    auto region = Region(
+                        glm::vec2(block.getRegion().min) / glm::vec2(atlas_.getSize()),
+                        glm::vec2(block.getRegion().max) / glm::vec2(atlas_.getSize())
+                    );
+
                     glm::vec2 block_texcoord1;
                     if (bgfx::getCaps()->originBottomLeft)
                         block_texcoord1 = glm::vec2(
@@ -187,10 +192,10 @@ void Chunk::rebuild() {
                         };
 
                         glm::vec2 block_texcoord0[] = {
-                            block.getTexCoord() + glm::vec2(0.0f,  0.0f),
-                            block.getTexCoord() + glm::vec2(0.0f,  1.0f),
-                            block.getTexCoord() + glm::vec2(0.25f, 0.0f),
-                            block.getTexCoord() + glm::vec2(0.25f, 1.0f)
+                            glm::vec2(region.min.x, region.min.y),
+                            glm::vec2(region.min.x, region.max.x),
+                            glm::vec2(region.max.x, region.min.x),
+                            glm::vec2(region.max.x, region.max.x)
                         };
 
                         Vertex block_vertices[] = {
@@ -234,10 +239,10 @@ void Chunk::rebuild() {
                         };
                         
                         glm::vec2 block_texcoord0[] = {
-                            block.getTexCoord() + glm::vec2(0.0f,  0.0f), 
-                            block.getTexCoord() + glm::vec2(0.0f,  1.0f), 
-                            block.getTexCoord() + glm::vec2(0.25f, 0.0f), 
-                            block.getTexCoord() + glm::vec2(0.25f, 1.0f) 
+                            glm::vec2(region.min.x, region.min.y),
+                            glm::vec2(region.min.x, region.max.x),
+                            glm::vec2(region.max.x, region.min.x),
+                            glm::vec2(region.max.x, region.max.x)
                         };
 
                         Vertex block_vertices[] = {
@@ -281,10 +286,10 @@ void Chunk::rebuild() {
                         };
 
                         glm::vec2 block_texcoord0[] = {
-                            block.getTexCoord() + glm::vec2(0.0f,  0.0f),
-                            block.getTexCoord() + glm::vec2(0.0f,  1.0f),
-                            block.getTexCoord() + glm::vec2(0.25f, 0.0f),
-                            block.getTexCoord() + glm::vec2(0.25f, 1.0f)
+                            glm::vec2(region.min.x, region.min.y),
+                            glm::vec2(region.min.x, region.max.x),
+                            glm::vec2(region.max.x, region.min.x),
+                            glm::vec2(region.max.x, region.max.x)
                         };
 
                         Vertex block_vertices[] = {
@@ -328,10 +333,10 @@ void Chunk::rebuild() {
                         };
 
                         glm::vec2 block_texcoord0[] = {
-                            block.getTexCoord() + glm::vec2(0.0f,  0.0f),
-                            block.getTexCoord() + glm::vec2(0.0f,  1.0f),
-                            block.getTexCoord() + glm::vec2(0.25f, 0.0f),
-                            block.getTexCoord() + glm::vec2(0.25f, 1.0f)
+                            glm::vec2(region.min.x, region.min.y),
+                            glm::vec2(region.min.x, region.max.x),
+                            glm::vec2(region.max.x, region.min.x),
+                            glm::vec2(region.max.x, region.max.x)
                         };
 
                         Vertex block_vertices[] = {
@@ -375,10 +380,10 @@ void Chunk::rebuild() {
                         };
 
                         glm::vec2 block_texcoord0[] = {
-                            block.getTexCoord() + glm::vec2(0.0f,  0.0f),
-                            block.getTexCoord() + glm::vec2(0.0f,  1.0f),
-                            block.getTexCoord() + glm::vec2(0.25f, 0.0f),
-                            block.getTexCoord() + glm::vec2(0.25f, 1.0f)
+                            glm::vec2(region.min.x, region.min.y),
+                            glm::vec2(region.min.x, region.max.x),
+                            glm::vec2(region.max.x, region.min.x),
+                            glm::vec2(region.max.x, region.max.x)
                         };
 
                         Vertex block_vertices[] = {
@@ -422,10 +427,10 @@ void Chunk::rebuild() {
                         };
 
                         glm::vec2 block_texcoord0[] = {
-                            block.getTexCoord() + glm::vec2(0.0f,  0.0f),
-                            block.getTexCoord() + glm::vec2(0.0f,  1.0f),
-                            block.getTexCoord() + glm::vec2(0.25f, 0.0f),
-                            block.getTexCoord() + glm::vec2(0.25f, 1.0f)
+                            glm::vec2(region.min.x, region.min.y),
+                            glm::vec2(region.min.x, region.max.x),
+                            glm::vec2(region.max.x, region.min.x),
+                            glm::vec2(region.max.x, region.max.x)
                         };
 
                         Vertex block_vertices[] = {
@@ -465,7 +470,7 @@ void Chunk::render(PerspectiveCamera cam) const {
     };
     auto view_pos = cam.pos;
     bgfx::setUniform(u_fog_, fog);
-    bgfx::setTexture(0, s_atlas_, atlas_);
+    bgfx::setTexture(0, s_atlas_, atlas_.getTexture());
     bgfx::setTexture(1, s_heightmap_, heightmap_);
     bgfx::setViewTransform(0, glm::value_ptr(cam.view), glm::value_ptr(cam.proj));
     bgfx::setState(

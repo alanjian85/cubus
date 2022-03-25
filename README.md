@@ -7,6 +7,9 @@ A Minecraft-like voxel game written in C++
 * Atlas Texture
 * Different Types of Block
 * Frustum Culling
+* Shadow Mapping
+* Ambient Occulusion
+* Fog Effect
 
 ## Dependencies
 * [bgfx](https://bkaradzic.github.io/bgfx/index.html)

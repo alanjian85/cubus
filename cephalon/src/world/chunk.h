@@ -11,6 +11,7 @@
 #include "blocks/block.h"
 #include "utils/aabb.h"
 #include "utils/assets.h"
+#include "utils/atlas.h"
 #include "utils/camera.h"
 #include "utils/ray.h"
 
@@ -31,6 +32,10 @@ namespace cephalon {
         static void init();
         
         static void cleanup();
+
+        static Atlas& getAtlas() {
+            return atlas_;
+        }
 
         static constexpr glm::ivec3 kVolume = glm::ivec3(16, 256, 16);
 
@@ -64,7 +69,7 @@ namespace cephalon {
     private:
         static bgfx::VertexLayout layout_;
         static bgfx::ProgramHandle program_;
-        static bgfx::TextureHandle atlas_;
+        static Atlas atlas_;
         static bgfx::UniformHandle u_fog_;
         static bgfx::UniformHandle s_atlas_;
         static bgfx::UniformHandle s_heightmap_;

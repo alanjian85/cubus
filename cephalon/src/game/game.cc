@@ -49,13 +49,13 @@ void Game::onCursorMove(float relative_x, float relative_y) {
 
 void Game::onMouseLeftClick() {
     if (intersected_) {
-        world_.setBlock(destroy_pos_, blocks::kAir);
+        world_.setBlock(destroy_pos_, blocks::air);
     }
 }
 
 void Game::onMouseRightClick() {
     if (place_pos_.y >= 0 && place_pos_.y < Chunk::kVolume.y)
-        world_.setBlock(place_pos_, blocks::kWood);
+        world_.setBlock(place_pos_, blocks::wood);
 }
 
 void Game::render() {

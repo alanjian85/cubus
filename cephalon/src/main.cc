@@ -51,6 +51,7 @@ int main(int argc, char **argv) {
 
     Input::init(window);
     Chunk::init();
+    Block::init(Chunk::getAtlas());
 
     {
         Game game(width, height);
@@ -102,6 +103,7 @@ int main(int argc, char **argv) {
         }
     }
 
+    Block::cleanup();
     Chunk::cleanup();
     bgfx::shutdown();
     SDL_DestroyWindow(window);

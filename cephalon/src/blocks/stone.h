@@ -4,9 +4,21 @@
 namespace cephalon {
     class Stone : public Block {
     public:
-        virtual glm::vec2 getTexCoord() const override {
-            return glm::vec2(0.5f, 0.0f);
+        void init(Atlas& atlas) {
+            image_ = LoadImage("textures/stone.dds", static_cast<bimg::TextureFormat::Enum>(Atlas::kFormat));
+            region_ = atlas.add(image_);
         }
+
+        void destroy() {
+            bimg::imageFree(image_);
+        }
+
+        virtual Region getRegion() const override {
+            return region_;;
+        }
+    private:
+        static inline bimg::ImageContainer* image_;
+        static inline Region region_;
     };
 }
 

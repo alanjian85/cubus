@@ -11,12 +11,12 @@ namespace cephalon {
     public:
         const Block& operator()(glm::ivec3 pos) const {
             if (pos.y == 0)
-                return blocks::kStone;
+                return blocks::stone;
             if (pos.y >= 1 && pos.y <= 4)
-                return blocks::kDirt;
+                return blocks::dirt;
             if (pos.y == 5)
-                return blocks::kGrass;
-            return blocks::kAir;
+                return blocks::grass;
+            return blocks::air;
         }
     };
 }

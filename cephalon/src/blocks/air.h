@@ -8,8 +8,8 @@ namespace cephalon {
             return true;
         }
 
-        virtual glm::vec2 getTexCoord() const override {
-            return glm::vec2(0.0f, 0.0f);
+        virtual Region getRegion() const override {
+            return Region(glm::ivec2(0), glm::ivec2(0));
         }
     };
 }

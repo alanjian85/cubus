@@ -3,7 +3,6 @@
 #include <fstream>
 #include <vector>
 
-#include <bimg/decode.h>
 #include <bx/bx.h>
 #include <bx/string.h>
 
@@ -51,14 +50,18 @@ bgfx::ProgramHandle cephalon::LoadProgram(const char* vs, const char* fs) {
     return bgfx::createProgram(vsh, fsh, true);
 }
 
-bgfx::TextureHandle cephalon::LoadTexture(const char* path, std::uint64_t flags) {
-	std::ifstream file(path, std::ios::ate | std::ios::binary);
+bimg::ImageContainer* cephalon::LoadImage(const char* path, bimg::TextureFormat::Enum dst_format) {
+    std::ifstream file(path, std::ios::ate | std::ios::binary);
     std::size_t size = file.tellg();
     file.seekg(0, std::ios::beg);
     std::vector<char> data(size);
     file.read(data.data(), size);
     bx::DefaultAllocator allocator;
-    bimg::ImageContainer* image = bimg::imageParse(&allocator, data.data(), data.size());
+    return bimg::imageParse(&allocator, data.data(), data.size(), dst_format);
+}
+
+bgfx::TextureHandle cephalon::LoadTexture(const char* path, std::uint64_t flags) {
+    bimg::ImageContainer* image = LoadImage(path);
     return bgfx::createTexture2D(
         image->m_width,
         image->m_height,
@@ -66,6 +69,7 @@ bgfx::TextureHandle cephalon::LoadTexture(const char* path, std::uint64_t flags)
         image->m_numLayers, 
         bgfx::TextureFormat::Enum(image->m_format),
         flags,
-        bgfx::makeRef(image->m_data, image->m_size)
+        bgfx::copy(image->m_data, image->m_size)
     );
+    bimg::imageFree(image);
 }
