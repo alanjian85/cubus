@@ -13,9 +13,9 @@ A Minecraft-like voxel game written in C++
 * Logging
 * Screenshot
 * JSON Config File
+* Procedural Terrain
 
 ## TODO
-* Procedural Terrain
 * Greedy Meshing
 * Block Destroy Particle
 * UI

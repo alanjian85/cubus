@@ -1,8 +1,10 @@
 #ifndef CEPHALON_WORLD_CHUNK_H_
 #define CEPHALON_WORLD_CHUNK_H_
 
+#include <atomic>
 #include <cassert>
 #include <cstdint>
+#include <mutex>
 #include <vector>
 
 #include <bgfx/bgfx.h>
@@ -48,6 +50,7 @@ namespace cephalon {
         ~Chunk() noexcept;
 
         glm::ivec2 getRegion() const {
+            std::lock_guard lock(data_mutex_);
             return region_;
         }
 
@@ -55,11 +58,23 @@ namespace cephalon {
 
         const Block& getBlock(glm::ivec3 offset) const;
 
+        void setDirty(bool dirty) {
+            std::lock_guard lock(data_mutex_);
+            dirty_ = dirty;
+        }
+
         bool isDirty() const {
+            std::lock_guard lock(data_mutex_);
             return dirty_;
         }
 
+        bool isReady() const {
+            return ready_.load();
+        }
+
         void rebuild();
+
+        void update();
 
         void render(PerspectiveCamera cam) const;
 
@@ -76,10 +91,18 @@ namespace cephalon {
 
         float vertexAO(glm::ivec3 side1, glm::ivec3 side2, glm::ivec3 corner) const;
 
+        mutable std::mutex data_mutex_;
         glm::ivec2 region_;
         World& world_;
         bool dirty_;
         const Block* blocks_[kVolume.x][kVolume.y][kVolume.z];
+
+        mutable std::mutex buffer_mutex_;
+        std::vector<Vertex> vertices_;
+        std::vector<std::uint16_t> indices_;
+        std::uint8_t heightmap_data_[kVolume.x][kVolume.z];
+
+        std::atomic_bool ready_;
         bgfx::DynamicVertexBufferHandle vertex_buffer_;
         bgfx::DynamicIndexBufferHandle index_buffer_;
         bgfx::TextureHandle heightmap_;

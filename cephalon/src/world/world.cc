@@ -7,6 +7,7 @@ using namespace cephalon;
 void World::update(glm::vec3 player_pos) {
     auto player_region = getRegion(glm::ivec3(player_pos));
 
+    std::unique_lock lock(chunks_mutex_);
     for (auto i = chunks_.begin(); i != chunks_.end();) {
         auto& [region, chunk] = *i;
         if (std::abs(player_region.x - region.x) > Config::viewDistance ||
@@ -26,14 +27,17 @@ void World::update(glm::vec3 player_pos) {
                 auto [it, created] = chunks_.emplace(region, Chunk(*this, region));
                 auto& chunk = it->second;
                 if (created) {
+                    lock.unlock();
                     generator_(*this, region);
 
                     for (auto [pos, block] : blocks_) {
-                        if (getRegion(pos) == chunk.getRegion())
+                        if (getRegion(pos) == chunk.getRegion()) {
                             chunk.setBlock(getOffset(pos), *block);
+                        }
                     }
                     
                     ++load_count;
+                    lock.lock();
                 }
             }
         }
@@ -46,6 +50,7 @@ void World::render(PerspectiveCamera cam) {
         if (chunk.inbound(cam)) {
             if (rebuild_count < Config::chunkRebuildLimit && chunk.isDirty()) {
                 chunk.rebuild();
+                chunk.update();
                 ++rebuild_count;
             }
 

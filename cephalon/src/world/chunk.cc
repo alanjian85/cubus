@@ -92,40 +92,43 @@ void Chunk::setBlock(glm::ivec3 offset, const Block& block) {
         return;
 
     if (blocks_[offset.x][offset.y][offset.z] != &block) {
-        dirty_ = true;
-        blocks_[offset.x][offset.y][offset.z] = &block;
+        {
+            std::lock_guard lock(data_mutex_);
+            dirty_ = true;
+            blocks_[offset.x][offset.y][offset.z] = &block;
+        }
 
         if (offset.x == 0) {
             if (auto chunk = world_.getChunk(region_ + glm::ivec2(-1,  0)))
-                chunk->dirty_ = true;
+                chunk->setDirty(true);
         }
         if (offset.x == kVolume.x - 1) {
             if (auto chunk = world_.getChunk(region_ + glm::ivec2( 1,  0)))
-                chunk->dirty_ = true;
+                chunk->setDirty(true);
         }
         if (offset.z == 0) {
             if (auto chunk = world_.getChunk(region_ + glm::ivec2( 0, -1)))
-                chunk->dirty_ = true;
+                chunk->setDirty(true);
         }
         if (offset.z == kVolume.z - 1) {
             if (auto chunk = world_.getChunk(region_ + glm::ivec2( 0,  1)))
-                chunk->dirty_ = true;
+                chunk->setDirty(true);
         }
         if (offset.x == 0 && offset.z == 0) {
             if (auto chunk = world_.getChunk(region_ + glm::ivec2(-1, -1)))
-                chunk->dirty_ = true;
+                chunk->setDirty(true);
         }
         if (offset.x == 0 && offset.z == kVolume.z - 1) {
             if (auto chunk = world_.getChunk(region_ + glm::ivec2(-1,  1)))
-                chunk->dirty_ = true;
+                chunk->setDirty(true);
         }
         if (offset.x == kVolume.x - 1 && offset.z == 0) {
             if (auto chunk = world_.getChunk(region_ + glm::ivec2( 1, -1)))
-                chunk->dirty_ = true;
+                chunk->setDirty(true);
         }
         if (offset.x == kVolume.x - 1 && offset.z == kVolume.z - 1) {
             if (auto chunk = world_.getChunk(region_ + glm::ivec2( 1,  1)))
-                chunk->dirty_ = true;
+                chunk->setDirty(true);
         }
     }
 }
@@ -135,21 +138,36 @@ const Block& Chunk::getBlock(glm::ivec3 offset) const {
     assert(offset.z >= 0 && offset.z < kVolume.z);
     if (offset.y < 0 || offset.y >= kVolume.y)
         return blocks::air;
+    std::lock_guard lock(data_mutex_);
     return *blocks_[offset.x][offset.y][offset.z];
 }
 
 void Chunk::rebuild() {
-    std::vector<Vertex> vertices;
-    std::vector<std::uint16_t> indices;
-    std::uint8_t heightmap[kVolume.x][kVolume.z] = {};
+    std::lock_guard buffer_lock(buffer_mutex_);
+    vertices_.clear();
+    indices_.clear();
+    for (int x = 0; x < kVolume.x; x++) {
+        for (int z = 0; z < kVolume.z; ++z) {
+            heightmap_data_[x][z] = 0;
+        }
+    }
+
+    {
+        std::lock_guard data_lock(data_mutex_);
+        dirty_ = false;
+    }
 
     for (int x = 0; x < kVolume.x; ++x) {
         for (int y = 0; y < kVolume.y; ++y) {
             for (int z = 0; z < kVolume.z; ++z) {
-                auto offset = glm::ivec3(x, y, z);
+                glm::ivec3 offset, pos;
+                {
+                    std::lock_guard data_lock(data_mutex_);
+                    offset = glm::ivec3(x, y, z);
+                    pos = World::getPosition(region_, offset);
+                }
                 auto& block = getBlock(offset);
                 if (!block.isAir()) {
-                    auto pos = World::getPosition(region_, offset);
                     auto min = glm::vec2(block.getRegion().min) / glm::vec2(atlas_.getSize() - 1);
                     auto max = glm::vec2(block.getRegion().max) / glm::vec2(atlas_.getSize() - 1);
 
@@ -166,8 +184,8 @@ void Chunk::rebuild() {
                         );
                     auto height = static_cast<float>(y) / kVolume.y;
                     auto iheight = static_cast<std::uint8_t>(height * 255);
-                    if (iheight > heightmap[x][z]) {
-                        heightmap[x][z] = iheight;
+                    if (iheight > heightmap_data_[x][z]) {
+                        heightmap_data_[x][z] = iheight;
                     }
 
                     // right
@@ -208,14 +226,14 @@ void Chunk::rebuild() {
                             { block_pos[3], block_normal[3], block_ao[3], 1.0f, block_texcoord0[3], block_texcoord1 }
                         };
 
-                        auto index_base = static_cast<int>(vertices.size());
+                        auto index_base = static_cast<int>(vertices_.size());
                         int block_indices[] = {
                             index_base + 1, index_base + 3, index_base + 2,
                             index_base + 1, index_base + 2, index_base + 0
                         };
 
-                        vertices.insert(vertices.cend(), std::cbegin(block_vertices), std::cend(block_vertices));
-                        indices.insert(indices.cend(), std::cbegin(block_indices), std::cend(block_indices));
+                        vertices_.insert(vertices_.cend(), std::cbegin(block_vertices), std::cend(block_vertices));
+                        indices_.insert(indices_.cend(), std::cbegin(block_indices), std::cend(block_indices));
                     }
 
                     // left
@@ -256,14 +274,14 @@ void Chunk::rebuild() {
                             { block_pos[3], block_normal[3], block_ao[3], 1.0f, block_texcoord0[3], block_texcoord1 }
                         };
 
-                        auto index_base = static_cast<int>(vertices.size());
+                        auto index_base = static_cast<int>(vertices_.size());
                         int block_indices[] = {
                             index_base + 0, index_base + 2, index_base + 3,
                             index_base + 0, index_base + 3, index_base + 1,
                         };
 
-                        vertices.insert(vertices.cend(), std::cbegin(block_vertices), std::cend(block_vertices));
-                        indices.insert(indices.cend(), std::cbegin(block_indices), std::cend(block_indices));
+                        vertices_.insert(vertices_.cend(), std::cbegin(block_vertices), std::cend(block_vertices));
+                        indices_.insert(indices_.cend(), std::cbegin(block_indices), std::cend(block_indices));
                     }
 
                     // top
@@ -305,14 +323,14 @@ void Chunk::rebuild() {
                             { block_pos[3], block_normal[3], block_ao[3], height, block_texcoord0[3], block_texcoord1 }
                         };
 
-                        auto index_base = static_cast<int>(vertices.size());
+                        auto index_base = static_cast<int>(vertices_.size());
                         int block_indices[] = {
                             index_base + 2, index_base + 3, index_base + 1,
                             index_base + 2, index_base + 1, index_base + 0,
                         };
 
-                        vertices.insert(vertices.cend(), std::cbegin(block_vertices), std::cend(block_vertices));
-                        indices.insert(indices.cend(), std::cbegin(block_indices), std::cend(block_indices));
+                        vertices_.insert(vertices_.cend(), std::cbegin(block_vertices), std::cend(block_vertices));
+                        indices_.insert(indices_.cend(), std::cbegin(block_indices), std::cend(block_indices));
                     }
 
                     // bottom
@@ -354,14 +372,14 @@ void Chunk::rebuild() {
                             { block_pos[3], block_normal[3], block_ao[3], 1.0f, block_texcoord0[3], block_texcoord1 }
                         };
 
-                        auto index_base = static_cast<int>(vertices.size());
+                        auto index_base = static_cast<int>(vertices_.size());
                         int block_indices[] = {
                             index_base + 3, index_base + 2, index_base + 0,
                             index_base + 3, index_base + 0, index_base + 1,
                         };
 
-                        vertices.insert(vertices.cend(), std::cbegin(block_vertices), std::cend(block_vertices));
-                        indices.insert(indices.cend(), std::cbegin(block_indices), std::cend(block_indices));
+                        vertices_.insert(vertices_.cend(), std::cbegin(block_vertices), std::cend(block_vertices));
+                        indices_.insert(indices_.cend(), std::cbegin(block_indices), std::cend(block_indices));
                     }
 
                     // back
@@ -402,14 +420,14 @@ void Chunk::rebuild() {
                             { block_pos[3], block_normal[3], block_ao[3], 1.0f, block_texcoord0[3], block_texcoord1 }
                         };
 
-                        auto index_base = static_cast<int>(vertices.size());
+                        auto index_base = static_cast<int>(vertices_.size());
                         int block_indices[] = {
                             index_base + 1, index_base + 3, index_base + 2,
                             index_base + 0, index_base + 1, index_base + 2,
                         };
 
-                        vertices.insert(vertices.cend(), std::cbegin(block_vertices), std::cend(block_vertices));
-                        indices.insert(indices.cend(), std::cbegin(block_indices), std::cend(block_indices));
+                        vertices_.insert(vertices_.cend(), std::cbegin(block_vertices), std::cend(block_vertices));
+                        indices_.insert(indices_.cend(), std::cbegin(block_indices), std::cend(block_indices));
                     }
 
                     // front
@@ -450,29 +468,36 @@ void Chunk::rebuild() {
                             { block_pos[3], block_normal[3], block_ao[3], 1.0f, block_texcoord0[3], block_texcoord1 }
                         };
 
-                        auto index_base = static_cast<int>(vertices.size());
+                        auto index_base = static_cast<int>(vertices_.size());
                         int block_indices[] = {
                             index_base + 2, index_base + 3, index_base + 1,
                             index_base + 2, index_base + 1, index_base + 0
                         };
 
-                        vertices.insert(vertices.cend(), std::cbegin(block_vertices), std::cend(block_vertices));
-                        indices.insert(indices.cend(), std::cbegin(block_indices), std::cend(block_indices));
+                        vertices_.insert(vertices_.cend(), std::cbegin(block_vertices), std::cend(block_vertices));
+                        indices_.insert(indices_.cend(), std::cbegin(block_indices), std::cend(block_indices));
                     }
                 }
             }
         }
     }
 
-    if (!vertices.empty()) {
-        bgfx::update(vertex_buffer_, 0, bgfx::copy(vertices.data(), vertices.size() * sizeof(Vertex)));
-        bgfx::update(index_buffer_, 0, bgfx::copy(indices.data(), indices.size() * sizeof(std::uint16_t)));
+    ready_.store(true);
+}
+
+void Chunk::update() {
+    std::lock_guard lock(buffer_mutex_);
+    if (!vertices_.empty()) {
+        bgfx::update(vertex_buffer_, 0, bgfx::copy(vertices_.data(), vertices_.size() * sizeof(Vertex)));
+        bgfx::update(index_buffer_, 0, bgfx::copy(indices_.data(), indices_.size() * sizeof(std::uint16_t)));
     }
-    bgfx::updateTexture2D(heightmap_, 0, 0, 0, 0, kVolume.x, kVolume.z, bgfx::copy(heightmap, sizeof(heightmap)));
-    dirty_ = false;
+    bgfx::updateTexture2D(heightmap_, 0, 0, 0, 0, kVolume.x, kVolume.z, bgfx::copy(heightmap_data_, sizeof(heightmap_data_)));
+    ready_.store(false);
 }
 
 void Chunk::render(PerspectiveCamera cam) const {
+    std::lock_guard buffer_lock(buffer_mutex_);
+    std::lock_guard data_lock(data_mutex_);
     float fog[4] = { 
         Config::viewDistance * kVolume.x - 12.0f, 
         Config::viewDistance * kVolume.x - 2.0f, 
@@ -540,6 +565,7 @@ bool Chunk::intersect(Ray ray, float dmin, float dmax, Direction& dir, glm::ivec
 }
 
 bool Chunk::inbound(PerspectiveCamera cam) const {
+    std::lock_guard data_lock(data_mutex_);
     auto min = World::getPosition(region_, glm::ivec3(0));
     auto max = World::getPosition(region_, glm::ivec3(kVolume - 1));
     glm::vec4 corners[] = {

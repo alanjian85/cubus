@@ -3,6 +3,7 @@
 
 #include <cmath>
 #include <unordered_map>
+#include <mutex>
 #include <set>
 #include <vector>
 
@@ -34,6 +35,7 @@ namespace cephalon {
         }
 
         Chunk* getChunk(glm::ivec2 region) {
+            std::lock_guard lock(chunks_mutex_);
             auto it = chunks_.find(region);
             if (it != chunks_.cend())
                 return &it->second;
@@ -41,6 +43,7 @@ namespace cephalon {
         }
 
         const Chunk* getChunk(glm::ivec2 region) const {
+            std::lock_guard lock(chunks_mutex_);
             auto it = chunks_.find(region);
             if (it != chunks_.cend())
                 return &it->second;
@@ -65,6 +68,7 @@ namespace cephalon {
 
         bool intersect(PerspectiveCamera cam, Direction& dir, glm::ivec3& pos) const;
     private:
+        mutable std::mutex chunks_mutex_;
         std::unordered_map<glm::ivec2, Chunk> chunks_;
         std::unordered_map<glm::ivec3, const Block*> blocks_;
         Generator generator_;
