@@ -88,6 +88,7 @@ void Chunk::setBlock(glm::ivec3 offset, const Block& block) {
     assert(offset.x >= 0 && offset.x < kVolume.x);
     assert(offset.y >= 0 && offset.y < kVolume.y);
     assert(offset.z >= 0 && offset.z < kVolume.z);
+
     if (blocks_[offset.x][offset.y][offset.z] != &block) {
         dirty_ = true;
         blocks_[offset.x][offset.y][offset.z] = &block;

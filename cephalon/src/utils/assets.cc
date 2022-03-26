@@ -1,10 +1,13 @@
 #include "assets.h"
 
 #include <fstream>
+#include <string_view>
 #include <vector>
 
 #include <bx/bx.h>
+#include <bx/error.h>
 #include <bx/string.h>
+#include <spdlog/spdlog.h>
 
 bgfx::ShaderHandle cephalon::LoadShader(const char* name) {
     char filePath[512];
@@ -31,6 +34,10 @@ bgfx::ShaderHandle cephalon::LoadShader(const char* name) {
 	bx::strCat(filePath, BX_COUNTOF(filePath), ".bin");
 
     std::ifstream file(filePath, std::ios::ate | std::ios::binary);
+    if (!file.is_open()) {
+        spdlog::error("Could not open {} shader file", name);
+        return BGFX_INVALID_HANDLE;
+    }
     std::size_t size = file.tellg();
     file.seekg(0, std::ios::beg);
     std::vector<char> data(size);
@@ -41,23 +48,36 @@ bgfx::ShaderHandle cephalon::LoadShader(const char* name) {
 	bgfx::ShaderHandle handle = bgfx::createShader(memory);
 	bgfx::setName(handle, name);
     
+    if (!bgfx::isValid(handle))
+        spdlog::error("Error creating shader {}", name);
     return handle;
 }
 
 bgfx::ProgramHandle cephalon::LoadProgram(const char* vs, const char* fs) {
-    auto vsh = LoadShader(vs);
-    auto fsh = LoadShader(fs);
-    return bgfx::createProgram(vsh, fsh, true);
+    bgfx::ShaderHandle vsh = LoadShader(vs);
+    bgfx::ShaderHandle fsh = LoadShader(fs);
+    bgfx::ProgramHandle handle = bgfx::createProgram(vsh, fsh, true);
+    if (!bgfx::isValid(handle))
+        spdlog::error("Error creating program for shader {} and {}", vs, fs);
+    return handle;
 }
 
 bimg::ImageContainer* cephalon::LoadImage(const char* path, bimg::TextureFormat::Enum dst_format) {
     std::ifstream file(path, std::ios::ate | std::ios::binary);
+    if (!file.is_open())
+        spdlog::error("Could not open image file at {}", path);
     std::size_t size = file.tellg();
     file.seekg(0, std::ios::beg);
     std::vector<char> data(size);
     file.read(data.data(), size);
     bx::DefaultAllocator allocator;
-    return bimg::imageParse(&allocator, data.data(), data.size(), dst_format);
+    bx::Error error;
+    bimg::ImageContainer* image = bimg::imageParse(&allocator, data.data(), data.size(), dst_format, &error);
+    if (!error.isOk()) {
+        auto message = error.getMessage();
+        spdlog::error("Error parsing image: {}", std::string_view(message.getPtr(), message.getLength()));
+    }
+    return image;
 }
 
 bgfx::TextureHandle cephalon::LoadTexture(const char* path, std::uint64_t flags) {
