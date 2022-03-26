@@ -5,6 +5,7 @@
 #include <fmt/format.h>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_syswm.h>
+#include <spdlog/spdlog.h>
 
 #include "cephalon_config.h"
 #include "game/game.h"
@@ -17,13 +18,19 @@ int main(int argc, char **argv) {
     int width = 800;
     int height = 600;
 
-    SDL_Init(0);
+    if (SDL_Init(0) < 0)
+        spdlog::error("Failed to initialize SDL");
     SDL_Window* window = SDL_CreateWindow(
         fmt::format("Cephalon {}.{}.{}", CEPHALON_VERSION_MAJOR, CEPHALON_VERSION_MINOR, CEPHALON_VERSION_PATCH).c_str(),
         SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 
         width, height,
         SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE
     );
+    if (!window) {
+        spdlog::error("Couldn't create window");
+        SDL_Quit();
+        return EXIT_FAILURE;
+    }
 
     SDL_SetRelativeMouseMode(SDL_TRUE);
 
@@ -44,7 +51,11 @@ int main(int argc, char **argv) {
     init.resolution.height = height;
     init.resolution.reset = BGFX_RESET_VSYNC | BGFX_RESET_MSAA_X4;
     bgfx::renderFrame();
-    bgfx::init(init);
+    if (!bgfx::init(init)) {
+        spdlog::error("Failed to initialize bgfx");
+        SDL_Quit();
+        return EXIT_FAILURE;
+    }
 
     bgfx::setViewClear(0, BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH, 0x87ceebff);
     bgfx::setViewRect(0, 0, 0, width, height);
@@ -107,6 +118,5 @@ int main(int argc, char **argv) {
     bgfx::shutdown();
     SDL_DestroyWindow(window);
     SDL_Quit();
-
-    return 0;
+    return EXIT_SUCCESS;
 }

@@ -48,9 +48,8 @@ void Game::onCursorMove(float relative_x, float relative_y) {
 }
 
 void Game::onMouseLeftClick() {
-    if (intersected_) {
+    if (intersected_)
         world_.setBlock(destroy_pos_, blocks::air);
-    }
 }
 
 void Game::onMouseRightClick() {

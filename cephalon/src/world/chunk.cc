@@ -86,8 +86,10 @@ Chunk::~Chunk() noexcept {
 
 void Chunk::setBlock(glm::ivec3 offset, const Block& block) {
     assert(offset.x >= 0 && offset.x < kVolume.x);
-    assert(offset.y >= 0 && offset.y < kVolume.y);
     assert(offset.z >= 0 && offset.z < kVolume.z);
+
+    if (offset.y < 0 || offset.y >= kVolume.y)
+        return;
 
     if (blocks_[offset.x][offset.y][offset.z] != &block) {
         dirty_ = true;
@@ -130,8 +132,9 @@ void Chunk::setBlock(glm::ivec3 offset, const Block& block) {
 
 const Block& Chunk::getBlock(glm::ivec3 offset) const {
     assert(offset.x >= 0 && offset.x < kVolume.x);
-    assert(offset.y >= 0 && offset.y < kVolume.y);
     assert(offset.z >= 0 && offset.z < kVolume.z);
+    if (offset.y < 0 || offset.y >= kVolume.y)
+        return blocks::air;
     return *blocks_[offset.x][offset.y][offset.z];
 }
 
@@ -265,10 +268,7 @@ void Chunk::rebuild() {
 
                     // top
                     const Block* top_block;
-                    if (pos.y != kVolume.y - 1)
-                        top_block = world_.getBlock(pos + glm::ivec3(0, 1, 0));
-                    else
-                        top_block = nullptr;
+                    top_block = world_.getBlock(pos + glm::ivec3(0, 1, 0));
                     if (top_block && top_block->isAir()) {
                         glm::vec3 block_pos[] = {
                             glm::vec3(x - 0.5f, y + 0.5f, z - 0.5f),
@@ -317,10 +317,7 @@ void Chunk::rebuild() {
 
                     // bottom
                     const Block* bottom_block;
-                    if (pos.y != 0)
-                        bottom_block = world_.getBlock(pos + glm::ivec3(0, -1, 0));
-                    else
-                        bottom_block = nullptr;
+                    bottom_block = world_.getBlock(pos + glm::ivec3(0, -1, 0));
                     if (bottom_block && bottom_block->isAir()) {
                         glm::vec3 block_pos[] = {
                             glm::vec3(x - 0.5f, y - 0.5f, z - 0.5f),
