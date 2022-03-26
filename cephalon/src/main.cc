@@ -8,6 +8,7 @@
 #include <spdlog/spdlog.h>
 
 #include "cephalon_config.h"
+#include "game/callback.h"
 #include "game/game.h"
 #include "game/input.h"
 #include "game/timer.h"
@@ -38,6 +39,7 @@ int main(int argc, char **argv) {
     SDL_VERSION(&wmi.version);
     SDL_GetWindowWMInfo(window, &wmi);
 
+    Callback callback;
     bgfx::Init init;
 #if BX_PLATFORM_LINUX || BX_PLATFORM_BSD
     init.platformData.ndt = wmi.info.x11.display;
@@ -50,6 +52,7 @@ int main(int argc, char **argv) {
     init.resolution.width = width;
     init.resolution.height = height;
     init.resolution.reset = BGFX_RESET_VSYNC | BGFX_RESET_MSAA_X4;
+    init.callback = &callback;
     bgfx::renderFrame();
     if (!bgfx::init(init)) {
         spdlog::error("Failed to initialize bgfx");
@@ -80,6 +83,8 @@ int main(int argc, char **argv) {
                     case SDL_KEYDOWN:
                         if (event.key.keysym.sym == SDLK_ESCAPE)
                             quit = true;
+                        if (event.key.keysym.sym == SDLK_F2)
+                            game.screenShot();
                         break;
                     case SDL_WINDOWEVENT:
                         switch (event.window.event) {

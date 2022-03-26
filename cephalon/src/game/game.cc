@@ -2,6 +2,7 @@
 using namespace cephalon;
 
 #include <glm/gtc/type_ptr.hpp>
+#include <spdlog/spdlog.h>
 
 #include "input.h"
 
@@ -55,6 +56,12 @@ void Game::onMouseLeftClick() {
 void Game::onMouseRightClick() {
     if (place_pos_.y >= 0 && place_pos_.y < Chunk::kVolume.y)
         world_.setBlock(place_pos_, blocks::wood);
+}
+
+void Game::screenShot() {
+    const char* path = "screenshot.png";
+    spdlog::info("Screenshot saved to file {}", path);
+    bgfx::requestScreenShot(BGFX_INVALID_HANDLE, path);
 }
 
 void Game::render() {

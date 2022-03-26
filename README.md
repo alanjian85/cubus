@@ -11,10 +11,10 @@ A Minecraft-like voxel game written in C++
 * Ambient Occulusion
 * Fog Effect
 * Logging
+* Screenshot
 
 ## TODO
 * JSON Config File
-* Screenshot
 
 ## Dependencies
 * [bgfx](https://bkaradzic.github.io/bgfx/index.html)

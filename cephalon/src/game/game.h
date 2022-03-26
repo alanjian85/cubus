@@ -23,6 +23,8 @@ namespace cephalon {
 
         void onMouseRightClick();
 
+        void screenShot();
+
         void render();
     private:
         bool intersected_;
