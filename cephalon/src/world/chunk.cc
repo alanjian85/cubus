@@ -474,8 +474,8 @@ void Chunk::rebuild() {
 
 void Chunk::render(PerspectiveCamera cam) const {
     float fog[4] = { 
-        Config::kViewDistance * kVolume.x - 12.0f, 
-        Config::kViewDistance * kVolume.x - 2.0f, 
+        Config::viewDistance * kVolume.x - 12.0f, 
+        Config::viewDistance * kVolume.x - 2.0f, 
         0.0f, 0.97f 
     };
     auto view_pos = cam.pos;

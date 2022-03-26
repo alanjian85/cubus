@@ -12,14 +12,19 @@ A Minecraft-like voxel game written in C++
 * Fog Effect
 * Logging
 * Screenshot
+* JSON Config File
 
 ## TODO
-* JSON Config File
+* Procedural Terrain
+* Greedy Meshing
+* Block Destroy Particle
+* UI
 
 ## Dependencies
 * [bgfx](https://bkaradzic.github.io/bgfx/index.html)
 * [{fmt}](https://github.com/fmtlib/fmt)
 * [GLM](https://glm.g-truc.net/)
+* [JSON for Modern C++](https://json.nlohmann.me/)
 * [SDL2](https://www.libsdl.org/index.php)
 * [spdlog](https://github.com/gabime/spdlog)
 

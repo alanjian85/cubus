@@ -23,6 +23,9 @@ set(CEPHALON_SRCS
     src/world/outline.cc
     src/world/world.cc
     src/world/world.h
+    src/game/callback.h
+    src/game/config.h
+    src/game/config.cc
     src/game/game.cc
     src/game/game.h
     src/game/input.cc
@@ -51,6 +54,7 @@ add_texture(cephalon ${CEPHALON_TEXTURES})
 find_package(bgfx REQUIRED)
 find_package(fmt REQUIRED)
 find_package(glm REQUIRED)
+find_package(nlohmann_json REQUIRED)
 find_package(SDL2 REQUIRED)
 find_package(spdlog REQUIRED)
 

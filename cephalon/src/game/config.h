@@ -1,13 +1,22 @@
 #ifndef CEPHALON_GAME_CONFIG_H_
 #define CEPHALON_GAME_CONFIG_H_
 
+#include <nlohmann/json.hpp>
+
 namespace cephalon {
     class Config {
     public:
-        static constexpr int kViewDistance = 5;
-        static constexpr int kDestroyDistance = 5;
-        static constexpr int kChunkLoadLimit = 4;
-        static constexpr int kChunkRebuildLimit = 8;
+        static void init();
+        
+        static void cleanup();
+
+        static int viewDistance;
+        static int destroyDistance;
+        static int chunkLoadLimit;
+        static int chunkRebuildLimit;
+    private:
+        static nlohmann::json serialize();
+        static void deserialize(const nlohmann::json& json);
     };
 }
 

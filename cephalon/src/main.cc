@@ -63,6 +63,7 @@ int main(int argc, char **argv) {
     bgfx::setViewClear(0, BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH, 0x87ceebff);
     bgfx::setViewRect(0, 0, 0, width, height);
 
+    Config::init();
     Input::init(window);
     Chunk::init();
     Block::init(Chunk::getAtlas());
@@ -120,6 +121,7 @@ int main(int argc, char **argv) {
     }
 
     Chunk::cleanup();
+    Config::cleanup();
     bgfx::shutdown();
     SDL_DestroyWindow(window);
     SDL_Quit();
