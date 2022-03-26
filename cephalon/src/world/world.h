@@ -53,12 +53,10 @@ namespace cephalon {
                 chunk->setBlock(getOffset(pos), block);
         }
 
-        const Block& getBlock(glm::ivec3 pos) const {
-            auto it = blocks_.find(pos);
-            if (it != blocks_.cend())
-                return *it->second;
-            else
-                return generator_(pos);
+        const Block* getBlock(glm::ivec3 pos) const {
+            if (auto chunk = getChunk(getRegion(pos)))
+                return &chunk->getBlock(getOffset(pos));
+            return nullptr;
         }
 
         void update(glm::vec3 player_pos);
@@ -67,8 +65,6 @@ namespace cephalon {
 
         bool intersect(PerspectiveCamera cam, Direction& dir, glm::ivec3& pos) const;
     private:
-        void loadChunk(glm::ivec2 region, Chunk& chunk);
-
         std::unordered_map<glm::ivec2, Chunk> chunks_;
         std::unordered_map<glm::ivec3, const Block*> blocks_;
         Generator generator_;

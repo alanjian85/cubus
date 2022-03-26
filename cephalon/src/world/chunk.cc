@@ -167,7 +167,8 @@ void Chunk::rebuild() {
                     }
 
                     // right
-                    if (world_.getBlock(pos + glm::ivec3(1, 0, 0)).isAir()) {
+                    auto right_block = world_.getBlock(pos + glm::ivec3(1, 0, 0));
+                    if (right_block && right_block->isAir()) {
                         glm::vec3 block_pos[] = {
                             glm::vec3(x + 0.5f, y - 0.5f, z - 0.5f),
                             glm::vec3(x + 0.5f, y - 0.5f, z + 0.5f),
@@ -186,7 +187,7 @@ void Chunk::rebuild() {
                             vertexAO(pos + glm::ivec3(1, 0, -1), pos + glm::ivec3(1, -1, 0), pos + glm::ivec3(1, -1, -1)),
                             vertexAO(pos + glm::ivec3(1, 0,  1), pos + glm::ivec3(1, -1, 0), pos + glm::ivec3(1, -1,  1)),
                             vertexAO(pos + glm::ivec3(1, 0, -1), pos + glm::ivec3(1,  1, 0), pos + glm::ivec3(1,  1, -1)),
-                            vertexAO(pos + glm::ivec3(1, 0,  1), pos + glm::ivec3(1,  1, 0), pos + glm::ivec3(1,  1,  1)),
+                            vertexAO(pos + glm::ivec3(1, 0,  1), pos + glm::ivec3(1,  1, 0), pos + glm::ivec3(1,  1,  1))
                         };
 
                         glm::vec2 block_texcoord0[] = {
@@ -214,7 +215,8 @@ void Chunk::rebuild() {
                     }
 
                     // left
-                    if (world_.getBlock(pos + glm::ivec3(-1, 0, 0)).isAir()) {
+                    auto left_block = world_.getBlock(pos + glm::ivec3(-1, 0, 0));
+                    if (left_block && left_block->isAir()) {
                         glm::vec3 block_pos[] = {
                             glm::vec3(x - 0.5f, y - 0.5f, z - 0.5f),
                             glm::vec3(x - 0.5f, y - 0.5f, z + 0.5f),
@@ -261,7 +263,12 @@ void Chunk::rebuild() {
                     }
 
                     // top
-                    if (world_.getBlock(pos + glm::ivec3(0, 1, 0)).isAir()) {
+                    const Block* top_block;
+                    if (pos.y != kVolume.y - 1)
+                        top_block = world_.getBlock(pos + glm::ivec3(0, 1, 0));
+                    else
+                        top_block = nullptr;
+                    if (top_block && top_block->isAir()) {
                         glm::vec3 block_pos[] = {
                             glm::vec3(x - 0.5f, y + 0.5f, z - 0.5f),
                             glm::vec3(x - 0.5f, y + 0.5f, z + 0.5f),
@@ -308,7 +315,12 @@ void Chunk::rebuild() {
                     }
 
                     // bottom
-                    if (world_.getBlock(pos + glm::ivec3(0, -1, 0)).isAir()) {
+                    const Block* bottom_block;
+                    if (pos.y != 0)
+                        bottom_block = world_.getBlock(pos + glm::ivec3(0, -1, 0));
+                    else
+                        bottom_block = nullptr;
+                    if (bottom_block && bottom_block->isAir()) {
                         glm::vec3 block_pos[] = {
                             glm::vec3(x - 0.5f, y - 0.5f, z - 0.5f),
                             glm::vec3(x - 0.5f, y - 0.5f, z + 0.5f),
@@ -355,7 +367,8 @@ void Chunk::rebuild() {
                     }
 
                     // back
-                    if (world_.getBlock(pos + glm::ivec3(0, 0, 1)).isAir()) {
+                    auto back_block = world_.getBlock(pos + glm::ivec3(0, 0, 1));
+                    if (back_block && back_block->isAir()) {
                         glm::vec3 block_pos[] = { 
                             glm::vec3(x - 0.5f, y - 0.5f, z + 0.5f),
                             glm::vec3(x - 0.5f, y + 0.5f, z + 0.5f),
@@ -402,7 +415,8 @@ void Chunk::rebuild() {
                     }
 
                     // front
-                    if (world_.getBlock(pos + glm::ivec3(0, 0, -1)).isAir()) {
+                    auto front_block = world_.getBlock(pos + glm::ivec3(0, 0, -1));
+                    if (front_block && front_block->isAir()) {
                         glm::vec3 block_pos[] = {
                             glm::vec3(x - 0.5f, y - 0.5f, z - 0.5f),
                             glm::vec3(x - 0.5f, y + 0.5f, z - 0.5f),
@@ -470,6 +484,8 @@ void Chunk::render(PerspectiveCamera cam) const {
     bgfx::setUniform(u_fog_, fog);
     bgfx::setTexture(0, s_atlas_, atlas_.getTexture());
     bgfx::setTexture(1, s_heightmap_, heightmap_);
+    auto transform = glm::translate(glm::mat4(1.0f), glm::vec3(World::getPosition(region_, glm::ivec3(0))));
+    bgfx::setTransform(glm::value_ptr(transform));
     bgfx::setViewTransform(0, glm::value_ptr(cam.view), glm::value_ptr(cam.proj));
     bgfx::setState(
         BGFX_STATE_WRITE_RGB       |
@@ -485,9 +501,12 @@ void Chunk::render(PerspectiveCamera cam) const {
 }
 
 float Chunk::vertexAO(glm::ivec3 side1, glm::ivec3 side2, glm::ivec3 corner) const {
-    auto s1 = !world_.getBlock(side1).isAir();
-    auto s2 = !world_.getBlock(side2).isAir();
-    auto c = !world_.getBlock(corner).isAir();
+    auto side_block1 = world_.getBlock(side1);
+    auto side_block2 = world_.getBlock(side2);
+    auto corner_block = world_.getBlock(corner);
+    auto s1 = side_block1 && !side_block1->isAir();
+    auto s2 = side_block2 && !side_block2->isAir();
+    auto c = corner_block && !corner_block->isAir();
     if (s1 && s2)
         return 0.0f;
     return 1.0f - (s1 + s2 + c) / 3.0f;
@@ -506,7 +525,8 @@ bool Chunk::intersect(Ray ray, float dmin, float dmax, Direction& dir, glm::ivec
                     auto& block = getBlock(glm::ivec3(x, y, z));
                     if (!block.isAir() && block.getBoundingBox(pos).intersect(ray, dmin, dmax, direction, dmax)) {
                         auto neighbor_pos = pos + directionToVector(direction);
-                        if (world_.getBlock(neighbor_pos).isAir()) {
+                        auto neighbor_block = world_.getBlock(neighbor_pos);
+                        if (neighbor_block && neighbor_block->isAir()) {
                             intersected = true;
                             dir = direction;
                             offset = glm::ivec3(x, y, z);

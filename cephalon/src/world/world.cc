@@ -22,9 +22,16 @@ void World::update(glm::vec3 player_pos) {
     for (auto x = player_region.x - Config::kViewDistance; x <= player_region.x + Config::kViewDistance; ++x) {
         for (auto y = player_region.y - Config::kViewDistance; y <= player_region.y + Config::kViewDistance; ++y) {
             if (load_count < Config::kChunkLoadLimit) {
-                auto [chunk, loaded] = chunks_.emplace(glm::ivec2(x, y), Chunk(*this, glm::ivec2(x, y)));
-                if (loaded) {
-                    loadChunk(glm::ivec2(x, y), chunk->second);
+                auto [it, created] = chunks_.emplace(glm::ivec2(x, y), Chunk(*this, glm::ivec2(x, y)));
+                auto& chunk = it->second;
+                if (created) {
+                    generator_(chunk);
+                    /*
+                    for (auto [pos, block] : blocks_) {
+                        if (getRegion(pos) == chunk.getRegion())
+                            chunk.setBlock(getOffset(pos), *block);
+                    }
+                    */
                     ++load_count;
                 }
             }
@@ -41,25 +48,7 @@ void World::render(PerspectiveCamera cam) {
                 ++rebuild_count;
             }
 
-            auto transform = glm::translate(glm::mat4(1.0f), glm::vec3(getPosition(region, glm::ivec3(0))));
-            bgfx::setTransform(glm::value_ptr(transform));
             chunk.render(cam);
-        }
-    }
-}
-
-void World::loadChunk(glm::ivec2 region, Chunk& chunk) {
-    for (int x = 0; x < Chunk::kVolume.x; ++x) {
-        for (int y = 0; y < Chunk::kVolume.y; ++y) {
-            for (int z = 0; z < Chunk::kVolume.z; ++z) {
-                auto pos = getPosition(region, glm::ivec3(x, y, z));
-                chunk.setBlock(glm::ivec3(x, y, z), generator_(pos));
-            }
-        }
-    }
-    for (auto [pos, block] : blocks_) {
-        if (getRegion(pos) == region) {
-            chunk.setBlock(getOffset(pos), *block);
         }
     }
 }
