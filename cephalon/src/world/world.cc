@@ -39,17 +39,15 @@ void World::update(glm::vec3 player_pos) {
                 auto [it, created] = chunks_.emplace(region, Chunk(*this, region));
                 auto& chunk = it->second;
                 if (created) {
-                    lock.unlock();
-                    boost::asio::post(thread_pool_, std::bind(&Generator::operator(), &generator_, std::ref(chunk)));
-
-                    for (auto [pos, block] : blocks_) {
-                        if (getRegion(pos) == chunk.getRegion()) {
-                            chunk.setBlock(getOffset(pos), *block);
+                    boost::asio::post(thread_pool_, [this, &chunk]() {
+                        generator_(chunk);
+                        for (auto [pos, block] : blocks_) {
+                            if (getRegion(pos) == chunk.getRegion()) {
+                                chunk.setBlock(getOffset(pos), *block);
+                            }
                         }
-                    }
-                    
+                    });
                     ++load_count;
-                    lock.lock();
                 }
             }
         }
@@ -60,7 +58,12 @@ void World::render(PerspectiveCamera cam) {
     for (auto& [region, chunk] : chunks_) {
         if (chunk.inbound(cam)) {
             if (chunk.isDirty()) {
-                boost::asio::post(thread_pool_, std::bind(&Chunk::rebuild, &chunk));
+                if (region == getRegion(cam.pos)) {
+                    chunk.rebuild();
+                } else {
+                    boost::asio::post(thread_pool_, std::bind(&Chunk::rebuild, &chunk));
+                }
+                chunk.setDirty(false);
             }
 
             chunk.render(cam);

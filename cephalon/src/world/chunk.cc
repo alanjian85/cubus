@@ -143,349 +143,345 @@ const Block& Chunk::getBlock(glm::ivec3 offset) const {
 }
 
 void Chunk::rebuild() {
-    if (dirty_.load()) {
-        std::lock_guard buffer_lock(buffer_mutex_);
-        vertices_.clear();
-        indices_.clear();
-        for (int x = 0; x < kVolume.x; x++) {
-            for (int z = 0; z < kVolume.z; ++z) {
-                heightmap_data_[x][z] = 0;
-            }
+    std::lock_guard buffer_lock(buffer_mutex_);
+    vertices_.clear();
+    indices_.clear();
+    for (int x = 0; x < kVolume.x; x++) {
+        for (int z = 0; z < kVolume.z; ++z) {
+            heightmap_data_[x][z] = 0;
         }
-    
-        dirty_.store(false);
-    
-        for (int x = 0; x < kVolume.x; ++x) {
-            for (int y = 0; y < kVolume.y; ++y) {
-                for (int z = 0; z < kVolume.z; ++z) {
-                    glm::ivec3 offset, pos;
-                    {
-                        std::lock_guard data_lock(data_mutex_);
-                        offset = glm::ivec3(x, y, z);
-                        pos = World::getPosition(region_, offset);
+    }
+
+    for (int x = 0; x < kVolume.x; ++x) {
+        for (int y = 0; y < kVolume.y; ++y) {
+            for (int z = 0; z < kVolume.z; ++z) {
+                glm::ivec3 offset, pos;
+                {
+                    std::lock_guard data_lock(data_mutex_);
+                    offset = glm::ivec3(x, y, z);
+                    pos = World::getPosition(region_, offset);
+                }
+                auto& block = getBlock(offset);
+                if (!block.isAir()) {
+                    auto min = glm::vec2(block.getRegion().min) / glm::vec2(atlas_.getSize() - 1);
+                    auto max = glm::vec2(block.getRegion().max) / glm::vec2(atlas_.getSize() - 1);
+
+                    glm::vec2 block_texcoord1;
+                    if (bgfx::getCaps()->originBottomLeft)
+                        block_texcoord1 = glm::vec2(
+                            static_cast<float>(z) / kVolume.z, 
+                            1.0f - static_cast<float>(x) / kVolume.x
+                        );
+                    else
+                        block_texcoord1 = glm::vec2(
+                            static_cast<float>(z) / kVolume.z, 
+                            static_cast<float>(x) / kVolume.x
+                        );
+                    auto height = static_cast<float>(y) / kVolume.y;
+                    auto iheight = static_cast<std::uint8_t>(height * 255);
+                    if (iheight > heightmap_data_[x][z]) {
+                        heightmap_data_[x][z] = iheight;
                     }
-                    auto& block = getBlock(offset);
-                    if (!block.isAir()) {
-                        auto min = glm::vec2(block.getRegion().min) / glm::vec2(atlas_.getSize() - 1);
-                        auto max = glm::vec2(block.getRegion().max) / glm::vec2(atlas_.getSize() - 1);
-    
-                        glm::vec2 block_texcoord1;
-                        if (bgfx::getCaps()->originBottomLeft)
-                            block_texcoord1 = glm::vec2(
-                                static_cast<float>(z) / kVolume.z, 
-                                1.0f - static_cast<float>(x) / kVolume.x
-                            );
-                        else
-                            block_texcoord1 = glm::vec2(
-                                static_cast<float>(z) / kVolume.z, 
-                                static_cast<float>(x) / kVolume.x
-                            );
-                        auto height = static_cast<float>(y) / kVolume.y;
-                        auto iheight = static_cast<std::uint8_t>(height * 255);
-                        if (iheight > heightmap_data_[x][z]) {
-                            heightmap_data_[x][z] = iheight;
-                        }
-    
-                        // right
-                        auto right_block = world_.getBlock(pos + glm::ivec3(1, 0, 0));
-                        if (right_block && right_block->isAir()) {
-                            glm::vec3 block_pos[] = {
-                                glm::vec3(x + 0.5f, y - 0.5f, z - 0.5f),
-                                glm::vec3(x + 0.5f, y - 0.5f, z + 0.5f),
-                                glm::vec3(x + 0.5f, y + 0.5f, z - 0.5f),
-                                glm::vec3(x + 0.5f, y + 0.5f, z + 0.5f)
-                            };
-    
-                            glm::vec3 block_normal[] = {
-                                glm::vec3( 1.0f,  0.0f,  0.0f),
-                                glm::vec3( 1.0f,  0.0f,  0.0f),
-                                glm::vec3( 1.0f,  0.0f,  0.0f),
-                                glm::vec3( 1.0f,  0.0f,  0.0f)
-                            };
-    
-                            float block_ao[] = {
-                                vertexAO(pos + glm::ivec3(1, 0, -1), pos + glm::ivec3(1, -1, 0), pos + glm::ivec3(1, -1, -1)),
-                                vertexAO(pos + glm::ivec3(1, 0,  1), pos + glm::ivec3(1, -1, 0), pos + glm::ivec3(1, -1,  1)),
-                                vertexAO(pos + glm::ivec3(1, 0, -1), pos + glm::ivec3(1,  1, 0), pos + glm::ivec3(1,  1, -1)),
-                                vertexAO(pos + glm::ivec3(1, 0,  1), pos + glm::ivec3(1,  1, 0), pos + glm::ivec3(1,  1,  1))
-                            };
-    
-                            glm::vec2 block_texcoord0[] = {
-                                glm::vec2(min.x, min.y),
-                                glm::vec2(min.x, max.y),
-                                glm::vec2(max.x, min.y),
-                                glm::vec2(max.x, max.y)
-                            };
-    
-                            Vertex block_vertices[] = {
-                                { block_pos[0], block_normal[0], block_ao[0], 1.0f, block_texcoord0[0], block_texcoord1 },
-                                { block_pos[1], block_normal[1], block_ao[1], 1.0f, block_texcoord0[1], block_texcoord1 },
-                                { block_pos[2], block_normal[2], block_ao[2], 1.0f, block_texcoord0[2], block_texcoord1 },
-                                { block_pos[3], block_normal[3], block_ao[3], 1.0f, block_texcoord0[3], block_texcoord1 }
-                            };
-    
-                            auto index_base = static_cast<int>(vertices_.size());
-                            int block_indices[] = {
-                                index_base + 1, index_base + 3, index_base + 2,
-                                index_base + 1, index_base + 2, index_base + 0
-                            };
-    
-                            vertices_.insert(vertices_.cend(), std::cbegin(block_vertices), std::cend(block_vertices));
-                            indices_.insert(indices_.cend(), std::cbegin(block_indices), std::cend(block_indices));
-                        }
-    
-                        // left
-                        auto left_block = world_.getBlock(pos + glm::ivec3(-1, 0, 0));
-                        if (left_block && left_block->isAir()) {
-                            glm::vec3 block_pos[] = {
-                                glm::vec3(x - 0.5f, y - 0.5f, z - 0.5f),
-                                glm::vec3(x - 0.5f, y - 0.5f, z + 0.5f),
-                                glm::vec3(x - 0.5f, y + 0.5f, z - 0.5f),
-                                glm::vec3(x - 0.5f, y + 0.5f, z + 0.5f)
-                            };
-    
-                            glm::vec3 block_normal[] = {
-                                glm::vec3(-1.0f,  0.0f,  0.0f),
-                                glm::vec3(-1.0f,  0.0f,  0.0f),
-                                glm::vec3(-1.0f,  0.0f,  0.0f),
-                                glm::vec3(-1.0f,  0.0f,  0.0f)
-                            };
-    
-                            float block_ao[] = {
-                                vertexAO(pos + glm::ivec3(-1, 0, -1), pos + glm::ivec3(-1, -1, 0), pos + glm::ivec3(-1, -1, -1)),
-                                vertexAO(pos + glm::ivec3(-1, 0,  1), pos + glm::ivec3(-1, -1, 0), pos + glm::ivec3(-1, -1,  1)),
-                                vertexAO(pos + glm::ivec3(-1, 0, -1), pos + glm::ivec3(-1,  1, 0), pos + glm::ivec3(-1,  1, -1)),
-                                vertexAO(pos + glm::ivec3(-1, 0,  1), pos + glm::ivec3(-1,  1, 0), pos + glm::ivec3(-1,  1,  1)),
-                            };
-                            
-                            glm::vec2 block_texcoord0[] = {
-                                glm::vec2(min.x, min.y),
-                                glm::vec2(min.x, max.y),
-                                glm::vec2(max.x, min.y),
-                                glm::vec2(max.x, max.y)
-                            };
-    
-                            Vertex block_vertices[] = {
-                                { block_pos[0], block_normal[0], block_ao[0], 1.0f, block_texcoord0[0], block_texcoord1 },
-                                { block_pos[1], block_normal[1], block_ao[1], 1.0f, block_texcoord0[1], block_texcoord1 },
-                                { block_pos[2], block_normal[2], block_ao[2], 1.0f, block_texcoord0[2], block_texcoord1 },
-                                { block_pos[3], block_normal[3], block_ao[3], 1.0f, block_texcoord0[3], block_texcoord1 }
-                            };
-    
-                            auto index_base = static_cast<int>(vertices_.size());
-                            int block_indices[] = {
-                                index_base + 0, index_base + 2, index_base + 3,
-                                index_base + 0, index_base + 3, index_base + 1,
-                            };
-    
-                            vertices_.insert(vertices_.cend(), std::cbegin(block_vertices), std::cend(block_vertices));
-                            indices_.insert(indices_.cend(), std::cbegin(block_indices), std::cend(block_indices));
-                        }
-    
-                        // top
-                        const Block* top_block;
-                        top_block = world_.getBlock(pos + glm::ivec3(0, 1, 0));
-                        if (top_block && top_block->isAir()) {
-                            glm::vec3 block_pos[] = {
-                                glm::vec3(x - 0.5f, y + 0.5f, z - 0.5f),
-                                glm::vec3(x - 0.5f, y + 0.5f, z + 0.5f),
-                                glm::vec3(x + 0.5f, y + 0.5f, z - 0.5f),
-                                glm::vec3(x + 0.5f, y + 0.5f, z + 0.5f)
-                            };
-    
-                            glm::vec3 block_normal[] = {
-                                glm::vec3( 0.0f,  1.0f,  0.0f),
-                                glm::vec3( 0.0f,  1.0f,  0.0f),
-                                glm::vec3( 0.0f,  1.0f,  0.0f),
-                                glm::vec3( 0.0f,  1.0f,  0.0f)
-                            };
-    
-                            float block_ao[] = {
-                                vertexAO(pos + glm::ivec3(0,  1, -1), pos + glm::ivec3(-1, 1, 0), pos + glm::ivec3(-1, 1, -1)),
-                                vertexAO(pos + glm::ivec3(0,  1,  1), pos + glm::ivec3(-1, 1, 0), pos + glm::ivec3(-1, 1,  1)),
-                                vertexAO(pos + glm::ivec3(0,  1, -1), pos + glm::ivec3( 1, 1, 0), pos + glm::ivec3( 1, 1, -1)),
-                                vertexAO(pos + glm::ivec3(0,  1,  1), pos + glm::ivec3( 1, 1, 0), pos + glm::ivec3( 1, 1,  1)),
-                            };
-    
-                            glm::vec2 block_texcoord0[] = {
-                                glm::vec2(min.x, min.y),
-                                glm::vec2(min.x, max.y),
-                                glm::vec2(max.x, min.y),
-                                glm::vec2(max.x, max.y)
-                            };
-    
-                            Vertex block_vertices[] = {
-                                { block_pos[0], block_normal[0], block_ao[0], height, block_texcoord0[0], block_texcoord1 },
-                                { block_pos[1], block_normal[1], block_ao[1], height, block_texcoord0[1], block_texcoord1 },
-                                { block_pos[2], block_normal[2], block_ao[2], height, block_texcoord0[2], block_texcoord1 },
-                                { block_pos[3], block_normal[3], block_ao[3], height, block_texcoord0[3], block_texcoord1 }
-                            };
-    
-                            auto index_base = static_cast<int>(vertices_.size());
-                            int block_indices[] = {
-                                index_base + 2, index_base + 3, index_base + 1,
-                                index_base + 2, index_base + 1, index_base + 0,
-                            };
-    
-                            vertices_.insert(vertices_.cend(), std::cbegin(block_vertices), std::cend(block_vertices));
-                            indices_.insert(indices_.cend(), std::cbegin(block_indices), std::cend(block_indices));
-                        }
-    
-                        // bottom
-                        const Block* bottom_block;
-                        bottom_block = world_.getBlock(pos + glm::ivec3(0, -1, 0));
-                        if (bottom_block && bottom_block->isAir()) {
-                            glm::vec3 block_pos[] = {
-                                glm::vec3(x - 0.5f, y - 0.5f, z - 0.5f),
-                                glm::vec3(x - 0.5f, y - 0.5f, z + 0.5f),
-                                glm::vec3(x + 0.5f, y - 0.5f, z - 0.5f),
-                                glm::vec3(x + 0.5f, y - 0.5f, z + 0.5f)
-                            };
-    
-                            glm::vec3 block_normal[] = {
-                                glm::vec3( 0.0f, -1.0f,  0.0f),
-                                glm::vec3( 0.0f, -1.0f,  0.0f),
-                                glm::vec3( 0.0f, -1.0f,  0.0f),
-                                glm::vec3( 0.0f, -1.0f,  0.0f)
-                            };
-    
-                            float block_ao[] = {
-                                vertexAO(pos + glm::ivec3(0, -1, -1), pos + glm::ivec3(-1, -1, 0), pos + glm::ivec3(-1, -1, -1)),
-                                vertexAO(pos + glm::ivec3(0, -1,  1), pos + glm::ivec3(-1, -1, 0), pos + glm::ivec3(-1, -1,  1)),
-                                vertexAO(pos + glm::ivec3(0, -1, -1), pos + glm::ivec3( 1, -1, 0), pos + glm::ivec3( 1, -1, -1)),
-                                vertexAO(pos + glm::ivec3(0, -1,  1), pos + glm::ivec3( 1, -1, 0), pos + glm::ivec3( 1, -1,  1)),
-                            };
-    
-                            glm::vec2 block_texcoord0[] = {
-                                glm::vec2(min.x, min.y),
-                                glm::vec2(min.x, max.y),
-                                glm::vec2(max.x, min.y),
-                                glm::vec2(max.x, max.y)
-                            };
-    
-                            Vertex block_vertices[] = {
-                                { block_pos[0], block_normal[0], block_ao[0], 1.0f, block_texcoord0[0], block_texcoord1 },
-                                { block_pos[1], block_normal[1], block_ao[1], 1.0f, block_texcoord0[1], block_texcoord1 },
-                                { block_pos[2], block_normal[2], block_ao[2], 1.0f, block_texcoord0[2], block_texcoord1 },
-                                { block_pos[3], block_normal[3], block_ao[3], 1.0f, block_texcoord0[3], block_texcoord1 }
-                            };
-    
-                            auto index_base = static_cast<int>(vertices_.size());
-                            int block_indices[] = {
-                                index_base + 3, index_base + 2, index_base + 0,
-                                index_base + 3, index_base + 0, index_base + 1,
-                            };
-    
-                            vertices_.insert(vertices_.cend(), std::cbegin(block_vertices), std::cend(block_vertices));
-                            indices_.insert(indices_.cend(), std::cbegin(block_indices), std::cend(block_indices));
-                        }
-    
-                        // back
-                        auto back_block = world_.getBlock(pos + glm::ivec3(0, 0, 1));
-                        if (back_block && back_block->isAir()) {
-                            glm::vec3 block_pos[] = { 
-                                glm::vec3(x - 0.5f, y - 0.5f, z + 0.5f),
-                                glm::vec3(x - 0.5f, y + 0.5f, z + 0.5f),
-                                glm::vec3(x + 0.5f, y - 0.5f, z + 0.5f),
-                                glm::vec3(x + 0.5f, y + 0.5f, z + 0.5f)
-                            };
-    
-                            glm::vec3 block_normal[] = {
-                                glm::vec3( 0.0f,  0.0f,  1.0f),
-                                glm::vec3( 0.0f,  0.0f,  1.0f),
-                                glm::vec3( 0.0f,  0.0f,  1.0f),
-                                glm::vec3( 0.0f,  0.0f,  1.0f)
-                            };
-                            
-                            float block_ao[] = {
-                                vertexAO(pos + glm::ivec3(0, -1, 1), pos + glm::ivec3(-1, 0, 1), pos + glm::ivec3(-1, -1, 1)),
-                                vertexAO(pos + glm::ivec3(0,  1, 1), pos + glm::ivec3(-1, 0, 1), pos + glm::ivec3(-1,  1, 1)),
-                                vertexAO(pos + glm::ivec3(0, -1, 1), pos + glm::ivec3( 1, 0, 1), pos + glm::ivec3( 1, -1, 1)),
-                                vertexAO(pos + glm::ivec3(0,  1, 1), pos + glm::ivec3( 1, 0, 1), pos + glm::ivec3( 1,  1, 1)),
-                            };
-    
-                            glm::vec2 block_texcoord0[] = {
-                                glm::vec2(min.x, min.y),
-                                glm::vec2(min.x, max.y),
-                                glm::vec2(max.x, min.y),
-                                glm::vec2(max.x, max.y)
-                            };
-    
-                            Vertex block_vertices[] = {
-                                { block_pos[0], block_normal[0], block_ao[0], 1.0f, block_texcoord0[0], block_texcoord1 },
-                                { block_pos[1], block_normal[1], block_ao[1], 1.0f, block_texcoord0[1], block_texcoord1 },
-                                { block_pos[2], block_normal[2], block_ao[2], 1.0f, block_texcoord0[2], block_texcoord1 },
-                                { block_pos[3], block_normal[3], block_ao[3], 1.0f, block_texcoord0[3], block_texcoord1 }
-                            };
-    
-                            auto index_base = static_cast<int>(vertices_.size());
-                            int block_indices[] = {
-                                index_base + 1, index_base + 3, index_base + 2,
-                                index_base + 0, index_base + 1, index_base + 2,
-                            };
-    
-                            vertices_.insert(vertices_.cend(), std::cbegin(block_vertices), std::cend(block_vertices));
-                            indices_.insert(indices_.cend(), std::cbegin(block_indices), std::cend(block_indices));
-                        }
-    
-                        // front
-                        auto front_block = world_.getBlock(pos + glm::ivec3(0, 0, -1));
-                        if (front_block && front_block->isAir()) {
-                            glm::vec3 block_pos[] = {
-                                glm::vec3(x - 0.5f, y - 0.5f, z - 0.5f),
-                                glm::vec3(x - 0.5f, y + 0.5f, z - 0.5f),
-                                glm::vec3(x + 0.5f, y - 0.5f, z - 0.5f),
-                                glm::vec3(x + 0.5f, y + 0.5f, z - 0.5f)
-                            };
-    
-                            glm::vec3 block_normal[] = {
-                                glm::vec3( 0.0f,  0.0f, -1.0f),
-                                glm::vec3( 0.0f,  0.0f, -1.0f),
-                                glm::vec3( 0.0f,  0.0f, -1.0f),
-                                glm::vec3( 0.0f,  0.0f, -1.0f)
-                            };
-    
-                            float block_ao[] = {
-                                vertexAO(pos + glm::ivec3(0, -1, -1), pos + glm::ivec3(-1, 0, -1), pos + glm::ivec3(-1, -1, -1)),
-                                vertexAO(pos + glm::ivec3(0,  1, -1), pos + glm::ivec3(-1, 0, -1), pos + glm::ivec3(-1,  1, -1)),
-                                vertexAO(pos + glm::ivec3(0, -1, -1), pos + glm::ivec3( 1, 0, -1), pos + glm::ivec3( 1, -1, -1)),
-                                vertexAO(pos + glm::ivec3(0,  1, -1), pos + glm::ivec3( 1, 0, -1), pos + glm::ivec3( 1,  1, -1))
-                            };
-    
-                            glm::vec2 block_texcoord0[] = {
-                                glm::vec2(min.x, min.y),
-                                glm::vec2(min.x, max.y),
-                                glm::vec2(max.x, min.y),
-                                glm::vec2(max.x, max.y)
-                            };
-    
-                            Vertex block_vertices[] = {
-                                { block_pos[0], block_normal[0], block_ao[0], 1.0f, block_texcoord0[0], block_texcoord1 },
-                                { block_pos[1], block_normal[1], block_ao[1], 1.0f, block_texcoord0[1], block_texcoord1 },
-                                { block_pos[2], block_normal[2], block_ao[2], 1.0f, block_texcoord0[2], block_texcoord1 },
-                                { block_pos[3], block_normal[3], block_ao[3], 1.0f, block_texcoord0[3], block_texcoord1 }
-                            };
-    
-                            auto index_base = static_cast<int>(vertices_.size());
-                            int block_indices[] = {
-                                index_base + 2, index_base + 3, index_base + 1,
-                                index_base + 2, index_base + 1, index_base + 0
-                            };
-    
-                            vertices_.insert(vertices_.cend(), std::cbegin(block_vertices), std::cend(block_vertices));
-                            indices_.insert(indices_.cend(), std::cbegin(block_indices), std::cend(block_indices));
-                        }
+
+                    // right
+                    auto right_block = world_.getBlock(pos + glm::ivec3(1, 0, 0));
+                    if (right_block && right_block->isAir()) {
+                        glm::vec3 block_pos[] = {
+                            glm::vec3(x + 0.5f, y - 0.5f, z - 0.5f),
+                            glm::vec3(x + 0.5f, y - 0.5f, z + 0.5f),
+                            glm::vec3(x + 0.5f, y + 0.5f, z - 0.5f),
+                            glm::vec3(x + 0.5f, y + 0.5f, z + 0.5f)
+                        };
+
+                        glm::vec3 block_normal[] = {
+                            glm::vec3( 1.0f,  0.0f,  0.0f),
+                            glm::vec3( 1.0f,  0.0f,  0.0f),
+                            glm::vec3( 1.0f,  0.0f,  0.0f),
+                            glm::vec3( 1.0f,  0.0f,  0.0f)
+                        };
+
+                        float block_ao[] = {
+                            vertexAO(pos + glm::ivec3(1, 0, -1), pos + glm::ivec3(1, -1, 0), pos + glm::ivec3(1, -1, -1)),
+                            vertexAO(pos + glm::ivec3(1, 0,  1), pos + glm::ivec3(1, -1, 0), pos + glm::ivec3(1, -1,  1)),
+                            vertexAO(pos + glm::ivec3(1, 0, -1), pos + glm::ivec3(1,  1, 0), pos + glm::ivec3(1,  1, -1)),
+                            vertexAO(pos + glm::ivec3(1, 0,  1), pos + glm::ivec3(1,  1, 0), pos + glm::ivec3(1,  1,  1))
+                        };
+
+                        glm::vec2 block_texcoord0[] = {
+                            glm::vec2(min.x, min.y),
+                            glm::vec2(min.x, max.y),
+                            glm::vec2(max.x, min.y),
+                            glm::vec2(max.x, max.y)
+                        };
+
+                        Vertex block_vertices[] = {
+                            { block_pos[0], block_normal[0], block_ao[0], 1.0f, block_texcoord0[0], block_texcoord1 },
+                            { block_pos[1], block_normal[1], block_ao[1], 1.0f, block_texcoord0[1], block_texcoord1 },
+                            { block_pos[2], block_normal[2], block_ao[2], 1.0f, block_texcoord0[2], block_texcoord1 },
+                            { block_pos[3], block_normal[3], block_ao[3], 1.0f, block_texcoord0[3], block_texcoord1 }
+                        };
+
+                        auto index_base = static_cast<int>(vertices_.size());
+                        int block_indices[] = {
+                            index_base + 1, index_base + 3, index_base + 2,
+                            index_base + 1, index_base + 2, index_base + 0
+                        };
+
+                        vertices_.insert(vertices_.cend(), std::cbegin(block_vertices), std::cend(block_vertices));
+                        indices_.insert(indices_.cend(), std::cbegin(block_indices), std::cend(block_indices));
+                    }
+
+                    // left
+                    auto left_block = world_.getBlock(pos + glm::ivec3(-1, 0, 0));
+                    if (left_block && left_block->isAir()) {
+                        glm::vec3 block_pos[] = {
+                            glm::vec3(x - 0.5f, y - 0.5f, z - 0.5f),
+                            glm::vec3(x - 0.5f, y - 0.5f, z + 0.5f),
+                            glm::vec3(x - 0.5f, y + 0.5f, z - 0.5f),
+                            glm::vec3(x - 0.5f, y + 0.5f, z + 0.5f)
+                        };
+
+                        glm::vec3 block_normal[] = {
+                            glm::vec3(-1.0f,  0.0f,  0.0f),
+                            glm::vec3(-1.0f,  0.0f,  0.0f),
+                            glm::vec3(-1.0f,  0.0f,  0.0f),
+                            glm::vec3(-1.0f,  0.0f,  0.0f)
+                        };
+
+                        float block_ao[] = {
+                            vertexAO(pos + glm::ivec3(-1, 0, -1), pos + glm::ivec3(-1, -1, 0), pos + glm::ivec3(-1, -1, -1)),
+                            vertexAO(pos + glm::ivec3(-1, 0,  1), pos + glm::ivec3(-1, -1, 0), pos + glm::ivec3(-1, -1,  1)),
+                            vertexAO(pos + glm::ivec3(-1, 0, -1), pos + glm::ivec3(-1,  1, 0), pos + glm::ivec3(-1,  1, -1)),
+                            vertexAO(pos + glm::ivec3(-1, 0,  1), pos + glm::ivec3(-1,  1, 0), pos + glm::ivec3(-1,  1,  1)),
+                        };
+
+                        glm::vec2 block_texcoord0[] = {
+                            glm::vec2(min.x, min.y),
+                            glm::vec2(min.x, max.y),
+                            glm::vec2(max.x, min.y),
+                            glm::vec2(max.x, max.y)
+                        };
+
+                        Vertex block_vertices[] = {
+                            { block_pos[0], block_normal[0], block_ao[0], 1.0f, block_texcoord0[0], block_texcoord1 },
+                            { block_pos[1], block_normal[1], block_ao[1], 1.0f, block_texcoord0[1], block_texcoord1 },
+                            { block_pos[2], block_normal[2], block_ao[2], 1.0f, block_texcoord0[2], block_texcoord1 },
+                            { block_pos[3], block_normal[3], block_ao[3], 1.0f, block_texcoord0[3], block_texcoord1 }
+                        };
+
+                        auto index_base = static_cast<int>(vertices_.size());
+                        int block_indices[] = {
+                            index_base + 0, index_base + 2, index_base + 3,
+                            index_base + 0, index_base + 3, index_base + 1,
+                        };
+
+                        vertices_.insert(vertices_.cend(), std::cbegin(block_vertices), std::cend(block_vertices));
+                        indices_.insert(indices_.cend(), std::cbegin(block_indices), std::cend(block_indices));
+                    }
+
+                    // top
+                    const Block* top_block;
+                    top_block = world_.getBlock(pos + glm::ivec3(0, 1, 0));
+                    if (top_block && top_block->isAir()) {
+                        glm::vec3 block_pos[] = {
+                            glm::vec3(x - 0.5f, y + 0.5f, z - 0.5f),
+                            glm::vec3(x - 0.5f, y + 0.5f, z + 0.5f),
+                            glm::vec3(x + 0.5f, y + 0.5f, z - 0.5f),
+                            glm::vec3(x + 0.5f, y + 0.5f, z + 0.5f)
+                        };
+
+                        glm::vec3 block_normal[] = {
+                            glm::vec3( 0.0f,  1.0f,  0.0f),
+                            glm::vec3( 0.0f,  1.0f,  0.0f),
+                            glm::vec3( 0.0f,  1.0f,  0.0f),
+                            glm::vec3( 0.0f,  1.0f,  0.0f)
+                        };
+
+                        float block_ao[] = {
+                            vertexAO(pos + glm::ivec3(0,  1, -1), pos + glm::ivec3(-1, 1, 0), pos + glm::ivec3(-1, 1, -1)),
+                            vertexAO(pos + glm::ivec3(0,  1,  1), pos + glm::ivec3(-1, 1, 0), pos + glm::ivec3(-1, 1,  1)),
+                            vertexAO(pos + glm::ivec3(0,  1, -1), pos + glm::ivec3( 1, 1, 0), pos + glm::ivec3( 1, 1, -1)),
+                            vertexAO(pos + glm::ivec3(0,  1,  1), pos + glm::ivec3( 1, 1, 0), pos + glm::ivec3( 1, 1,  1)),
+                        };
+
+                        glm::vec2 block_texcoord0[] = {
+                            glm::vec2(min.x, min.y),
+                            glm::vec2(min.x, max.y),
+                            glm::vec2(max.x, min.y),
+                            glm::vec2(max.x, max.y)
+                        };
+
+                        Vertex block_vertices[] = {
+                            { block_pos[0], block_normal[0], block_ao[0], height, block_texcoord0[0], block_texcoord1 },
+                            { block_pos[1], block_normal[1], block_ao[1], height, block_texcoord0[1], block_texcoord1 },
+                            { block_pos[2], block_normal[2], block_ao[2], height, block_texcoord0[2], block_texcoord1 },
+                            { block_pos[3], block_normal[3], block_ao[3], height, block_texcoord0[3], block_texcoord1 }
+                        };
+
+                        auto index_base = static_cast<int>(vertices_.size());
+                        int block_indices[] = {
+                            index_base + 2, index_base + 3, index_base + 1,
+                            index_base + 2, index_base + 1, index_base + 0,
+                        };
+
+                        vertices_.insert(vertices_.cend(), std::cbegin(block_vertices), std::cend(block_vertices));
+                        indices_.insert(indices_.cend(), std::cbegin(block_indices), std::cend(block_indices));
+                    }
+
+                    // bottom
+                    const Block* bottom_block;
+                    bottom_block = world_.getBlock(pos + glm::ivec3(0, -1, 0));
+                    if (bottom_block && bottom_block->isAir()) {
+                        glm::vec3 block_pos[] = {
+                            glm::vec3(x - 0.5f, y - 0.5f, z - 0.5f),
+                            glm::vec3(x - 0.5f, y - 0.5f, z + 0.5f),
+                            glm::vec3(x + 0.5f, y - 0.5f, z - 0.5f),
+                            glm::vec3(x + 0.5f, y - 0.5f, z + 0.5f)
+                        };
+
+                        glm::vec3 block_normal[] = {
+                            glm::vec3( 0.0f, -1.0f,  0.0f),
+                            glm::vec3( 0.0f, -1.0f,  0.0f),
+                            glm::vec3( 0.0f, -1.0f,  0.0f),
+                            glm::vec3( 0.0f, -1.0f,  0.0f)
+                        };
+
+                        float block_ao[] = {
+                            vertexAO(pos + glm::ivec3(0, -1, -1), pos + glm::ivec3(-1, -1, 0), pos + glm::ivec3(-1, -1, -1)),
+                            vertexAO(pos + glm::ivec3(0, -1,  1), pos + glm::ivec3(-1, -1, 0), pos + glm::ivec3(-1, -1,  1)),
+                            vertexAO(pos + glm::ivec3(0, -1, -1), pos + glm::ivec3( 1, -1, 0), pos + glm::ivec3( 1, -1, -1)),
+                            vertexAO(pos + glm::ivec3(0, -1,  1), pos + glm::ivec3( 1, -1, 0), pos + glm::ivec3( 1, -1,  1)),
+                        };
+
+                        glm::vec2 block_texcoord0[] = {
+                            glm::vec2(min.x, min.y),
+                            glm::vec2(min.x, max.y),
+                            glm::vec2(max.x, min.y),
+                            glm::vec2(max.x, max.y)
+                        };
+
+                        Vertex block_vertices[] = {
+                            { block_pos[0], block_normal[0], block_ao[0], 1.0f, block_texcoord0[0], block_texcoord1 },
+                            { block_pos[1], block_normal[1], block_ao[1], 1.0f, block_texcoord0[1], block_texcoord1 },
+                            { block_pos[2], block_normal[2], block_ao[2], 1.0f, block_texcoord0[2], block_texcoord1 },
+                            { block_pos[3], block_normal[3], block_ao[3], 1.0f, block_texcoord0[3], block_texcoord1 }
+                        };
+
+                        auto index_base = static_cast<int>(vertices_.size());
+                        int block_indices[] = {
+                            index_base + 3, index_base + 2, index_base + 0,
+                            index_base + 3, index_base + 0, index_base + 1,
+                        };
+
+                        vertices_.insert(vertices_.cend(), std::cbegin(block_vertices), std::cend(block_vertices));
+                        indices_.insert(indices_.cend(), std::cbegin(block_indices), std::cend(block_indices));
+                    }
+
+                    // back
+                    auto back_block = world_.getBlock(pos + glm::ivec3(0, 0, 1));
+                    if (back_block && back_block->isAir()) {
+                        glm::vec3 block_pos[] = { 
+                            glm::vec3(x - 0.5f, y - 0.5f, z + 0.5f),
+                            glm::vec3(x - 0.5f, y + 0.5f, z + 0.5f),
+                            glm::vec3(x + 0.5f, y - 0.5f, z + 0.5f),
+                            glm::vec3(x + 0.5f, y + 0.5f, z + 0.5f)
+                        };
+
+                        glm::vec3 block_normal[] = {
+                            glm::vec3( 0.0f,  0.0f,  1.0f),
+                            glm::vec3( 0.0f,  0.0f,  1.0f),
+                            glm::vec3( 0.0f,  0.0f,  1.0f),
+                            glm::vec3( 0.0f,  0.0f,  1.0f)
+                        };
+
+                        float block_ao[] = {
+                            vertexAO(pos + glm::ivec3(0, -1, 1), pos + glm::ivec3(-1, 0, 1), pos + glm::ivec3(-1, -1, 1)),
+                            vertexAO(pos + glm::ivec3(0,  1, 1), pos + glm::ivec3(-1, 0, 1), pos + glm::ivec3(-1,  1, 1)),
+                            vertexAO(pos + glm::ivec3(0, -1, 1), pos + glm::ivec3( 1, 0, 1), pos + glm::ivec3( 1, -1, 1)),
+                            vertexAO(pos + glm::ivec3(0,  1, 1), pos + glm::ivec3( 1, 0, 1), pos + glm::ivec3( 1,  1, 1)),
+                        };
+
+                        glm::vec2 block_texcoord0[] = {
+                            glm::vec2(min.x, min.y),
+                            glm::vec2(min.x, max.y),
+                            glm::vec2(max.x, min.y),
+                            glm::vec2(max.x, max.y)
+                        };
+
+                        Vertex block_vertices[] = {
+                            { block_pos[0], block_normal[0], block_ao[0], 1.0f, block_texcoord0[0], block_texcoord1 },
+                            { block_pos[1], block_normal[1], block_ao[1], 1.0f, block_texcoord0[1], block_texcoord1 },
+                            { block_pos[2], block_normal[2], block_ao[2], 1.0f, block_texcoord0[2], block_texcoord1 },
+                            { block_pos[3], block_normal[3], block_ao[3], 1.0f, block_texcoord0[3], block_texcoord1 }
+                        };
+
+                        auto index_base = static_cast<int>(vertices_.size());
+                        int block_indices[] = {
+                            index_base + 1, index_base + 3, index_base + 2,
+                            index_base + 0, index_base + 1, index_base + 2,
+                        };
+
+                        vertices_.insert(vertices_.cend(), std::cbegin(block_vertices), std::cend(block_vertices));
+                        indices_.insert(indices_.cend(), std::cbegin(block_indices), std::cend(block_indices));
+                    }
+
+                    // front
+                    auto front_block = world_.getBlock(pos + glm::ivec3(0, 0, -1));
+                    if (front_block && front_block->isAir()) {
+                        glm::vec3 block_pos[] = {
+                            glm::vec3(x - 0.5f, y - 0.5f, z - 0.5f),
+                            glm::vec3(x - 0.5f, y + 0.5f, z - 0.5f),
+                            glm::vec3(x + 0.5f, y - 0.5f, z - 0.5f),
+                            glm::vec3(x + 0.5f, y + 0.5f, z - 0.5f)
+                        };
+
+                        glm::vec3 block_normal[] = {
+                            glm::vec3( 0.0f,  0.0f, -1.0f),
+                            glm::vec3( 0.0f,  0.0f, -1.0f),
+                            glm::vec3( 0.0f,  0.0f, -1.0f),
+                            glm::vec3( 0.0f,  0.0f, -1.0f)
+                        };
+
+                        float block_ao[] = {
+                            vertexAO(pos + glm::ivec3(0, -1, -1), pos + glm::ivec3(-1, 0, -1), pos + glm::ivec3(-1, -1, -1)),
+                            vertexAO(pos + glm::ivec3(0,  1, -1), pos + glm::ivec3(-1, 0, -1), pos + glm::ivec3(-1,  1, -1)),
+                            vertexAO(pos + glm::ivec3(0, -1, -1), pos + glm::ivec3( 1, 0, -1), pos + glm::ivec3( 1, -1, -1)),
+                            vertexAO(pos + glm::ivec3(0,  1, -1), pos + glm::ivec3( 1, 0, -1), pos + glm::ivec3( 1,  1, -1))
+                        };
+
+                        glm::vec2 block_texcoord0[] = {
+                            glm::vec2(min.x, min.y),
+                            glm::vec2(min.x, max.y),
+                            glm::vec2(max.x, min.y),
+                            glm::vec2(max.x, max.y)
+                        };
+
+                        Vertex block_vertices[] = {
+                            { block_pos[0], block_normal[0], block_ao[0], 1.0f, block_texcoord0[0], block_texcoord1 },
+                            { block_pos[1], block_normal[1], block_ao[1], 1.0f, block_texcoord0[1], block_texcoord1 },
+                            { block_pos[2], block_normal[2], block_ao[2], 1.0f, block_texcoord0[2], block_texcoord1 },
+                            { block_pos[3], block_normal[3], block_ao[3], 1.0f, block_texcoord0[3], block_texcoord1 }
+                        };
+
+                        auto index_base = static_cast<int>(vertices_.size());
+                        int block_indices[] = {
+                            index_base + 2, index_base + 3, index_base + 1,
+                            index_base + 2, index_base + 1, index_base + 0
+                        };
+
+                        vertices_.insert(vertices_.cend(), std::cbegin(block_vertices), std::cend(block_vertices));
+                        indices_.insert(indices_.cend(), std::cbegin(block_indices), std::cend(block_indices));
                     }
                 }
             }
         }
-    
-        if (!vertices_.empty()) {
-            bgfx::update(vertex_buffer_, 0, bgfx::makeRef(vertices_.data(), vertices_.size() * sizeof(Vertex)));
-            bgfx::update(index_buffer_, 0, bgfx::makeRef(indices_.data(), indices_.size() * sizeof(std::uint16_t)));
-        }
-        bgfx::updateTexture2D(heightmap_, 0, 0, 0, 0, kVolume.x, kVolume.z, bgfx::makeRef(heightmap_data_, sizeof(heightmap_data_)));
     }
+
+    if (!vertices_.empty()) {
+        bgfx::update(vertex_buffer_, 0, bgfx::makeRef(vertices_.data(), vertices_.size() * sizeof(Vertex)));
+        bgfx::update(index_buffer_, 0, bgfx::makeRef(indices_.data(), indices_.size() * sizeof(std::uint16_t)));
+    }
+    bgfx::updateTexture2D(heightmap_, 0, 0, 0, 0, kVolume.x, kVolume.z, bgfx::makeRef(heightmap_data_, sizeof(heightmap_data_)));
 }
 
 void Chunk::render(PerspectiveCamera cam) const {
