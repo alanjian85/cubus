@@ -120,8 +120,8 @@ int main(int argc, char **argv) {
         }
     }
 
-    Chunk::cleanup();
-    Config::cleanup();
+    Chunk::deinit();
+    Config::deinit();
     bgfx::shutdown();
     SDL_DestroyWindow(window);
     SDL_Quit();

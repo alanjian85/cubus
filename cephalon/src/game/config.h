@@ -6,14 +6,14 @@
 namespace cephalon {
     class Config {
     public:
-        static void init();
-        
-        static void cleanup();
-
         static int viewDistance;
         static int destroyDistance;
         static int chunkLoadLimit;
         static int chunkRebuildLimit;
+
+        static void init();
+        
+        static void deinit();
     private:
         static nlohmann::json serialize();
         static void deserialize(const nlohmann::json& json);

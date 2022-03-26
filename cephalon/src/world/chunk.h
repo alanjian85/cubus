@@ -29,15 +29,15 @@ namespace cephalon {
 
     class Chunk {
     public:
+        static constexpr glm::ivec3 kVolume{ 16, 256, 16 };
+
         static void init();
         
-        static void cleanup();
+        static void deinit();
 
         static Atlas& getAtlas() {
             return atlas_;
         }
-
-        static constexpr glm::ivec3 kVolume = glm::ivec3(16, 256, 16);
 
         Chunk(World& world, glm::ivec2 region);
 

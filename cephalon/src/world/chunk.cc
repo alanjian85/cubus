@@ -31,7 +31,7 @@ void Chunk::init() {
     s_heightmap_ = bgfx::createUniform("s_heightmap", bgfx::UniformType::Sampler);
 }
 
-void Chunk::cleanup() {
+void Chunk::deinit() {
     bgfx::destroy(s_atlas_);
     atlas_.destroy();
     bgfx::destroy(program_);

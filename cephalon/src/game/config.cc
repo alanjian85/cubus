@@ -19,7 +19,7 @@ void Config::init() {
     }
 }
 
-void Config::cleanup() {
+void Config::deinit() {
     std::ofstream file("config.json");
     file << serialize().dump(4);
 }
