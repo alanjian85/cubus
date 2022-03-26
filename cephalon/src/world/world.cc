@@ -22,10 +22,11 @@ void World::update(glm::vec3 player_pos) {
     for (auto x = player_region.x - Config::viewDistance; x <= player_region.x + Config::viewDistance; ++x) {
         for (auto y = player_region.y - Config::viewDistance; y <= player_region.y + Config::viewDistance; ++y) {
             if (load_count < Config::chunkLoadLimit) {
-                auto [it, created] = chunks_.emplace(glm::ivec2(x, y), Chunk(*this, glm::ivec2(x, y)));
+                glm::ivec2 region(x, y);
+                auto [it, created] = chunks_.emplace(region, Chunk(*this, region));
                 auto& chunk = it->second;
                 if (created) {
-                    generator_(chunk);
+                    generator_(*this, region);
 
                     for (auto [pos, block] : blocks_) {
                         if (getRegion(pos) == chunk.getRegion())

@@ -7,4 +7,5 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/)
 
+add_subdirectory(external)
 add_subdirectory(cephalon)

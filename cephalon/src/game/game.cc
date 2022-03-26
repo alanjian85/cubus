@@ -7,7 +7,7 @@ using namespace cephalon;
 #include "input.h"
 
 Game::Game(int width, int height) {
-    camera_.pos = { 0.0f, 8.0f, 0.0f };
+    camera_.pos = { 0.0f, 50.0f, 0.0f };
     camera_.pitch = -15.0f;
     camera_.aspect = static_cast<float>(width) / height;
 }

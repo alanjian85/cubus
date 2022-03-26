@@ -1,6 +1,8 @@
 #ifndef CEPHALON_BLOCKS_BLOCK_H_
 #define CEPHALON_BLOCKS_BLOCK_H_
 
+#include <limits>
+
 #include <glm/glm.hpp>
 
 #include "utils/aabb.h"
@@ -29,6 +31,7 @@ namespace cephalon {
 #include "air.h"
 #include "dirt.h"
 #include "grass.h"
+#include "sand.h"
 #include "stone.h"
 #include "wood.h"
 
@@ -37,6 +40,7 @@ namespace cephalon {
         extern Air air;
         extern Dirt dirt;
         extern Grass grass;
+        extern Sand sand;
         extern Stone stone;
         extern Wood wood;
     }

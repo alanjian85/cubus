@@ -19,6 +19,7 @@ set(CEPHALON_SRCS
     src/world/chunk.h
     src/world/chunk.cc
     src/world/generator.h
+    src/world/generator.cc
     src/world/outline.h
     src/world/outline.cc
     src/world/world.cc
@@ -46,6 +47,7 @@ add_shader(cephalon ${CEPHALON_SHADERS})
 set(CEPHALON_TEXTURES
     textures/blocks/dirt.png
     textures/blocks/grass.png
+    textures/blocks/sand.png
     textures/blocks/stone.png
     textures/blocks/wood.png
 )
@@ -59,6 +61,7 @@ find_package(SDL2 REQUIRED)
 find_package(spdlog REQUIRED)
 
 target_link_libraries(cephalon
+    external
     bgfx::bgfx
     fmt::fmt
     glm::glm
