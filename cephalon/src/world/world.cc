@@ -7,9 +7,13 @@ using namespace cephalon;
 #include <glm/gtc/type_ptr.hpp>
 
 World::World()
-    : thread_pool_(std::thread::hardware_concurrency() * 2)
+    : thread_pool_(std::thread::hardware_concurrency())
 {
 
+}
+
+World::~World() {
+    thread_pool_.join();
 }
 
 void World::update(glm::vec3 player_pos) {
@@ -36,7 +40,7 @@ void World::update(glm::vec3 player_pos) {
                 auto& chunk = it->second;
                 if (created) {
                     lock.unlock();
-                    generator_(*this, region);
+                    boost::asio::post(thread_pool_, std::bind(&Generator::operator(), &generator_, std::ref(chunk)));
 
                     for (auto [pos, block] : blocks_) {
                         if (getRegion(pos) == chunk.getRegion()) {
@@ -57,10 +61,6 @@ void World::render(PerspectiveCamera cam) {
         if (chunk.inbound(cam)) {
             if (chunk.isDirty()) {
                 boost::asio::post(thread_pool_, std::bind(&Chunk::rebuild, &chunk));
-            }
-
-            if (chunk.isReady()) {
-                chunk.update();
             }
 
             chunk.render(cam);

@@ -4,13 +4,14 @@
 #include <glm/glm.hpp>
 
 #include "blocks/block.h"
+#include "chunk.h"
 
 namespace cephalon {
     class World;
 
     class Generator {
     public:
-        void operator()(World& world, glm::ivec2 region) const;
+        void operator()(Chunk& world) const;
     };
 }
 

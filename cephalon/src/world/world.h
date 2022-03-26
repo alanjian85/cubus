@@ -37,6 +37,8 @@ namespace cephalon {
 
         World();
 
+        ~World();
+
         Chunk* getChunk(glm::ivec2 region) {
             std::lock_guard lock(chunks_mutex_);
             auto it = chunks_.find(region);

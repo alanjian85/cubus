@@ -67,13 +67,7 @@ namespace cephalon {
             return dirty_.load();
         }
 
-        bool isReady() const {
-            return ready_.load();
-        }
-
         void rebuild();
-
-        void update();
 
         void render(PerspectiveCamera cam) const;
 
@@ -91,7 +85,6 @@ namespace cephalon {
         float vertexAO(glm::ivec3 side1, glm::ivec3 side2, glm::ivec3 corner) const;
 
         std::atomic_bool dirty_;
-        std::atomic_bool ready_;
 
         mutable std::mutex data_mutex_;
         glm::ivec2 region_;

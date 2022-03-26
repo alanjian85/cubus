@@ -53,7 +53,6 @@ int main(int argc, char **argv) {
     init.resolution.height = height;
     init.resolution.reset = BGFX_RESET_VSYNC | BGFX_RESET_MSAA_X4;
     init.callback = &callback;
-    bgfx::renderFrame();
     if (!bgfx::init(init)) {
         spdlog::error("Failed to initialize bgfx");
         SDL_Quit();
