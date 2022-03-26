@@ -8,7 +8,6 @@ using namespace cephalon;
 int Config::viewDistance = 5;
 int Config::destroyDistance = 5;
 int Config::chunkLoadLimit = 4;
-int Config::chunkRebuildLimit = 8;
 
 void Config::init() {
     std::ifstream file("config.json");
@@ -29,7 +28,6 @@ nlohmann::json Config::serialize() {
     json["viewDistance"] = viewDistance;
     json["destroyDistance"] = destroyDistance;
     json["chunkLoadLimit"] = chunkLoadLimit;
-    json["chunkRebuildLimit"] = chunkRebuildLimit;
     return json;
 }
 
@@ -37,5 +35,4 @@ void Config::deserialize(const nlohmann::json& json) {
     viewDistance = json["viewDistance"];
     destroyDistance = json["destroyDistance"];
     chunkLoadLimit = json["chunkLoadLimit"];
-    chunkRebuildLimit = json["chunkRebuildLimit"];
 }

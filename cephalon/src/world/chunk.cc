@@ -41,7 +41,8 @@ Chunk::Chunk(World& world, glm::ivec2 region)
     : world_(world)
 {
     region_ = region;
-    dirty_ = false;
+    dirty_.store(false);
+    ready_.store(false);
     for (int x = 0; x < kVolume.x; ++x) {
         for (int y = 0; y < kVolume.y; ++y) {
             for (int z = 0; z < kVolume.z; ++z) {
@@ -63,7 +64,7 @@ Chunk::Chunk(Chunk&& rhs) noexcept
     : world_(rhs.world_)
 {
     region_ = rhs.region_;
-    dirty_ = rhs.dirty_;
+    dirty_.store(rhs.dirty_.load());
     for (int x = 0; x < kVolume.x; ++x) {
         for (int y = 0; y < kVolume.y; ++y) {
             for (int z = 0; z < kVolume.z; ++z) {
@@ -152,10 +153,7 @@ void Chunk::rebuild() {
         }
     }
 
-    {
-        std::lock_guard data_lock(data_mutex_);
-        dirty_ = false;
-    }
+    dirty_.store(false);
 
     for (int x = 0; x < kVolume.x; ++x) {
         for (int y = 0; y < kVolume.y; ++y) {
@@ -488,10 +486,10 @@ void Chunk::rebuild() {
 void Chunk::update() {
     std::lock_guard lock(buffer_mutex_);
     if (!vertices_.empty()) {
-        bgfx::update(vertex_buffer_, 0, bgfx::copy(vertices_.data(), vertices_.size() * sizeof(Vertex)));
-        bgfx::update(index_buffer_, 0, bgfx::copy(indices_.data(), indices_.size() * sizeof(std::uint16_t)));
+        bgfx::update(vertex_buffer_, 0, bgfx::makeRef(vertices_.data(), vertices_.size() * sizeof(Vertex)));
+        bgfx::update(index_buffer_, 0, bgfx::makeRef(indices_.data(), indices_.size() * sizeof(std::uint16_t)));
     }
-    bgfx::updateTexture2D(heightmap_, 0, 0, 0, 0, kVolume.x, kVolume.z, bgfx::copy(heightmap_data_, sizeof(heightmap_data_)));
+    bgfx::updateTexture2D(heightmap_, 0, 0, 0, 0, kVolume.x, kVolume.z, bgfx::makeRef(heightmap_data_, sizeof(heightmap_data_)));
     ready_.store(false);
 }
 

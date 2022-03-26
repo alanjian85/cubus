@@ -6,6 +6,7 @@ A Minecraft-like voxel game written in C++
 * Block Destroy/Place
 * Atlas Texture
 * Different Types of Block
+* Face Culling
 * Frustum Culling
 * Shadow Mapping
 * Ambient Occulusion
@@ -14,6 +15,7 @@ A Minecraft-like voxel game written in C++
 * Screenshot
 * JSON Config File
 * Procedural Terrain
+* Multithread Meshing
 
 ## TODO
 * Greedy Meshing
@@ -22,6 +24,7 @@ A Minecraft-like voxel game written in C++
 
 ## Dependencies
 * [bgfx](https://bkaradzic.github.io/bgfx/index.html)
+* [Boost](https://www.boost.org/)
 * [{fmt}](https://github.com/fmtlib/fmt)
 * [GLM](https://glm.g-truc.net/)
 * [JSON for Modern C++](https://json.nlohmann.me/)

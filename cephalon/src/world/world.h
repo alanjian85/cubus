@@ -7,6 +7,7 @@
 #include <set>
 #include <vector>
 
+#include <boost/asio.hpp>
 #include <glm/glm.hpp>
 #include <glm/gtx/hash.hpp>
 
@@ -33,6 +34,8 @@ namespace cephalon {
         static glm::ivec3 getPosition(glm::ivec2 region, glm::ivec3 offset) {
             return glm::ivec3(region.x, 0, region.y) * Chunk::kVolume + offset;
         }
+
+        World();
 
         Chunk* getChunk(glm::ivec2 region) {
             std::lock_guard lock(chunks_mutex_);
@@ -70,6 +73,9 @@ namespace cephalon {
     private:
         mutable std::mutex chunks_mutex_;
         std::unordered_map<glm::ivec2, Chunk> chunks_;
+
+        boost::asio::thread_pool thread_pool_;
+
         std::unordered_map<glm::ivec3, const Block*> blocks_;
         Generator generator_;
     };

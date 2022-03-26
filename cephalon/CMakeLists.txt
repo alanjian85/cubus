@@ -54,6 +54,7 @@ set(CEPHALON_TEXTURES
 add_texture(cephalon ${CEPHALON_TEXTURES})
 
 find_package(bgfx REQUIRED)
+find_package(Boost REQUIRED)
 find_package(fmt REQUIRED)
 find_package(glm REQUIRED)
 find_package(nlohmann_json REQUIRED)

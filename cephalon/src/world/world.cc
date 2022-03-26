@@ -1,8 +1,16 @@
 #include "world.h"
 using namespace cephalon;
 
+#include <thread>
+
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+
+World::World()
+    : thread_pool_(std::thread::hardware_concurrency() * 2)
+{
+
+}
 
 void World::update(glm::vec3 player_pos) {
     auto player_region = getRegion(glm::ivec3(player_pos));
@@ -45,13 +53,14 @@ void World::update(glm::vec3 player_pos) {
 }
 
 void World::render(PerspectiveCamera cam) {
-    int rebuild_count = 0;
     for (auto& [region, chunk] : chunks_) {
         if (chunk.inbound(cam)) {
-            if (rebuild_count < Config::chunkRebuildLimit && chunk.isDirty()) {
-                chunk.rebuild();
+            if (chunk.isDirty()) {
+                boost::asio::post(thread_pool_, std::bind(&Chunk::rebuild, &chunk));
+            }
+
+            if (chunk.isReady()) {
                 chunk.update();
-                ++rebuild_count;
             }
 
             chunk.render(cam);

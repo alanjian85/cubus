@@ -9,7 +9,6 @@ namespace cephalon {
         static int viewDistance;
         static int destroyDistance;
         static int chunkLoadLimit;
-        static int chunkRebuildLimit;
 
         static void init();
         
