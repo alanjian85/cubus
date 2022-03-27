@@ -3,8 +3,9 @@
 
 #include <cmath>
 #include <unordered_map>
-#include <mutex>
+#include <memory>
 #include <set>
+#include <shared_mutex>
 #include <vector>
 
 #include <boost/asio.hpp>
@@ -39,31 +40,26 @@ namespace cephalon {
 
         ~World();
 
-        Chunk* getChunk(glm::ivec2 region) {
-            std::lock_guard lock(chunks_mutex_);
+        void setChunkDirty(glm::ivec2 region, bool dirty) {
+            std::shared_lock lock(mutex_);
             auto it = chunks_.find(region);
             if (it != chunks_.cend())
-                return &it->second;
-            return nullptr;
-        }
-
-        const Chunk* getChunk(glm::ivec2 region) const {
-            std::lock_guard lock(chunks_mutex_);
-            auto it = chunks_.find(region);
-            if (it != chunks_.cend())
-                return &it->second;
-            return nullptr;
+                it->second->setDirty(dirty);
         }
 
         void setBlock(glm::ivec3 pos, const Block& block) {
+            std::lock_guard lock(mutex_);
             blocks_[pos] = &block;
-            if (auto chunk = getChunk(getRegion(pos)))
-                chunk->setBlock(getOffset(pos), block);
+            auto it = chunks_.find(getRegion(pos));
+            if (it != chunks_.cend())
+                it->second->setBlock(getOffset(pos), block);
         }
 
         const Block* getBlock(glm::ivec3 pos) const {
-            if (auto chunk = getChunk(getRegion(pos)))
-                return &chunk->getBlock(getOffset(pos));
+            std::shared_lock lock(mutex_);
+            auto it = chunks_.find(getRegion(pos));
+            if (it != chunks_.cend())
+                return &it->second->getBlock(getOffset(pos));
             return nullptr;
         }
 
@@ -73,12 +69,12 @@ namespace cephalon {
 
         bool intersect(PerspectiveCamera cam, Direction& dir, glm::ivec3& pos) const;
     private:
-        mutable std::mutex chunks_mutex_;
-        std::unordered_map<glm::ivec2, Chunk> chunks_;
+        mutable std::shared_mutex mutex_;
+        std::unordered_map<glm::ivec2, std::shared_ptr<Chunk>> chunks_;
+        std::unordered_map<glm::ivec3, const Block*> blocks_;
 
         boost::asio::thread_pool thread_pool_;
 
-        std::unordered_map<glm::ivec3, const Block*> blocks_;
         Generator generator_;
     };
 }

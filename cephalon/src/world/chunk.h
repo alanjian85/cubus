@@ -43,14 +43,13 @@ namespace cephalon {
 
         Chunk(World& world, glm::ivec2 region);
 
-        Chunk(Chunk&& rhs) noexcept;
+        Chunk(Chunk&) = delete;
 
         Chunk& operator=(const Chunk&) = delete;
 
         ~Chunk() noexcept;
 
         glm::ivec2 getRegion() const {
-            std::lock_guard lock(data_mutex_);
             return region_;
         }
 
@@ -59,8 +58,7 @@ namespace cephalon {
         const Block& getBlock(glm::ivec3 offset) const;
 
         void setDirty(bool dirty) {
-            std::lock_guard lock(data_mutex_);
-            dirty_ = dirty;
+            dirty_.store(dirty);
         }
 
         bool isDirty() const {
@@ -85,11 +83,11 @@ namespace cephalon {
         float vertexAO(glm::ivec3 side1, glm::ivec3 side2, glm::ivec3 corner) const;
 
         glm::ivec2 region_;
+        World& world_;
 
         std::atomic_bool dirty_;
 
-        mutable std::mutex data_mutex_;
-        World& world_;
+        mutable std::mutex blocks_mutex_;
         const Block* blocks_[kVolume.x][kVolume.y][kVolume.z];
 
         mutable std::mutex buffer_mutex_;

@@ -59,23 +59,6 @@ Chunk::Chunk(World& world, glm::ivec2 region)
     );
 }
 
-Chunk::Chunk(Chunk&& rhs) noexcept 
-    : world_(rhs.world_)
-{
-    region_ = rhs.region_;
-    dirty_.store(rhs.dirty_.load());
-    for (int x = 0; x < kVolume.x; ++x) {
-        for (int y = 0; y < kVolume.y; ++y) {
-            for (int z = 0; z < kVolume.z; ++z) {
-                blocks_[x][y][z] = rhs.blocks_[x][y][z];
-            }
-        }
-    }
-    vertex_buffer_ = std::exchange(rhs.vertex_buffer_, BGFX_INVALID_HANDLE);
-    index_buffer_= std::exchange(rhs.index_buffer_, BGFX_INVALID_HANDLE);
-    heightmap_ = std::exchange(rhs.heightmap_, BGFX_INVALID_HANDLE);
-}
-
 Chunk::~Chunk() noexcept {
     if (bgfx::isValid(vertex_buffer_)) {
         bgfx::destroy(vertex_buffer_);
@@ -93,43 +76,27 @@ void Chunk::setBlock(glm::ivec3 offset, const Block& block) {
 
     if (blocks_[offset.x][offset.y][offset.z] != &block) {
         {
-            std::lock_guard lock(data_mutex_);
+            std::lock_guard lock(blocks_mutex_);
             dirty_.store(true);
             blocks_[offset.x][offset.y][offset.z] = &block;
         }
 
-        if (offset.x == 0) {
-            if (auto chunk = world_.getChunk(region_ + glm::ivec2(-1,  0)))
-                chunk->setDirty(true);
-        }
-        if (offset.x == kVolume.x - 1) {
-            if (auto chunk = world_.getChunk(region_ + glm::ivec2( 1,  0)))
-                chunk->setDirty(true);
-        }
-        if (offset.z == 0) {
-            if (auto chunk = world_.getChunk(region_ + glm::ivec2( 0, -1)))
-                chunk->setDirty(true);
-        }
-        if (offset.z == kVolume.z - 1) {
-            if (auto chunk = world_.getChunk(region_ + glm::ivec2( 0,  1)))
-                chunk->setDirty(true);
-        }
-        if (offset.x == 0 && offset.z == 0) {
-            if (auto chunk = world_.getChunk(region_ + glm::ivec2(-1, -1)))
-                chunk->setDirty(true);
-        }
-        if (offset.x == 0 && offset.z == kVolume.z - 1) {
-            if (auto chunk = world_.getChunk(region_ + glm::ivec2(-1,  1)))
-                chunk->setDirty(true);
-        }
-        if (offset.x == kVolume.x - 1 && offset.z == 0) {
-            if (auto chunk = world_.getChunk(region_ + glm::ivec2( 1, -1)))
-                chunk->setDirty(true);
-        }
-        if (offset.x == kVolume.x - 1 && offset.z == kVolume.z - 1) {
-            if (auto chunk = world_.getChunk(region_ + glm::ivec2( 1,  1)))
-                chunk->setDirty(true);
-        }
+        if (offset.x == 0)
+            world_.setChunkDirty(region_ + glm::ivec2(-1,  0), true);
+        if (offset.x == kVolume.x - 1)
+            world_.setChunkDirty(region_ + glm::ivec2( 1,  0), true);
+        if (offset.z == 0)
+            world_.setChunkDirty(region_ + glm::ivec2( 0, -1), true);
+        if (offset.z == kVolume.z - 1)
+            world_.setChunkDirty(region_ + glm::ivec2( 0,  1), true);
+        if (offset.x == 0 && offset.z == 0)
+            world_.setChunkDirty(region_ + glm::ivec2(-1, -1), true);
+        if (offset.x == 0 && offset.z == kVolume.z - 1)
+            world_.setChunkDirty(region_ + glm::ivec2(-1,  1), true);
+        if (offset.x == kVolume.x - 1 && offset.z == 0)
+            world_.setChunkDirty(region_ + glm::ivec2( 1, -1), true);
+        if (offset.x == kVolume.x - 1 && offset.z == kVolume.z - 1)
+            world_.setChunkDirty(region_ + glm::ivec2( 1,  1), true);
     }
 }
 
@@ -138,7 +105,7 @@ const Block& Chunk::getBlock(glm::ivec3 offset) const {
     assert(offset.z >= 0 && offset.z < kVolume.z);
     if (offset.y < 0 || offset.y >= kVolume.y)
         return blocks::air;
-    std::lock_guard lock(data_mutex_);
+    std::lock_guard lock(blocks_mutex_);
     return *blocks_[offset.x][offset.y][offset.z];
 }
 
@@ -156,11 +123,8 @@ void Chunk::rebuild() {
         for (int y = 0; y < kVolume.y; ++y) {
             for (int z = 0; z < kVolume.z; ++z) {
                 glm::ivec3 offset, pos;
-                {
-                    std::lock_guard data_lock(data_mutex_);
-                    offset = glm::ivec3(x, y, z);
-                    pos = World::getPosition(region_, offset);
-                }
+                offset = glm::ivec3(x, y, z);
+                pos = World::getPosition(region_, offset);
                 auto& block = getBlock(offset);
                 if (!block.isAir()) {
                     auto min = glm::vec2(block.getRegion().min) / glm::vec2(atlas_.getSize() - 1);
