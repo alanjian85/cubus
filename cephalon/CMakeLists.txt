@@ -54,7 +54,7 @@ set(CEPHALON_TEXTURES
 add_texture(cephalon ${CEPHALON_TEXTURES})
 
 find_package(bgfx REQUIRED)
-find_package(Boost REQUIRED)
+find_package(Boost COMPONENTS system REQUIRED)
 find_package(fmt REQUIRED)
 find_package(glm REQUIRED)
 find_package(nlohmann_json REQUIRED)
@@ -64,6 +64,7 @@ find_package(spdlog REQUIRED)
 target_link_libraries(cephalon
     external
     bgfx::bgfx
+    ${Boost_LIBRARIES}
     fmt::fmt
     glm::glm
     ${SDL2_LIBRARIES}
