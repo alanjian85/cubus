@@ -546,7 +546,6 @@ bool Chunk::intersect(Ray ray, float dmin, float dmax, Direction& dir, glm::ivec
 }
 
 bool Chunk::inbound(PerspectiveCamera cam) const {
-    std::lock_guard data_lock(data_mutex_);
     auto min = World::getPosition(region_, glm::ivec3(0));
     auto max = World::getPosition(region_, glm::ivec3(kVolume - 1));
     glm::vec4 corners[] = {

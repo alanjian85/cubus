@@ -84,10 +84,11 @@ namespace cephalon {
 
         float vertexAO(glm::ivec3 side1, glm::ivec3 side2, glm::ivec3 corner) const;
 
+        glm::ivec2 region_;
+
         std::atomic_bool dirty_;
 
         mutable std::mutex data_mutex_;
-        glm::ivec2 region_;
         World& world_;
         const Block* blocks_[kVolume.x][kVolume.y][kVolume.z];
 
