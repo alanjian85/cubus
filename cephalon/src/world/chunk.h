@@ -58,11 +58,11 @@ namespace cephalon {
         const Block& getBlock(glm::ivec3 offset) const;
 
         void setDirty(bool dirty) {
-            dirty_.store(dirty);
+            dirty_ = dirty;
         }
 
         bool isDirty() const {
-            return dirty_.load();
+            return dirty_;
         }
 
         void rebuild();
@@ -85,11 +85,9 @@ namespace cephalon {
         glm::ivec2 region_;
         World& world_;
 
-        std::atomic_bool dirty_;
-
-        mutable std::mutex mutex_;
         const Block* blocks_[kVolume.x][kVolume.y][kVolume.z];
 
+        bool dirty_;
         bgfx::DynamicVertexBufferHandle vertex_buffer_;
         bgfx::DynamicIndexBufferHandle index_buffer_;
         bgfx::TextureHandle heightmap_;

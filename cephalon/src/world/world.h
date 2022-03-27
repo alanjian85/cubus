@@ -42,36 +42,26 @@ namespace cephalon {
         ~World();
 
         void setChunkDirty(glm::ivec2 region, bool dirty) {
-            std::shared_lock chunks_lock(chunks_mutex_);
+            std::lock_guard lock(mutex_);
             auto it = chunks_.find(region);
             if (it != chunks_.cend()) {
-                auto chunk = it->second;
-                chunks_lock.unlock();
-                chunk->setDirty(dirty);
+                it->second->setDirty(dirty);
             }
         }
 
         void setBlock(glm::ivec3 pos, const Block& block) {
-            std::shared_lock chunks_lock(chunks_mutex_);
-            {
-                std::lock_guard blocks_lock(blocks_mutex_);
-                blocks_[pos] = &block;
-            }
+            std::lock_guard lock(mutex_);
             auto it = chunks_.find(getRegion(pos));
             if (it != chunks_.cend()) {
-                auto chunk = it->second;
-                chunks_lock.unlock();
-                chunk->setBlock(getOffset(pos), block);
+                it->second->setBlock(getOffset(pos), block);
             }
         }
 
         const Block* getBlock(glm::ivec3 pos) const {
-            std::shared_lock chunks_lock(chunks_mutex_);
+            std::lock_guard lock(mutex_);
             auto it = chunks_.find(getRegion(pos));
             if (it != chunks_.cend()) {
-                auto chunk = it->second;
-                chunks_lock.unlock();
-                return &chunk->getBlock(getOffset(pos));
+                return &it->second->getBlock(getOffset(pos));
             }
             return nullptr;
         }
@@ -82,10 +72,8 @@ namespace cephalon {
 
         bool intersect(PerspectiveCamera cam, Direction& dir, glm::ivec3& pos) const;
     private:
-        mutable std::shared_mutex chunks_mutex_;
+        mutable std::mutex mutex_;
         std::unordered_map<glm::ivec2, std::shared_ptr<Chunk>> chunks_;
-        
-        mutable std::mutex blocks_mutex_;
         std::unordered_map<glm::ivec3, const Block*> blocks_;
 
         boost::asio::thread_pool thread_pool_;
