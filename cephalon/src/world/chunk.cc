@@ -94,7 +94,7 @@ void Chunk::setBlock(glm::ivec3 offset, const Block& block) {
     if (blocks_[offset.x][offset.y][offset.z] != &block) {
         {
             std::lock_guard lock(data_mutex_);
-            dirty_ = true;
+            dirty_.store(true);
             blocks_[offset.x][offset.y][offset.z] = &block;
         }
 
@@ -167,16 +167,10 @@ void Chunk::rebuild() {
                     auto max = glm::vec2(block.getRegion().max) / glm::vec2(atlas_.getSize() - 1);
 
                     glm::vec2 block_texcoord1;
-                    if (bgfx::getCaps()->originBottomLeft)
-                        block_texcoord1 = glm::vec2(
-                            static_cast<float>(z) / kVolume.z, 
-                            1.0f - static_cast<float>(x) / kVolume.x
-                        );
-                    else
-                        block_texcoord1 = glm::vec2(
-                            static_cast<float>(z) / kVolume.z, 
-                            static_cast<float>(x) / kVolume.x
-                        );
+                    block_texcoord1 = glm::vec2(
+                        static_cast<float>(z) / kVolume.z, 
+                        static_cast<float>(x) / kVolume.x
+                    );
                     auto height = static_cast<float>(y) / kVolume.y;
                     auto iheight = static_cast<std::uint8_t>(height * 255);
                     if (iheight > heightmap_data_[x][z]) {
@@ -485,8 +479,6 @@ void Chunk::rebuild() {
 }
 
 void Chunk::render(PerspectiveCamera cam) const {
-    std::lock_guard buffer_lock(buffer_mutex_);
-    std::lock_guard data_lock(data_mutex_);
     float fog[4] = { 
         Config::viewDistance * kVolume.x - 12.0f, 
         Config::viewDistance * kVolume.x - 2.0f, 

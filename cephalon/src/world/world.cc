@@ -58,7 +58,8 @@ void World::render(PerspectiveCamera cam) {
     for (auto& [region, chunk] : chunks_) {
         if (chunk.inbound(cam)) {
             if (chunk.isDirty()) {
-                if (region == getRegion(cam.pos)) {
+                auto diff = getRegion(cam.pos) - region;
+                if (diff.x >= -1 && diff.x <= 1 && diff.y >= -1 && diff.y <= 1) {
                     chunk.rebuild();
                 } else {
                     boost::asio::post(thread_pool_, std::bind(&Chunk::rebuild, &chunk));
