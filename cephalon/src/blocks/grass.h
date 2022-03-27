@@ -4,6 +4,12 @@
 namespace cephalon {
     class Grass : public Block {
     public:
+        Grass()
+            : Block("grass")
+        {
+
+        }
+
         void init(Atlas& atlas) {
             image_ = LoadImage("textures/blocks/grass.dds", static_cast<bimg::TextureFormat::Enum>(Atlas::kFormat));
             region_ = atlas.add(image_);
@@ -11,10 +17,6 @@ namespace cephalon {
 
         virtual Region getRegion() const override {
             return region_;;
-        }
-
-        virtual const char* getName() const override {
-            return "grass";
         }
     private:
         static inline bimg::ImageContainer* image_;

@@ -2,6 +2,8 @@
 #define CEPHALON_BLOCKS_BLOCK_H_
 
 #include <limits>
+#include <map>
+#include <string>
 
 #include <glm/glm.hpp>
 
@@ -13,6 +15,18 @@ namespace cephalon {
     class Block {
     public:
         static void init(Atlas& atlas);
+
+        static const Block* getBlock(const std::string& name) {
+            auto it = blocks_.find(name);
+            if (it != blocks_.cend())
+                return it->second;
+            return nullptr;
+        }
+
+        Block(const char* name) {
+            blocks_[name] = this;
+            name_ = name;
+        }
 
         virtual ~Block() noexcept = default;
 
@@ -26,7 +40,13 @@ namespace cephalon {
             return AABB(glm::vec3(pos) - 0.5f, glm::vec3(pos) + 0.5f);
         }
 
-        virtual const char* getName() const = 0;
+        const std::string& getName() const {
+            return name_;
+        }
+    private:
+        static std::map<std::string, const Block*> blocks_;
+    
+        std::string name_;
     };
 }
 

@@ -1,6 +1,8 @@
 #include "block.h"
 using namespace cephalon;
 
+std::map<std::string, const Block*> Block::blocks_;
+
 Air blocks::air;
 Dirt blocks::dirt;
 Grass blocks::grass;

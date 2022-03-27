@@ -1,10 +1,16 @@
 #ifndef CEPHALON_DATABASE_H_
 #define CEPHALON_DATABASE_H_
 
+#include <unordered_map>
+
 #include <glm/glm.hpp>
 #include <sqlite3.h>
 
+#include "blocks/block.h"
+
 namespace cephalon {
+    class World;
+
     class Database {
     public:
         Database(const char* path);
@@ -15,9 +21,12 @@ namespace cephalon {
 
         ~Database();
 
-        void insert_block(glm::ivec3 pos, const char* name);
+        std::unordered_map<glm::ivec3, const Block*> loadBlocks() const;
+
+        void insertBlock(glm::ivec3 pos, const char* name);    
     private:
         sqlite3* db_;
+        sqlite3_stmt* load_stmt_;
         sqlite3_stmt* insert_stmt_;
     };
 }

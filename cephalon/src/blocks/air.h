@@ -4,16 +4,18 @@
 namespace cephalon {
     class Air : public Block {
     public:
+        Air() 
+            : Block("air")
+        {
+
+        }
+
         virtual bool isAir() const override { 
             return true;
         }
 
         virtual Region getRegion() const override {
             return Region(glm::ivec2(0), glm::ivec2(0));
-        }
-
-        virtual const char* getName() const override {
-            return "air";
         }
     };
 }

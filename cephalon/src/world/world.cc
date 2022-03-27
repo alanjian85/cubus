@@ -10,11 +10,41 @@ World::World(const char* save_path)
     : thread_pool_(std::thread::hardware_concurrency()),
       database_(save_path)
 {
-
+    blocks_ = database_.loadBlocks();
 }
 
 World::~World() {
     thread_pool_.join();
+}
+
+void World::setChunkDirty(glm::ivec2 region, bool dirty) {
+    std::lock_guard lock(chunks_mutex_);
+    auto it = chunks_.find(region);
+    if (it != chunks_.cend())
+        it->second->setDirty(dirty);
+}
+
+void World::setBlock(glm::ivec3 pos, const Block& block) {
+    database_.insertBlock(pos, block.getName().c_str());
+    std::unique_lock chunks_lock(chunks_mutex_);
+    {
+        std::lock_guard blocks_lock(blocks_mutex_);
+        blocks_[pos] = &block;
+    }
+    auto it = chunks_.find(getRegion(pos));
+    if (it != chunks_.cend()) {
+        auto chunk = it->second;
+        chunks_lock.unlock();
+        chunk->setBlock(getOffset(pos), block);
+    }
+}
+
+const Block* World::getBlock(glm::ivec3 pos) const {
+    std::lock_guard lock(chunks_mutex_);
+    auto it = chunks_.find(getRegion(pos));
+    if (it != chunks_.cend())
+        return &it->second->getBlock(getOffset(pos));
+    return nullptr;
 }
 
 void World::update(glm::vec3 player_pos) {
