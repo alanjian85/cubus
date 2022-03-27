@@ -87,13 +87,8 @@ namespace cephalon {
 
         std::atomic_bool dirty_;
 
-        mutable std::mutex blocks_mutex_;
+        mutable std::mutex mutex_;
         const Block* blocks_[kVolume.x][kVolume.y][kVolume.z];
-
-        mutable std::mutex buffer_mutex_;
-        std::vector<Vertex> vertices_;
-        std::vector<std::uint16_t> indices_;
-        std::uint8_t heightmap_data_[kVolume.x][kVolume.z];
 
         bgfx::DynamicVertexBufferHandle vertex_buffer_;
         bgfx::DynamicIndexBufferHandle index_buffer_;
