@@ -11,6 +11,10 @@ namespace cephalon {
         virtual Region getRegion() const override {
             return Region(glm::ivec2(0), glm::ivec2(0));
         }
+
+        virtual const char* getName() const override {
+            return "air";
+        }
     };
 }
 

@@ -6,8 +6,9 @@ using namespace cephalon;
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-World::World()
-    : thread_pool_(std::thread::hardware_concurrency())
+World::World(const char* save_path)
+    : thread_pool_(std::thread::hardware_concurrency()),
+      database_(save_path)
 {
 
 }

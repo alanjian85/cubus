@@ -12,6 +12,10 @@ namespace cephalon {
         virtual Region getRegion() const override {
             return region_;;
         }
+
+        virtual const char* getName() const override {
+            return "sand";
+        }
     private:
         static inline bimg::ImageContainer* image_;
         static inline Region region_;

@@ -18,6 +18,8 @@ set(CEPHALON_SRCS
     src/utils/ray.h
     src/world/chunk.h
     src/world/chunk.cc
+    src/world/database.h
+    src/world/database.cc
     src/world/generator.h
     src/world/generator.cc
     src/world/outline.h

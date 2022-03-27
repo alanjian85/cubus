@@ -25,6 +25,8 @@ namespace cephalon {
         virtual AABB getBoundingBox(glm::ivec3 pos) const {
             return AABB(glm::vec3(pos) - 0.5f, glm::vec3(pos) + 0.5f);
         }
+
+        virtual const char* getName() const = 0;
     };
 }
 

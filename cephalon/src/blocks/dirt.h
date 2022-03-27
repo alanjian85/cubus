@@ -12,6 +12,10 @@ namespace cephalon {
         virtual Region getRegion() const override {
             return region_;;
         }
+
+        virtual const char* getName() const override {
+            return "dirt";
+        }
     private:
         bimg::ImageContainer* image_;
         Region region_;

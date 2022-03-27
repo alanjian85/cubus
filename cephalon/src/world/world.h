@@ -15,6 +15,7 @@
 
 #include "utils/aabb.h"
 #include "chunk.h"
+#include "database.h"
 #include "game/config.h"
 #include "generator.h"
 
@@ -37,7 +38,7 @@ namespace cephalon {
             return glm::ivec3(region.x, 0, region.y) * Chunk::kVolume + offset;
         }
 
-        World();
+        World(const char* save_path);
 
         ~World();
 
@@ -85,6 +86,8 @@ namespace cephalon {
         boost::asio::thread_pool thread_pool_;
 
         Generator generator_;
+
+        Database database_;
     };
 }
 
