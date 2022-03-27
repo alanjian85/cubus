@@ -19,7 +19,7 @@ World::~World() {
 void World::update(glm::vec3 player_pos) {
     auto player_region = getRegion(glm::ivec3(player_pos));
 
-    std::lock_guard lock(mutex_);
+    std::lock_guard lock(chunks_mutex_);
     for (auto i = chunks_.begin(); i != chunks_.end();) {
         auto& [region, chunk] = *i;
         if (glm::distance(glm::vec2(region), glm::vec2(player_region)) > Config::viewDistance)
@@ -40,7 +40,7 @@ void World::update(glm::vec3 player_pos) {
                     auto chunk = it->second; 
                     boost::asio::post(thread_pool_, [this, chunk = std::move(chunk)]() {
                         generator_(*chunk);
-                        std::lock_guard lock(mutex_);
+                        std::lock_guard lock(blocks_mutex_);
                         for (auto [pos, block] : blocks_) {
                             if (getRegion(pos) == chunk->getRegion()) {
                                 chunk->setBlock(getOffset(pos), *block);
