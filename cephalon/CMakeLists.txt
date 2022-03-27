@@ -60,6 +60,7 @@ find_package(glm REQUIRED)
 find_package(nlohmann_json REQUIRED)
 find_package(SDL2 REQUIRED)
 find_package(spdlog REQUIRED)
+find_package(SQLite3 REQUIRED)
 
 target_link_libraries(cephalon
     external
@@ -68,14 +69,19 @@ target_link_libraries(cephalon
     fmt::fmt
     glm::glm
     ${SDL2_LIBRARIES}
+    ${SQLite3_LIBRARIES}
     spdlog::spdlog
 )
 
 target_include_directories(cephalon PRIVATE
     src
     ${CMAKE_CURRENT_BINARY_DIR}
+    ${Boost_INCLUDE_DIRS}
+    ${SDL2_INCLUDE_DIRS}
+    ${SQLite3_INCLUDE_DIRS}
 )
 
 target_compile_definitions(cephalon PRIVATE
     GLM_FORCE_LEFT_HANDED
+    SPDLOG_FMT_EXTERNAL 
 )

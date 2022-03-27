@@ -22,7 +22,7 @@ void World::update(glm::vec3 player_pos) {
     std::lock_guard lock(chunks_mutex_);
     for (auto i = chunks_.begin(); i != chunks_.end();) {
         auto& [region, chunk] = *i;
-        if (glm::distance(glm::vec2(region), glm::vec2(player_region)) > Config::viewDistance)
+        if (glm::distance(glm::vec2(region), glm::vec2(player_region)) > Config::viewDistance + 1)
         {
             chunks_.erase(i++);
         } else {
@@ -31,10 +31,10 @@ void World::update(glm::vec3 player_pos) {
     }
     
     int load_count = 0;
-    for (auto x = player_region.x - Config::viewDistance; x <= player_region.x + Config::viewDistance; ++x) {
-        for (auto y = player_region.y - Config::viewDistance; y <= player_region.y + Config::viewDistance; ++y) {
+    for (auto x = player_region.x - Config::viewDistance - 1; x <= player_region.x + Config::viewDistance + 1; ++x) {
+        for (auto y = player_region.y - Config::viewDistance - 1; y <= player_region.y + Config::viewDistance + 1; ++y) {
             glm::ivec2 region(x, y);
-            if (load_count < Config::chunkLoadLimit && glm::distance(glm::vec2(region), glm::vec2(player_region)) <= Config::viewDistance) {
+            if (load_count < Config::chunkLoadLimit && glm::distance(glm::vec2(region), glm::vec2(player_region)) <= Config::viewDistance + 1) {
                 auto [it, created] = chunks_.emplace(region, std::make_shared<Chunk>(*this, region));
                 if (created) {
                     auto chunk = it->second; 
