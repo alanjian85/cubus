@@ -4,6 +4,7 @@
 #include <cmath>
 #include <unordered_map>
 #include <memory>
+#include <mutex>
 #include <set>
 #include <shared_mutex>
 #include <vector>
@@ -41,25 +42,37 @@ namespace cephalon {
         ~World();
 
         void setChunkDirty(glm::ivec2 region, bool dirty) {
-            std::shared_lock lock(mutex_);
+            std::shared_lock chunks_lock(chunks_mutex_);
             auto it = chunks_.find(region);
-            if (it != chunks_.cend())
-                it->second->setDirty(dirty);
+            if (it != chunks_.cend()) {
+                auto chunk = it->second;
+                chunks_lock.unlock();
+                chunk->setDirty(dirty);
+            }
         }
 
         void setBlock(glm::ivec3 pos, const Block& block) {
-            std::lock_guard lock(mutex_);
-            blocks_[pos] = &block;
+            std::shared_lock chunks_lock(chunks_mutex_);
+            {
+                std::lock_guard blocks_lock(blocks_mutex_);
+                blocks_[pos] = &block;
+            }
             auto it = chunks_.find(getRegion(pos));
-            if (it != chunks_.cend())
-                it->second->setBlock(getOffset(pos), block);
+            if (it != chunks_.cend()) {
+                auto chunk = it->second;
+                chunks_lock.unlock();
+                chunk->setBlock(getOffset(pos), block);
+            }
         }
 
         const Block* getBlock(glm::ivec3 pos) const {
-            std::shared_lock lock(mutex_);
+            std::shared_lock chunks_lock(chunks_mutex_);
             auto it = chunks_.find(getRegion(pos));
-            if (it != chunks_.cend())
-                return &it->second->getBlock(getOffset(pos));
+            if (it != chunks_.cend()) {
+                auto chunk = it->second;
+                chunks_lock.unlock();
+                return &chunk->getBlock(getOffset(pos));
+            }
             return nullptr;
         }
 
@@ -69,8 +82,10 @@ namespace cephalon {
 
         bool intersect(PerspectiveCamera cam, Direction& dir, glm::ivec3& pos) const;
     private:
-        mutable std::shared_mutex mutex_;
+        mutable std::shared_mutex chunks_mutex_;
         std::unordered_map<glm::ivec2, std::shared_ptr<Chunk>> chunks_;
+        
+        mutable std::mutex blocks_mutex_;
         std::unordered_map<glm::ivec3, const Block*> blocks_;
 
         boost::asio::thread_pool thread_pool_;

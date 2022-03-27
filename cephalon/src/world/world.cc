@@ -19,7 +19,7 @@ World::~World() {
 void World::update(glm::vec3 player_pos) {
     auto player_region = getRegion(glm::ivec3(player_pos));
 
-    std::unique_lock lock(mutex_);
+    std::unique_lock chunks_lock(chunks_mutex_);
     for (auto i = chunks_.begin(); i != chunks_.end();) {
         auto& [region, chunk] = *i;
         if (glm::distance(glm::vec2(region), glm::vec2(player_region)) > Config::viewDistance)
@@ -40,7 +40,7 @@ void World::update(glm::vec3 player_pos) {
                     auto chunk = it->second; 
                     boost::asio::post(thread_pool_, [this, chunk = std::move(chunk)]() {
                         generator_(*chunk);
-                        std::shared_lock lock(mutex_);
+                        std::lock_guard blocks_lock(blocks_mutex_);
                         for (auto [pos, block] : blocks_) {
                             if (getRegion(pos) == chunk->getRegion()) {
                                 chunk->setBlock(getOffset(pos), *block);
@@ -55,6 +55,7 @@ void World::update(glm::vec3 player_pos) {
 }
 
 void World::render(PerspectiveCamera cam) {
+    std::shared_lock chunks_lock(chunks_mutex_);
     for (auto& [region, chunk] : chunks_) {
         if (chunk->inbound(cam)) {
             if (chunk->isDirty()) {
@@ -66,8 +67,8 @@ void World::render(PerspectiveCamera cam) {
                     boost::asio::post(thread_pool_, [chunk = std::move(new_chunk)]() {
                         chunk->rebuild();
                     });
-                    chunk->setDirty(false);
                 }
+                chunk->setDirty(false);
             }
 
             chunk->render(cam);
@@ -76,6 +77,7 @@ void World::render(PerspectiveCamera cam) {
 }
 
 bool World::intersect(PerspectiveCamera cam, Direction& dir, glm::ivec3& pos) const {
+    std::shared_lock chunks_lock(chunks_mutex_);
     bool intersected = false;
     auto dmax = static_cast<float>(Config::destroyDistance);
     for (auto& [region, chunk] : chunks_) {
