@@ -16,6 +16,7 @@ A Minecraft-like voxel game written in C++
 * JSON Config File
 * Procedural Terrain
 * Multithread Meshing
+* World Save/Load
 
 ## TODO
 * Greedy Meshing
@@ -30,6 +31,7 @@ A Minecraft-like voxel game written in C++
 * [JSON for Modern C++](https://json.nlohmann.me/)
 * [SDL2](https://www.libsdl.org/index.php)
 * [spdlog](https://github.com/gabime/spdlog)
+* [SQLite3](https://www.sqlite.org/index.html)
 
 ## Installation
 ### Linux (Ubuntu/Debian)

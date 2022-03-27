@@ -50,6 +50,7 @@ namespace cephalon {
         }
 
         void setBlock(glm::ivec3 pos, const Block& block) {
+            database_.insert_block(pos, block.getName());
             std::unique_lock chunks_lock(chunks_mutex_);
             {
                 std::lock_guard blocks_lock(blocks_mutex_);
