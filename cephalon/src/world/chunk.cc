@@ -41,7 +41,7 @@ Chunk::Chunk(World& world, glm::ivec2 region)
     : world_(world)
 {
     region_ = region;
-    dirty_ = false;
+    dirty_.store(false);
     for (int x = 0; x < kVolume.x; ++x) {
         for (int y = 0; y < kVolume.y; ++y) {
             for (int z = 0; z < kVolume.z; ++z) {
@@ -76,7 +76,8 @@ void Chunk::setBlock(glm::ivec3 offset, const Block& block) {
 
     if (blocks_[offset.x][offset.y][offset.z] != &block) {
         {
-            dirty_ = true;
+            dirty_.store(true);
+            std::lock_guard lock(mutex_);
             blocks_[offset.x][offset.y][offset.z] = &block;
         }
 
@@ -104,6 +105,7 @@ const Block& Chunk::getBlock(glm::ivec3 offset) const {
     assert(offset.z >= 0 && offset.z < kVolume.z);
     if (offset.y < 0 || offset.y >= kVolume.y)
         return blocks::air;
+    std::lock_guard lock(mutex_);
     return *blocks_[offset.x][offset.y][offset.z];
 }
 
