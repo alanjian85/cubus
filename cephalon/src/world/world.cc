@@ -17,6 +17,10 @@ World::~World() {
     thread_pool_.join();
 }
 
+void World::setSeed(unsigned seed) {
+    generator_.setSeed(seed);
+}
+
 void World::setChunkDirty(glm::ivec2 region, bool dirty) {
     std::shared_lock lock(chunks_mutex_);
     auto it = chunks_.find(region);

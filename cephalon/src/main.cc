@@ -1,3 +1,5 @@
+#include <filesystem>
+
 #include <bgfx/bgfx.h>
 #include <bgfx/platform.h>
 #include <bx/bx.h>
@@ -66,6 +68,8 @@ int main(int argc, char **argv) {
     Input::init(window);
     Chunk::init();
     Block::init(Chunk::getAtlas());
+
+    std::filesystem::create_directory("save");
 
     {
         Game game(width, height);

@@ -42,6 +42,8 @@ namespace cephalon {
 
         ~World();
 
+        void setSeed(unsigned seed);
+
         void setChunkDirty(glm::ivec2 region, bool dirty);
 
         void setBlock(glm::ivec3 pos, const Block& block);

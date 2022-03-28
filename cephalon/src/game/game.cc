@@ -1,17 +1,45 @@
 #include "game.h"
 using namespace cephalon;
 
+#include <chrono>
+#include <fstream>
+
 #include <glm/gtc/type_ptr.hpp>
+#include <nlohmann/json.hpp>
 #include <spdlog/spdlog.h>
 
 #include "input.h"
 
 Game::Game(int width, int height) 
-    : world_("world.db")
+    : world_("save/world.db")
 {
     camera_.pos = { 0.0f, 50.0f, 0.0f };
     camera_.pitch = -15.0f;
     camera_.aspect = static_cast<float>(width) / height;
+
+    std::ifstream info_file("save/info.json");
+    if (info_file.is_open()) {
+        info_file >> info_;
+
+        camera_.pos.x = info_["player"]["position"][0];
+        camera_.pos.y = info_["player"]["position"][1];
+        camera_.pos.z = info_["player"]["position"][2];
+        camera_.pitch = info_["player"]["pitch"];
+        camera_.yaw = info_["player"]["yaw"];
+    } else {
+        info_["seed"] = std::chrono::system_clock::now().time_since_epoch().count();
+    }
+    world_.setSeed(info_["seed"]);
+}
+
+Game::~Game() {
+    std::ofstream info_file("save/info.json");
+    info_["player"]["position"][0] = camera_.pos.x;
+    info_["player"]["position"][1] = camera_.pos.y;
+    info_["player"]["position"][2] = camera_.pos.z; 
+    info_["player"]["pitch"] = camera_.pitch;
+    info_["player"]["yaw"] = camera_.yaw;
+    info_file << info_.dump(4);
 }
 
 void Game::update(float delta) {

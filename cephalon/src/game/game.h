@@ -4,6 +4,7 @@
 #include <memory>
 
 #include <glm/glm.hpp>
+#include <nlohmann/json.hpp>
 
 #include "utils/assets.h"
 #include "utils/camera.h"
@@ -14,6 +15,8 @@ namespace cephalon {
     class Game {
     public:
         Game(int width, int height);
+
+        ~Game();
 
         void update(float delta);
 
@@ -33,6 +36,7 @@ namespace cephalon {
         Direction block_dir_;
         Outline outline_;
 
+        nlohmann::json info_;
         World world_;
         PerspectiveCamera camera_;
     };

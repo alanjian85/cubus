@@ -7,6 +7,10 @@ using namespace cephalon;
 
 #include "world.h"
 
+void Generator::setSeed(unsigned seed) {
+    ::seed(seed);
+}
+
 void Generator::operator()(Chunk& chunk) const {
     for (int x = 0; x < Chunk::kVolume.x; ++x) {
         for (int z = 0; z < Chunk::kVolume.z; ++z) {

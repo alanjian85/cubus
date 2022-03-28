@@ -11,6 +11,8 @@ namespace cephalon {
 
     class Generator {
     public:
+        void setSeed(unsigned seed);
+
         void operator()(Chunk& world) const;
     };
 }
