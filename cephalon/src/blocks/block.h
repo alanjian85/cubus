@@ -34,8 +34,6 @@ namespace cephalon {
             return false;
         }
 
-        virtual Region getRegion() const = 0;
-
         virtual AABB getBoundingBox(glm::ivec3 pos) const {
             return AABB(glm::vec3(pos) - 0.5f, glm::vec3(pos) + 0.5f);
         }
@@ -43,6 +41,18 @@ namespace cephalon {
         const std::string& getName() const {
             return name_;
         }
+
+        virtual Region getRightRegion() const = 0;
+
+        virtual Region getLeftRegion() const = 0;
+
+        virtual Region getTopRegion() const = 0;
+
+        virtual Region getBottomRegion() const = 0;
+
+        virtual Region getBackRegion() const = 0;
+
+        virtual Region getFrontRegion() const = 0;
     private:
         static std::map<std::string, const Block*> blocks_;
     

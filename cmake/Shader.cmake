@@ -166,21 +166,23 @@ function( add_shader TARGET )
         endif()
 
         if( NOT "${TYPE}" STREQUAL "" )
+			file( RELATIVE_PATH FILE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/shaders ${CMAKE_CURRENT_SOURCE_DIR}/${FILE} )
+			get_filename_component( FILE_DIR "${FILE_PATH}" DIRECTORY )
             set( COMMON FILE ${CMAKE_CURRENT_SOURCE_DIR}/${FILE} ${TYPE} INCLUDES ${CMAKE_CURRENT_SOURCE_DIR}/shaders )
-            set( OUTPUTS "" )
+			set( OUTPUTS "" )
             set( OUTPUTS_PRETTY "" )
 
             if( WIN32 )
                 # dx9
                 if( NOT "${TYPE}" STREQUAL "COMPUTE" )
-                    set( DX9_OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/shaders/dx9/${FILENAME}.bin )
+                    set( DX9_OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/assets/shaders/dx9/${FILE_DIR}/${FILENAME}.bin )
                     shaderc_parse( DX9 ${COMMON} WINDOWS PROFILE ${D3D_PREFIX}_3_0 O 3 OUTPUT ${DX9_OUTPUT} )
                     list( APPEND OUTPUTS "DX9" )
                     set( OUTPUTS_PRETTY "${OUTPUTS_PRETTY}DX9, " )
                 endif()
 
                 # dx11
-                set( DX11_OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/shaders/dx11/${FILENAME}.bin )
+                set( DX11_OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/assets/shaders/dx11/${FILE_DIR}/${FILENAME}.bin )
                 if( NOT "${TYPE}" STREQUAL "COMPUTE" )
                     shaderc_parse( DX11 ${COMMON} WINDOWS PROFILE ${D3D_PREFIX}_5_0 O 3 OUTPUT ${DX11_OUTPUT} )
                 else()
@@ -192,7 +194,7 @@ function( add_shader TARGET )
 
             if( APPLE )
                 # metal
-                set( METAL_OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/shaders/metal/${FILENAME}.bin )
+                set( METAL_OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/assets/shaders/metal/${FILE_DIR}/${FILENAME}.bin )
                 shaderc_parse( METAL ${COMMON} OSX PROFILE metal OUTPUT ${METAL_OUTPUT} )
                 list( APPEND OUTPUTS "METAL" )
                 set( OUTPUTS_PRETTY "${OUTPUTS_PRETTY}Metal, " )
@@ -200,14 +202,14 @@ function( add_shader TARGET )
 
             # essl
             if( NOT "${TYPE}" STREQUAL "COMPUTE" )
-                set( ESSL_OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/shaders/essl/${FILENAME}.bin )
+                set( ESSL_OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/assets/shaders/essl/${FILE_DIR}/${FILENAME}.bin )
                 shaderc_parse( ESSL ${COMMON} ANDROID OUTPUT ${ESSL_OUTPUT} )
                 list( APPEND OUTPUTS "ESSL" )
                 set( OUTPUTS_PRETTY "${OUTPUTS_PRETTY}ESSL, " )
             endif()
 
             # glsl
-            set( GLSL_OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/shaders/glsl/${FILENAME}.bin )
+            set( GLSL_OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/assets/shaders/glsl/${FILE_DIR}/${FILENAME}.bin )
             if( NOT "${TYPE}" STREQUAL "COMPUTE" )
                 shaderc_parse( GLSL ${COMMON} LINUX PROFILE 120 OUTPUT ${GLSL_OUTPUT} )
             else()
@@ -218,7 +220,7 @@ function( add_shader TARGET )
 
             # spirv
             if( NOT "${TYPE}" STREQUAL "COMPUTE" )
-                set( SPIRV_OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/shaders/spirv/${FILENAME}.bin )
+                set( SPIRV_OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/assets/shaders/spirv/${FILE_DIR}/${FILENAME}.bin )
                 shaderc_parse( SPIRV ${COMMON} LINUX PROFILE spirv OUTPUT ${SPIRV_OUTPUT} )
                 list( APPEND OUTPUTS "SPIRV" )
                 set( OUTPUTS_PRETTY "${OUTPUTS_PRETTY}SPIRV" )

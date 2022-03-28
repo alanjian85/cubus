@@ -48,7 +48,9 @@ add_shader(cephalon ${CEPHALON_SHADERS})
 
 set(CEPHALON_TEXTURES
     textures/blocks/dirt.png
-    textures/blocks/grass.png
+    textures/blocks/grass_bottom.png
+    textures/blocks/grass_side.png
+    textures/blocks/grass_top.png
     textures/blocks/sand.png
     textures/blocks/stone.png
     textures/blocks/wood.png

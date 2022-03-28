@@ -1,6 +1,7 @@
 #include "assets.h"
 
 #include <fstream>
+#include <string>
 #include <string_view>
 #include <vector>
 
@@ -10,30 +11,28 @@
 #include <spdlog/spdlog.h>
 
 bgfx::ShaderHandle cephalon::LoadShader(const char* name) {
-    char filePath[512];
-    const char* shaderPath = "???";
+    std::string path;
 
 	switch (bgfx::getRendererType() )
 	{
 	    case bgfx::RendererType::Noop:
-	    case bgfx::RendererType::Direct3D9:  shaderPath = "shaders/dx9/";   break;
+	    case bgfx::RendererType::Direct3D9:  path += "assets/shaders/dx9/";   break;
 	    case bgfx::RendererType::Direct3D11:
-	    case bgfx::RendererType::Direct3D12: shaderPath = "shaders/dx11/";  break;
+	    case bgfx::RendererType::Direct3D12: path += "assets/shaders/dx11/";  break;
 	    case bgfx::RendererType::Agc:
-	    case bgfx::RendererType::Gnm:        shaderPath = "shaders/pssl/";  break;
-	    case bgfx::RendererType::Metal:      shaderPath = "shaders/metal/"; break;
-	    case bgfx::RendererType::Nvn:        shaderPath = "shaders/nvn/";   break;
-	    case bgfx::RendererType::OpenGL:     shaderPath = "shaders/glsl/";  break;
-	    case bgfx::RendererType::OpenGLES:   shaderPath = "shaders/essl/";  break;
-	    case bgfx::RendererType::Vulkan:     shaderPath = "shaders/spirv/"; break;
-	    case bgfx::RendererType::WebGPU:     shaderPath = "shaders/spirv/"; break;
+	    case bgfx::RendererType::Gnm:        path += "assets/shaders/pssl/";  break;
+	    case bgfx::RendererType::Metal:      path += "assets/shaders/metal/"; break;
+	    case bgfx::RendererType::Nvn:        path += "assets/shaders/nvn/";   break;
+	    case bgfx::RendererType::OpenGL:     path += "assets/shaders/glsl/";  break;
+	    case bgfx::RendererType::OpenGLES:   path += "assets/shaders/essl/";  break;
+	    case bgfx::RendererType::Vulkan:     path += "assets/shaders/spirv/"; break;
+	    case bgfx::RendererType::WebGPU:     path += "assets/shaders/spirv/"; break;
 	}
 
-	bx::strCopy(filePath, BX_COUNTOF(filePath), shaderPath);
-	bx::strCat(filePath, BX_COUNTOF(filePath), name);
-	bx::strCat(filePath, BX_COUNTOF(filePath), ".bin");
+    path += name;
+    path += ".bin";
 
-    std::ifstream file(filePath, std::ios::ate | std::ios::binary);
+    std::ifstream file(path, std::ios::ate | std::ios::binary);
     if (!file.is_open()) {
         spdlog::error("Could not open {} shader file", name);
         return BGFX_INVALID_HANDLE;
@@ -62,7 +61,11 @@ bgfx::ProgramHandle cephalon::LoadProgram(const char* vs, const char* fs) {
     return handle;
 }
 
-bimg::ImageContainer* cephalon::LoadImage(const char* path, bimg::TextureFormat::Enum dst_format) {
+bimg::ImageContainer* cephalon::LoadImage(const char* name, bimg::TextureFormat::Enum dst_format) {
+    std::string path = "assets/textures/";
+    path += name;
+    path += ".dds";
+
     std::ifstream file(path, std::ios::ate | std::ios::binary);
     if (!file.is_open())
         spdlog::error("Could not open image file at {}", path);
@@ -80,8 +83,8 @@ bimg::ImageContainer* cephalon::LoadImage(const char* path, bimg::TextureFormat:
     return image;
 }
 
-bgfx::TextureHandle cephalon::LoadTexture(const char* path, std::uint64_t flags) {
-    bimg::ImageContainer* image = LoadImage(path);
+bgfx::TextureHandle cephalon::LoadTexture(const char* name, std::uint64_t flags) {
+    bimg::ImageContainer* image = LoadImage(name);
     return bgfx::createTexture2D(
         image->m_width,
         image->m_height,

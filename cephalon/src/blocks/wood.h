@@ -11,11 +11,31 @@ namespace cephalon {
         }
 
         void init(Atlas& atlas) {
-            image_ = LoadImage("textures/blocks/wood.dds", static_cast<bimg::TextureFormat::Enum>(Atlas::kFormat));
+            image_ = LoadImage("blocks/wood", static_cast<bimg::TextureFormat::Enum>(Atlas::kFormat));
             region_ = atlas.add(image_);
         }
 
-        virtual Region getRegion() const override {
+        virtual Region getRightRegion() const override {
+            return region_;
+        }
+
+        virtual Region getLeftRegion() const override {
+            return region_;
+        }
+        
+        virtual Region getTopRegion() const override {
+            return region_;
+        }
+        
+        virtual Region getBottomRegion() const override {
+            return region_;
+        }
+        
+        virtual Region getBackRegion() const override {
+            return region_;
+        }
+        
+        virtual Region getFrontRegion() const override {
             return region_;
         }
     private:
