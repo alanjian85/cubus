@@ -429,9 +429,12 @@ void Chunk::rebuild() {
         }
     }
 
-    if (!vertices.empty()) {
+    if (!vertices.empty() && !indices.empty()) {
         bgfx::update(vertex_buffer_, 0, bgfx::copy(vertices.data(), vertices.size() * sizeof(Vertex)));
         bgfx::update(index_buffer_, 0, bgfx::copy(indices.data(), indices.size() * sizeof(std::uint16_t)));
+        std::lock_guard lock(mutex_);
+        num_vertices_ = vertices.size();
+        num_indices_ = indices.size();
     }
     bgfx::updateTexture2D(heightmap_, 0, 0, 0, 0, kVolume.x, kVolume.z, bgfx::copy(heightmap_data, sizeof(heightmap_data)));
 }
@@ -457,8 +460,11 @@ void Chunk::render(PerspectiveCamera cam) const {
         BGFX_STATE_CULL_CW         |
         BGFX_STATE_BLEND_FUNC(BGFX_STATE_BLEND_SRC_ALPHA, BGFX_STATE_BLEND_INV_SRC_ALPHA)
     );
-    bgfx::setVertexBuffer(0, vertex_buffer_);
-    bgfx::setIndexBuffer(index_buffer_);
+    {
+        std::lock_guard lock(mutex_);
+        bgfx::setVertexBuffer(0, vertex_buffer_, 0, num_vertices_);
+        bgfx::setIndexBuffer(index_buffer_, 0, num_indices_);
+    }
     bgfx::submit(0, program_);
 }
 

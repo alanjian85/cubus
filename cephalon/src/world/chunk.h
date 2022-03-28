@@ -82,13 +82,15 @@ namespace cephalon {
 
         float vertexAO(glm::ivec3 side1, glm::ivec3 side2, glm::ivec3 corner) const;
 
-        glm::ivec2 region_;
         World& world_;
+        glm::ivec2 region_;
+        std::atomic_bool dirty_;
 
         mutable std::mutex mutex_;
         const Block* blocks_[kVolume.x][kVolume.y][kVolume.z];
+        std::uint32_t num_vertices_;
+        std::uint32_t num_indices_;
 
-        std::atomic_bool dirty_;
         bgfx::DynamicVertexBufferHandle vertex_buffer_;
         bgfx::DynamicIndexBufferHandle index_buffer_;
         bgfx::TextureHandle heightmap_;
