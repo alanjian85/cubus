@@ -54,6 +54,7 @@ set(CEPHALON_TEXTURES
     textures/blocks/sand.png
     textures/blocks/stone.png
     textures/blocks/wood.png
+    textures/blocks/wood_side.png
 )
 add_texture(cephalon ${CEPHALON_TEXTURES})
 

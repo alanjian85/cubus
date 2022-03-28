@@ -211,10 +211,10 @@ void Chunk::rebuild() {
                         };
 
                         glm::vec2 block_texcoord0[] = {
-                            glm::vec2(min.x, max.y),
                             glm::vec2(max.x, max.y),
-                            glm::vec2(min.x, min.y),
-                            glm::vec2(max.x, min.y)
+                            glm::vec2(min.x, max.y),
+                            glm::vec2(max.x, min.y),
+                            glm::vec2(min.x, min.y)
                         };
 
                         Vertex block_vertices[] = {
@@ -366,10 +366,10 @@ void Chunk::rebuild() {
                         };
 
                         glm::vec2 block_texcoord0[] = {
-                            glm::vec2(min.x, max.y),
-                            glm::vec2(min.x, min.y),
                             glm::vec2(max.x, max.y),
-                            glm::vec2(max.x, min.y)
+                            glm::vec2(max.x, min.y),
+                            glm::vec2(min.x, max.y),
+                            glm::vec2(min.x, min.y)
                         };
 
                         Vertex block_vertices[] = {
