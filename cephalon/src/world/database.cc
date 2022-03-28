@@ -15,10 +15,8 @@ Database::Database(const char* path) {
         "name TEXT NOT NULL"
         ");"
         "CREATE UNIQUE INDEX IF NOT EXISTS blocks_xyz_idx ON blocks (x, y, z)";
-    const char* insert_query = 
-        "REPLACE INTO blocks (x, y, z, name) VALUES (?, ?, ?, ?)";
-    const char* load_query =
-        "SELECT x, y, z, name FROM blocks;";
+    const char* insert_query = "REPLACE INTO blocks (x, y, z, name) VALUES (?, ?, ?, ?)";
+    const char* load_query = "SELECT x, y, z, name FROM blocks;";
     sqlite3_exec(db_, create_query, nullptr, nullptr, nullptr);
     sqlite3_prepare(db_, insert_query, -1, &insert_stmt_, nullptr);
     sqlite3_prepare(db_, load_query, -1, &load_stmt_, nullptr);

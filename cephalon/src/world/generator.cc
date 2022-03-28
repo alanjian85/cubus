@@ -22,11 +22,15 @@ void Generator::operator()(Chunk& chunk) const {
                 w = 2;
             }
             
-            for (int y = 0; y < h; ++y) {
+            chunk.setBlock(glm::ivec3(x, 0, z), blocks::stone);
+            for (int y = 1; y < h; ++y) {
                 if (w == 1)
-                    chunk.setBlock(glm::ivec3(x, y, z), blocks::grass);
+                    chunk.setBlock(glm::ivec3(x, y, z), blocks::dirt);
                 else
                     chunk.setBlock(glm::ivec3(x, y, z), blocks::sand);
+            }
+            if (w == 1) {
+                chunk.setBlock(glm::ivec3(x, h, z), blocks::grass);
             }
         }
     }

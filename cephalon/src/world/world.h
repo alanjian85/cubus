@@ -54,7 +54,7 @@ namespace cephalon {
 
         bool intersect(PerspectiveCamera cam, Direction& dir, glm::ivec3& pos) const;
     private:
-        mutable std::mutex chunks_mutex_;
+        mutable std::shared_mutex chunks_mutex_;
         std::unordered_map<glm::ivec2, std::shared_ptr<Chunk>> chunks_;
         
         mutable std::mutex blocks_mutex_;

@@ -76,8 +76,8 @@ void Chunk::setBlock(glm::ivec3 offset, const Block& block) {
 
     if (blocks_[offset.x][offset.y][offset.z] != &block) {
         {
-            dirty_.store(true);
             std::lock_guard lock(mutex_);
+            dirty_.store(true);
             blocks_[offset.x][offset.y][offset.z] = &block;
         }
 

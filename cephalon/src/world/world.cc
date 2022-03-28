@@ -18,7 +18,7 @@ World::~World() {
 }
 
 void World::setChunkDirty(glm::ivec2 region, bool dirty) {
-    std::lock_guard lock(chunks_mutex_);
+    std::shared_lock lock(chunks_mutex_);
     auto it = chunks_.find(region);
     if (it != chunks_.cend())
         it->second->setDirty(dirty);
@@ -26,7 +26,7 @@ void World::setChunkDirty(glm::ivec2 region, bool dirty) {
 
 void World::setBlock(glm::ivec3 pos, const Block& block) {
     database_.insertBlock(pos, block.getName().c_str());
-    std::unique_lock chunks_lock(chunks_mutex_);
+    std::shared_lock chunks_lock(chunks_mutex_);
     {
         std::lock_guard blocks_lock(blocks_mutex_);
         blocks_[pos] = &block;
@@ -40,7 +40,7 @@ void World::setBlock(glm::ivec3 pos, const Block& block) {
 }
 
 const Block* World::getBlock(glm::ivec3 pos) const {
-    std::lock_guard lock(chunks_mutex_);
+    std::shared_lock lock(chunks_mutex_);
     auto it = chunks_.find(getRegion(pos));
     if (it != chunks_.cend())
         return &it->second->getBlock(getOffset(pos));
@@ -86,6 +86,7 @@ void World::update(glm::vec3 player_pos) {
 }
 
 void World::render(PerspectiveCamera cam) {
+    std::shared_lock chunks_lock(chunks_mutex_);
     for (auto& [region, chunk] : chunks_) {
         if (chunk->inbound(cam)) {
             if (chunk->isDirty()) {
@@ -107,6 +108,7 @@ void World::render(PerspectiveCamera cam) {
 }
 
 bool World::intersect(PerspectiveCamera cam, Direction& dir, glm::ivec3& pos) const {
+    std::shared_lock chunks_lock(chunks_mutex_);
     bool intersected = false;
     auto dmax = static_cast<float>(Config::destroyDistance);
     for (auto& [region, chunk] : chunks_) {
