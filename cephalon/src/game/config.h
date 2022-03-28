@@ -1,6 +1,9 @@
 #ifndef CEPHALON_GAME_CONFIG_H_
 #define CEPHALON_GAME_CONFIG_H_
 
+#include <map>
+#include <string>
+
 #include <nlohmann/json.hpp>
 
 namespace cephalon {
@@ -14,6 +17,8 @@ namespace cephalon {
         
         static void deinit();
     private:
+        static std::map<void*, std::string> keys_;
+
         static nlohmann::json serialize();
         static void deserialize(const nlohmann::json& json);
     };
