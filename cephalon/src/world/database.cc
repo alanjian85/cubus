@@ -5,8 +5,12 @@ using namespace cephalon;
 
 #include <iostream>
 
+#include <spdlog/spdlog.h>
+
 Database::Database(const char* path) {
-    sqlite3_open(path, &db_);
+    int rc;
+    rc = sqlite3_open(path, &db_);
+    if (rc) spdlog::error("Couldn't open database: {}", path);
     const char* create_query =
         "CREATE TABLE IF NOT EXISTS blocks ("
         "x    INT NOT NULL,"
@@ -17,9 +21,12 @@ Database::Database(const char* path) {
         "CREATE UNIQUE INDEX IF NOT EXISTS blocks_xyz_idx ON blocks (x, y, z)";
     const char* insert_query = "REPLACE INTO blocks (x, y, z, name) VALUES (?, ?, ?, ?)";
     const char* load_query = "SELECT x, y, z, name FROM blocks;";
-    sqlite3_exec(db_, create_query, nullptr, nullptr, nullptr);
-    sqlite3_prepare(db_, insert_query, -1, &insert_stmt_, nullptr);
-    sqlite3_prepare(db_, load_query, -1, &load_stmt_, nullptr);
+    rc = sqlite3_exec(db_, create_query, nullptr, nullptr, nullptr);
+    if (rc) spdlog::error("Failed to create database table");
+    rc = sqlite3_prepare(db_, insert_query, -1, &insert_stmt_, nullptr);
+    if (rc) spdlog::error("Failed to prepare statement for insert block query");
+    rc = sqlite3_prepare(db_, load_query, -1, &load_stmt_, nullptr);
+    if (rc) spdlog::error("Failed to prepare statement for load block query");
 }
 
 Database::~Database() {
@@ -34,7 +41,12 @@ std::unordered_map<glm::ivec3, const Block*> Database::loadBlocks() const {
         auto y = sqlite3_column_int(load_stmt_, 1);
         auto z = sqlite3_column_int(load_stmt_, 2);
         auto name = sqlite3_column_text(load_stmt_, 3);
-        blocks[glm::ivec3(x, y, z)] = Block::getBlock(reinterpret_cast<const char*>(name));
+        auto block = Block::getBlock(reinterpret_cast<const char*>(name));
+        if (!block) {
+            spdlog::error("Unknown block name {}", name);
+            continue;
+        }
+        blocks[glm::ivec3(x, y, z)] = block;
     }
     return blocks;
 }
