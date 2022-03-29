@@ -5,6 +5,7 @@
 #include <cstdint>
 
 #include <glm/glm.hpp>
+#include <spdlog/spdlog.h>
 
 #include <bgfx/bgfx.h>
 
@@ -29,6 +30,11 @@ namespace cephalon {
             size_.x = width;
             size_.y = height;
             texture_ = bgfx::createTexture2D(width, height, false, 1, kFormat, BGFX_SAMPLER_MIN_POINT | BGFX_SAMPLER_MAG_POINT);
+            if (!bgfx::isValid(texture_)) {
+                spdlog::error("Couldn't create atlas texture");
+            } else {
+                spdlog::info("Atlas texture is created successfully");
+            }
         }
 
         void destroy() {

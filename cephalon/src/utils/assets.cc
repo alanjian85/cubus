@@ -34,7 +34,7 @@ bgfx::ShaderHandle cephalon::LoadShader(const char* name) {
 
     std::ifstream file(path, std::ios::ate | std::ios::binary);
     if (!file.is_open()) {
-        spdlog::error("Could not open {} shader file", name);
+        spdlog::error("Could not open shader file {}", path);
         return BGFX_INVALID_HANDLE;
     }
     std::size_t size = file.tellg();
@@ -47,8 +47,11 @@ bgfx::ShaderHandle cephalon::LoadShader(const char* name) {
 	bgfx::ShaderHandle handle = bgfx::createShader(memory);
 	bgfx::setName(handle, name);
     
-    if (!bgfx::isValid(handle))
+    if (!bgfx::isValid(handle)) {
         spdlog::error("Error creating shader {}", name);
+    } else {
+        spdlog::info("Shader {} is loaded successfully", name);
+    }
     return handle;
 }
 
@@ -57,7 +60,9 @@ bgfx::ProgramHandle cephalon::LoadProgram(const char* vs, const char* fs) {
     bgfx::ShaderHandle fsh = LoadShader(fs);
     bgfx::ProgramHandle handle = bgfx::createProgram(vsh, fsh, true);
     if (!bgfx::isValid(handle))
-        spdlog::error("Error creating program for shader {} and {}", vs, fs);
+        spdlog::error("Error creating program of shader {} and {}", vs, fs);
+    else
+        spdlog::info("Program of shader {} and {} is loaded successfully", vs, fs);
     return handle;
 }
 
@@ -67,8 +72,10 @@ bimg::ImageContainer* cephalon::LoadImage(const char* name, bimg::TextureFormat:
     path += ".dds";
 
     std::ifstream file(path, std::ios::ate | std::ios::binary);
-    if (!file.is_open())
-        spdlog::error("Could not open image file at {}", path);
+    if (!file.is_open()) {
+        spdlog::error("Could not open image file {}", path);
+        return nullptr;
+    }
     std::size_t size = file.tellg();
     file.seekg(0, std::ios::beg);
     std::vector<char> data(size);
@@ -79,13 +86,15 @@ bimg::ImageContainer* cephalon::LoadImage(const char* name, bimg::TextureFormat:
     if (!error.isOk()) {
         auto message = error.getMessage();
         spdlog::error("Error parsing image: {}", std::string_view(message.getPtr(), message.getLength()));
+    } else {
+        spdlog::info("Image {} is loaded successfully", name);
     }
     return image;
 }
 
 bgfx::TextureHandle cephalon::LoadTexture(const char* name, std::uint64_t flags) {
     bimg::ImageContainer* image = LoadImage(name);
-    return bgfx::createTexture2D(
+    bgfx::TextureHandle handle = bgfx::createTexture2D(
         image->m_width,
         image->m_height,
         1 < image->m_numMips,
@@ -94,4 +103,11 @@ bgfx::TextureHandle cephalon::LoadTexture(const char* name, std::uint64_t flags)
         flags,
         bgfx::makeRef(image->m_data, image->m_size)
     );
+
+    if (!bgfx::isValid(handle)) {
+        spdlog::error("Error creating texture {}", name);
+    } else {
+        spdlog::info("Texture {} is loaded successfully", name);
+    }
+    return handle;
 }

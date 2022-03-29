@@ -32,5 +32,5 @@ void main()
 	float height = texture2D(s_heightmap, v_texcoord1).r;
 	float shadow = v_color1 < height ? 1.0 : 0.0;
 
-	gl_FragColor = vec4(ambient * 0.6 + diffuse * (1.0 - shadow) * 0.4, fog);
+	gl_FragColor = vec4(ambient * 0.4 + diffuse * (1.0 - shadow), fog);
 }

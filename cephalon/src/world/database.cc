@@ -10,7 +10,12 @@ using namespace cephalon;
 Database::Database(const char* path) {
     int rc;
     rc = sqlite3_open(path, &db_);
-    if (rc) spdlog::error("Couldn't open database: {}", path);
+    if (rc) {
+        spdlog::error("Couldn't open database {}", path);
+        return;
+    } else {
+        spdlog::info("Database {} is opened", path);
+    }
     const char* create_query =
         "CREATE TABLE IF NOT EXISTS blocks ("
         "x    INT NOT NULL,"
