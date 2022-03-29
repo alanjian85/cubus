@@ -6,6 +6,7 @@
 #include <string>
 
 #include <glm/glm.hpp>
+#include <optional>
 
 #include "utils/aabb.h"
 #include "utils/assets.h"
@@ -14,13 +15,24 @@
 namespace cephalon {
     class Block {
     public:
-        static void init(Atlas& atlas);
+        static void init();
+
+        static void deinit();
 
         static const Block* getBlock(const std::string& name) {
             auto it = blocks_.find(name);
             if (it != blocks_.cend())
                 return it->second;
             return nullptr;
+        }
+
+        static const Atlas& getAtlas() {
+            return *atlas_;
+        }
+
+        static Region loadTile(const char* name) {
+            bimg::ImageContainer* image = LoadImage((std::string("blocks/") + name).c_str(), static_cast<bimg::TextureFormat::Enum>(Atlas::kFormat));
+            return atlas_->add(image);
         }
 
         Block(const char* name) {
@@ -54,6 +66,7 @@ namespace cephalon {
 
         virtual Region getFrontRegion() const = 0;
     private:
+        static std::optional<Atlas> atlas_;
         static std::map<std::string, const Block*> blocks_;
     
         std::string name_;

@@ -1,6 +1,7 @@
 #include "block.h"
 using namespace cephalon;
 
+std::optional<Atlas> Block::atlas_;
 std::map<std::string, const Block*> Block::blocks_;
 
 Air blocks::air;
@@ -10,10 +11,15 @@ Sand blocks::sand;
 Stone blocks::stone;
 Wood blocks::wood;
 
-void Block::init(Atlas& atlas) {
-    blocks::dirt.init(atlas);
-    blocks::grass.init(atlas);
-    blocks::sand.init(atlas);
-    blocks::stone.init(atlas);
-    blocks::wood.init(atlas);
+void Block::init() {
+    atlas_.emplace(256, 32);
+    blocks::dirt.init();
+    blocks::grass.init();
+    blocks::sand.init();
+    blocks::stone.init();
+    blocks::wood.init();
+}
+
+void Block::deinit() {
+    atlas_.reset();
 }

@@ -10,9 +10,8 @@ namespace cephalon {
 
         }
 
-        void init(Atlas& atlas) {
-            image_ = LoadImage("blocks/dirt", static_cast<bimg::TextureFormat::Enum>(Atlas::kFormat));
-            region_ = atlas.add(image_);
+        void init() {
+            region_ = loadTile("dirt");
         }
 
         virtual Region getRightRegion() const override {

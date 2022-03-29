@@ -13,20 +13,20 @@ namespace cephalon {
     struct Region {
         Region() = default;
 
-        Region(glm::ivec2 min_, glm::ivec2 max_) {
+        Region(glm::vec2 min_, glm::vec2 max_) {
             min = min_;
             max = max_;
         }
 
-        glm::ivec2 min;
-        glm::ivec2 max;
+        glm::vec2 min;
+        glm::vec2 max;
     };
 
     class Atlas {
     public:
         static const bgfx::TextureFormat::Enum kFormat = bgfx::TextureFormat::RGBA8;
 
-        void init(std::uint16_t width, std::uint16_t height) {
+        Atlas(std::uint16_t width, std::uint16_t height) {
             size_.x = width;
             size_.y = height;
             texture_ = bgfx::createTexture2D(width, height, false, 1, kFormat, BGFX_SAMPLER_MIN_POINT | BGFX_SAMPLER_MAG_POINT);
@@ -37,7 +37,7 @@ namespace cephalon {
             }
         }
 
-        void destroy() {
+        ~Atlas() {
             bgfx::destroy(texture_);
         }
 
@@ -57,9 +57,10 @@ namespace cephalon {
                 image->m_width, image->m_height, 
                 bgfx::copy(image->m_data, image->m_width * image->m_height * 4)
             );
-            Region region(insert_pos_, insert_pos_ + glm::ivec2(image->m_width - 1, image->m_height - 1));
+            auto min = insert_pos_;
+            auto max = insert_pos_ + glm::ivec2(image->m_width - 1, image->m_height - 1);
             insert_pos_.x += image->m_width;
-            return region;
+            return Region(glm::vec2(min) / glm::vec2(size_ - 1), glm::vec2(max) / glm::vec2(size_ - 1));
         }
 
         bgfx::TextureHandle getTexture() const {
@@ -68,6 +69,10 @@ namespace cephalon {
 
         glm::ivec2 getSize() const {
             return size_;
+        }
+
+        bgfx::TextureHandle getHandle() const {
+            return texture_;
         }
     private:
         bgfx::TextureHandle texture_;

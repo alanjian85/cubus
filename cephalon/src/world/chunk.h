@@ -13,7 +13,6 @@
 #include "blocks/block.h"
 #include "utils/aabb.h"
 #include "utils/assets.h"
-#include "utils/atlas.h"
 #include "utils/camera.h"
 #include "utils/ray.h"
 
@@ -36,10 +35,6 @@ namespace cephalon {
         static void init();
         
         static void deinit();
-
-        static Atlas& getAtlas() {
-            return atlas_;
-        }
 
         Chunk(World& world, glm::ivec2 region);
 
@@ -75,7 +70,6 @@ namespace cephalon {
     private:
         static bgfx::VertexLayout layout_;
         static bgfx::ProgramHandle program_;
-        static Atlas atlas_;
         static bgfx::UniformHandle u_fog_;
         static bgfx::UniformHandle s_atlas_;
         static bgfx::UniformHandle s_heightmap_;

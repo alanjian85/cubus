@@ -10,9 +10,8 @@ namespace cephalon {
 
         }
 
-        void init(Atlas& atlas) {
-            image_ = LoadImage("blocks/stone", static_cast<bimg::TextureFormat::Enum>(Atlas::kFormat));
-            region_ = atlas.add(image_);
+        void init() {
+            region_ = loadTile("stone");
         }
 
         virtual Region getRightRegion() const override {
@@ -39,8 +38,7 @@ namespace cephalon {
             return region_;
         }
     private:
-        static inline bimg::ImageContainer* image_;
-        static inline Region region_;
+        Region region_;
     };
 }
 

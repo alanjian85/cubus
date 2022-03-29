@@ -67,7 +67,7 @@ int main(int argc, char **argv) {
     Config::init();
     Input::init(window);
     Chunk::init();
-    Block::init(Chunk::getAtlas());
+    Block::init();
 
     std::filesystem::create_directory("save");
 
@@ -123,6 +123,7 @@ int main(int argc, char **argv) {
         }
     }
 
+    Block::deinit();
     Chunk::deinit();
     Config::deinit();
     bgfx::shutdown();

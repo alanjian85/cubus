@@ -10,13 +10,10 @@ namespace cephalon {
 
         }
 
-        void init(Atlas& atlas) {
-            side_image_ = LoadImage("blocks/grass_side", static_cast<bimg::TextureFormat::Enum>(Atlas::kFormat));
-            top_image_ = LoadImage("blocks/grass_top", static_cast<bimg::TextureFormat::Enum>(Atlas::kFormat));
-            bottom_image_ = LoadImage("blocks/grass_bottom", static_cast<bimg::TextureFormat::Enum>(Atlas::kFormat));
-            side_region_ = atlas.add(side_image_);
-            top_region_ = atlas.add(top_image_);
-            bottom_region_ = atlas.add(bottom_image_);
+        void init() {
+            side_region_ = loadTile("grass_side");
+            top_region_ = loadTile("grass_top");
+            bottom_region_ = loadTile("grass_bottom");
         }
 
         virtual Region getRightRegion() const override {
@@ -43,12 +40,9 @@ namespace cephalon {
             return side_region_;;
         }
     private:
-        static inline bimg::ImageContainer* side_image_;
-        static inline bimg::ImageContainer* top_image_;
-        static inline bimg::ImageContainer* bottom_image_;
-        static inline Region side_region_;
-        static inline Region top_region_;
-        static inline Region bottom_region_;
+        Region side_region_;
+        Region top_region_;
+        Region bottom_region_;
     };
 }
 

@@ -10,11 +10,9 @@ namespace cephalon {
             
         }
 
-        void init(Atlas& atlas) {
-            image_ = LoadImage("blocks/wood", static_cast<bimg::TextureFormat::Enum>(Atlas::kFormat));
-            side_image_ = LoadImage("blocks/wood_side", static_cast<bimg::TextureFormat::Enum>(Atlas::kFormat));
-            region_ = atlas.add(image_);
-            side_region_ = atlas.add(side_image_);
+        void init() {
+            region_ = loadTile("wood");
+            side_region_ = loadTile("wood_side");
         }
 
         virtual Region getRightRegion() const override {

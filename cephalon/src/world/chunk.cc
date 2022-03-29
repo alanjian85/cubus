@@ -10,7 +10,6 @@ using namespace cephalon;
 
 bgfx::VertexLayout Chunk::layout_;
 bgfx::ProgramHandle Chunk::program_;
-Atlas Chunk::atlas_;
 bgfx::UniformHandle Chunk::u_fog_;
 bgfx::UniformHandle Chunk::s_atlas_;
 bgfx::UniformHandle Chunk::s_heightmap_;
@@ -25,7 +24,6 @@ void Chunk::init() {
         .add(bgfx::Attrib::TexCoord1, 2, bgfx::AttribType::Float)
     .end();
     program_ = LoadProgram("vs_chunks", "fs_chunks");
-    atlas_.init(512, 32);
     u_fog_ = bgfx::createUniform("u_fog", bgfx::UniformType::Vec4);
     s_atlas_ = bgfx::createUniform("s_atlas", bgfx::UniformType::Sampler);
     s_heightmap_ = bgfx::createUniform("s_heightmap", bgfx::UniformType::Sampler);
@@ -33,7 +31,6 @@ void Chunk::init() {
 
 void Chunk::deinit() {
     bgfx::destroy(s_atlas_);
-    atlas_.destroy();
     bgfx::destroy(program_);
 }
 
@@ -135,8 +132,7 @@ void Chunk::rebuild() {
                     // right
                     auto right_block = world_.getBlock(pos + glm::ivec3(1, 0, 0));
                     if (right_block && right_block->isAir()) {
-                        auto min = glm::vec2(block.getRightRegion().min) / glm::vec2(atlas_.getSize() - 1);
-                        auto max = glm::vec2(block.getRightRegion().max) / glm::vec2(atlas_.getSize() - 1);
+                        auto region = block.getRightRegion();
                         
                         glm::vec3 block_pos[] = {
                             glm::vec3(x + 0.5f, y - 0.5f, z - 0.5f),
@@ -160,10 +156,10 @@ void Chunk::rebuild() {
                         };
 
                         glm::vec2 block_texcoord0[] = {
-                            glm::vec2(min.x, max.y),
-                            glm::vec2(max.x, max.y),
-                            glm::vec2(min.x, min.y),
-                            glm::vec2(max.x, min.y)
+                            glm::vec2(region.min.x, region.max.y),
+                            glm::vec2(region.max.x, region.max.y),
+                            glm::vec2(region.min.x, region.min.y),
+                            glm::vec2(region.max.x, region.min.y)
                         };
 
                         Vertex block_vertices[] = {
@@ -186,8 +182,7 @@ void Chunk::rebuild() {
                     // left
                     auto left_block = world_.getBlock(pos + glm::ivec3(-1, 0, 0));
                     if (left_block && left_block->isAir()) {
-                        auto min = glm::vec2(block.getLeftRegion().min) / glm::vec2(atlas_.getSize() - 1);
-                        auto max = glm::vec2(block.getLeftRegion().max) / glm::vec2(atlas_.getSize() - 1);
+                        auto region = block.getLeftRegion();
 
                         glm::vec3 block_pos[] = {
                             glm::vec3(x - 0.5f, y - 0.5f, z - 0.5f),
@@ -211,10 +206,10 @@ void Chunk::rebuild() {
                         };
 
                         glm::vec2 block_texcoord0[] = {
-                            glm::vec2(max.x, max.y),
-                            glm::vec2(min.x, max.y),
-                            glm::vec2(max.x, min.y),
-                            glm::vec2(min.x, min.y)
+                            glm::vec2(region.max.x, region.max.y),
+                            glm::vec2(region.min.x, region.max.y),
+                            glm::vec2(region.max.x, region.min.y),
+                            glm::vec2(region.min.x, region.min.y)
                         };
 
                         Vertex block_vertices[] = {
@@ -238,8 +233,7 @@ void Chunk::rebuild() {
                     const Block* top_block;
                     top_block = world_.getBlock(pos + glm::ivec3(0, 1, 0));
                     if (top_block && top_block->isAir()) {
-                        auto min = glm::vec2(block.getTopRegion().min) / glm::vec2(atlas_.getSize() - 1);
-                        auto max = glm::vec2(block.getTopRegion().max) / glm::vec2(atlas_.getSize() - 1);
+                        auto region = block.getTopRegion();
 
                         glm::vec3 block_pos[] = {
                             glm::vec3(x - 0.5f, y + 0.5f, z - 0.5f),
@@ -263,10 +257,10 @@ void Chunk::rebuild() {
                         };
 
                         glm::vec2 block_texcoord0[] = {
-                            glm::vec2(min.x, min.y),
-                            glm::vec2(min.x, max.y),
-                            glm::vec2(max.x, min.y),
-                            glm::vec2(max.x, max.y)
+                            glm::vec2(region.min.x, region.min.y),
+                            glm::vec2(region.min.x, region.max.y),
+                            glm::vec2(region.max.x, region.min.y),
+                            glm::vec2(region.max.x, region.max.y)
                         };
 
                         Vertex block_vertices[] = {
@@ -290,8 +284,7 @@ void Chunk::rebuild() {
                     const Block* bottom_block;
                     bottom_block = world_.getBlock(pos + glm::ivec3(0, -1, 0));
                     if (bottom_block && bottom_block->isAir()) {
-                        auto min = glm::vec2(block.getBottomRegion().min) / glm::vec2(atlas_.getSize() - 1);
-                        auto max = glm::vec2(block.getBottomRegion().max) / glm::vec2(atlas_.getSize() - 1);
+                        auto region = block.getBottomRegion();
 
                         glm::vec3 block_pos[] = {
                             glm::vec3(x - 0.5f, y - 0.5f, z - 0.5f),
@@ -315,10 +308,10 @@ void Chunk::rebuild() {
                         };
 
                         glm::vec2 block_texcoord0[] = {
-                            glm::vec2(min.x, min.y),
-                            glm::vec2(min.x, max.y),
-                            glm::vec2(max.x, min.y),
-                            glm::vec2(max.x, max.y)
+                            glm::vec2(region.min.x, region.min.y),
+                            glm::vec2(region.min.x, region.max.y),
+                            glm::vec2(region.max.x, region.min.y),
+                            glm::vec2(region.max.x, region.max.y)
                         };
 
                         Vertex block_vertices[] = {
@@ -341,8 +334,7 @@ void Chunk::rebuild() {
                     // back
                     auto back_block = world_.getBlock(pos + glm::ivec3(0, 0, 1));
                     if (back_block && back_block->isAir()) {
-                        auto min = glm::vec2(block.getBackRegion().min) / glm::vec2(atlas_.getSize() - 1);
-                        auto max = glm::vec2(block.getBackRegion().max) / glm::vec2(atlas_.getSize() - 1);
+                        auto region = block.getBackRegion();
 
                         glm::vec3 block_pos[] = { 
                             glm::vec3(x - 0.5f, y - 0.5f, z + 0.5f),
@@ -366,10 +358,10 @@ void Chunk::rebuild() {
                         };
 
                         glm::vec2 block_texcoord0[] = {
-                            glm::vec2(max.x, max.y),
-                            glm::vec2(max.x, min.y),
-                            glm::vec2(min.x, max.y),
-                            glm::vec2(min.x, min.y)
+                            glm::vec2(region.max.x, region.max.y),
+                            glm::vec2(region.max.x, region.min.y),
+                            glm::vec2(region.min.x, region.max.y),
+                            glm::vec2(region.min.x, region.min.y)
                         };
 
                         Vertex block_vertices[] = {
@@ -392,8 +384,7 @@ void Chunk::rebuild() {
                     // front
                     auto front_block = world_.getBlock(pos + glm::ivec3(0, 0, -1));
                     if (front_block && front_block->isAir()) {
-                        auto min = glm::vec2(block.getFrontRegion().min) / glm::vec2(atlas_.getSize() - 1);
-                        auto max = glm::vec2(block.getFrontRegion().max) / glm::vec2(atlas_.getSize() - 1);
+                        auto region = block.getFrontRegion();
 
                         glm::vec3 block_pos[] = {
                             glm::vec3(x - 0.5f, y - 0.5f, z - 0.5f),
@@ -417,10 +408,10 @@ void Chunk::rebuild() {
                         };
 
                         glm::vec2 block_texcoord0[] = {
-                            glm::vec2(min.x, max.y),
-                            glm::vec2(min.x, min.y),
-                            glm::vec2(max.x, max.y),
-                            glm::vec2(max.x, min.y)
+                            glm::vec2(region.min.x, region.max.y),
+                            glm::vec2(region.min.x, region.min.y),
+                            glm::vec2(region.max.x, region.max.y),
+                            glm::vec2(region.max.x, region.min.y)
                         };
 
                         Vertex block_vertices[] = {
@@ -462,7 +453,7 @@ void Chunk::render(PerspectiveCamera cam) const {
     };
     auto view_pos = cam.pos;
     bgfx::setUniform(u_fog_, fog);
-    bgfx::setTexture(0, s_atlas_, atlas_.getTexture());
+    bgfx::setTexture(0, s_atlas_, Block::getAtlas().getHandle());
     bgfx::setTexture(1, s_heightmap_, heightmap_);
     auto transform = glm::translate(glm::mat4(1.0f), glm::vec3(World::getPosition(region_, glm::ivec3(0))));
     bgfx::setTransform(glm::value_ptr(transform));
