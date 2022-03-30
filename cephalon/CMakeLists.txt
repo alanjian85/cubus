@@ -15,6 +15,9 @@ set(CEPHALON_SRCS
     src/utils/assets.h
     src/utils/assets.cc
     src/utils/camera.h
+    src/utils/frustum.h
+    src/utils/frustum.cc
+    src/utils/plane.h
     src/utils/ray.h
     src/world/chunk.h
     src/world/chunk.cc

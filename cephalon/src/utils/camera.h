@@ -14,6 +14,7 @@ namespace cephalon {
                 glm::sin(glm::radians(yaw)) * glm::cos(glm::radians(pitch))
             );
             right = glm::normalize(glm::cross(glm::vec3(0.0f, 1.0f, 0.0f), dir));
+            up = glm::normalize(glm::cross(dir, right));
             view = glm::lookAt(pos, pos + dir, glm::vec3(0.0f, 1.0f, 0.0f));
             if (bgfx::getCaps()->homogeneousDepth)
                 proj = glm::perspectiveNO(glm::radians(fov), aspect, near, far);
@@ -21,7 +22,7 @@ namespace cephalon {
                 proj = glm::perspectiveZO(glm::radians(fov), aspect, near, far);
         }
 
-        glm::vec3 pos { 0.0f, 0.0f, 0.0f };
+        glm::vec3 pos;
 
         float yaw = 90.0f;
         float pitch = 0.0f;
@@ -31,8 +32,9 @@ namespace cephalon {
         float near = 0.1f;
         float far = 1000.0f;
 
-        glm::vec3 dir { 0.0f };
-        glm::vec3 right { 0.0f };
+        glm::vec3 dir;
+        glm::vec3 right;
+        glm::vec3 up;
         glm::mat4 view;
         glm::mat4 proj;
     };
