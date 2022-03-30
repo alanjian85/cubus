@@ -79,13 +79,18 @@ void Game::onCursorMove(float relative_x, float relative_y) {
 }
 
 void Game::onMouseLeftClick() {
-    if (intersected_)
+    if (intersected_) {
         world_.setBlock(destroy_pos_, blocks::air);
+        spdlog::info("One block at {} is destroyed", fmt::format("({}, {}, {})", destroy_pos_.x, destroy_pos_.y, destroy_pos_.z));
+    }
 }
 
 void Game::onMouseRightClick() {
-    if (place_pos_.y >= 0 && place_pos_.y < Chunk::kVolume.y)
-        world_.setBlock(place_pos_, blocks::wood);
+    if (place_pos_.y >= 0 && place_pos_.y < Chunk::kVolume.y) {
+        auto& block = blocks::wood;
+        world_.setBlock(place_pos_, block);
+        spdlog::info("One {} block at {} is placed", block.getName(), fmt::format("({}, {}, {})", place_pos_.x, place_pos_.y, place_pos_.z));
+    }
 }
 
 void Game::screenShot() {

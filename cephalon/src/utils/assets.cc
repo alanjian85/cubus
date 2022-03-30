@@ -34,7 +34,7 @@ bgfx::ShaderHandle cephalon::LoadShader(const char* name) {
 
     std::ifstream file(path, std::ios::ate | std::ios::binary);
     if (!file.is_open()) {
-        spdlog::error("Could not open shader file {}", path);
+        spdlog::error("Couldn't open shader file {}", path);
         return BGFX_INVALID_HANDLE;
     }
     std::size_t size = file.tellg();
@@ -50,7 +50,7 @@ bgfx::ShaderHandle cephalon::LoadShader(const char* name) {
     if (!bgfx::isValid(handle)) {
         spdlog::error("Error creating shader {}", name);
     } else {
-        spdlog::info("Shader {} is loaded successfully", name);
+        spdlog::info("Shader {} loaded successfully", name);
     }
     return handle;
 }
@@ -62,7 +62,7 @@ bgfx::ProgramHandle cephalon::LoadProgram(const char* vs, const char* fs) {
     if (!bgfx::isValid(handle))
         spdlog::error("Error creating program of shader {} and {}", vs, fs);
     else
-        spdlog::info("Program of shader {} and {} is loaded successfully", vs, fs);
+        spdlog::info("Program of shader {} and {} loaded successfully", vs, fs);
     return handle;
 }
 
@@ -73,7 +73,7 @@ bimg::ImageContainer* cephalon::LoadImage(const char* name, bimg::TextureFormat:
 
     std::ifstream file(path, std::ios::ate | std::ios::binary);
     if (!file.is_open()) {
-        spdlog::error("Could not open image file {}", path);
+        spdlog::error("Couldn't open image file {}", path);
         return nullptr;
     }
     std::size_t size = file.tellg();
@@ -87,7 +87,7 @@ bimg::ImageContainer* cephalon::LoadImage(const char* name, bimg::TextureFormat:
         auto message = error.getMessage();
         spdlog::error("Error parsing image: {}", std::string_view(message.getPtr(), message.getLength()));
     } else {
-        spdlog::info("Image {} is loaded successfully", name);
+        spdlog::info("Image {} loaded successfully", name);
     }
     return image;
 }
@@ -107,7 +107,7 @@ bgfx::TextureHandle cephalon::LoadTexture(const char* name, std::uint64_t flags)
     if (!bgfx::isValid(handle)) {
         spdlog::error("Error creating texture {}", name);
     } else {
-        spdlog::info("Texture {} is loaded successfully", name);
+        spdlog::info("Texture {} loaded successfully", name);
     }
     return handle;
 }

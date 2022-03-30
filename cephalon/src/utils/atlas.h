@@ -33,12 +33,13 @@ namespace cephalon {
             if (!bgfx::isValid(texture_)) {
                 spdlog::error("Couldn't create atlas texture");
             } else {
-                spdlog::info("Atlas texture is created successfully");
+                spdlog::info("Atlas texture created successfully");
             }
         }
 
         ~Atlas() {
             bgfx::destroy(texture_);
+            spdlog::info("Atlas texture destroyed");
         }
 
         Region add(bimg::ImageContainer* image) {
