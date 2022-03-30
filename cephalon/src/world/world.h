@@ -30,8 +30,7 @@ namespace cephalon {
         }
 
         static glm::ivec3 getOffset(glm::ivec3 pos) {
-            auto region = getRegion(pos);
-            return pos - glm::ivec3(region.x, 0, region.y) * Chunk::kVolume;
+            return (pos % Chunk::kVolume + Chunk::kVolume) % Chunk::kVolume;
         }
 
         static glm::ivec3 getPosition(glm::ivec2 region, glm::ivec3 offset) {
