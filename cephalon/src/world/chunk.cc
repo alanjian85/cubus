@@ -57,11 +57,9 @@ Chunk::Chunk(World& world, glm::ivec2 region)
 }
 
 Chunk::~Chunk() noexcept {
-    if (bgfx::isValid(vertex_buffer_)) {
-        bgfx::destroy(vertex_buffer_);
-        bgfx::destroy(index_buffer_);
-        bgfx::destroy(heightmap_);
-    }
+    bgfx::destroy(vertex_buffer_);
+    bgfx::destroy(index_buffer_);
+    bgfx::destroy(heightmap_);
 }
 
 void Chunk::setBlock(glm::ivec3 offset, const Block& block) {

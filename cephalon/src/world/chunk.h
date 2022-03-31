@@ -48,10 +48,6 @@ namespace cephalon {
             return region_;
         }
 
-        void setBlock(glm::ivec3 offset, const Block& block);
-
-        const Block& getBlock(glm::ivec3 offset) const;
-
         void setDirty(bool dirty) {
             dirty_.store(dirty);
         }
@@ -59,6 +55,10 @@ namespace cephalon {
         bool isDirty() const {
             return dirty_.load();
         }
+
+        void setBlock(glm::ivec3 offset, const Block& block);
+
+        const Block& getBlock(glm::ivec3 offset) const;
 
         void rebuild();
 
