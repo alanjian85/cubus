@@ -86,7 +86,7 @@ void Game::onMouseLeftClick() {
 }
 
 void Game::onMouseRightClick() {
-    if (place_pos_.y >= 0 && place_pos_.y < Chunk::kVolume.y) {
+    if (intersected_ && place_pos_.y >= 0 && place_pos_.y < Chunk::kVolume.y) {
         auto& block = blocks::wood;
         world_.setBlock(place_pos_, block);
         spdlog::info("One {} block at {} is placed", block.getName(), fmt::format("({}, {}, {})", place_pos_.x, place_pos_.y, place_pos_.z));
