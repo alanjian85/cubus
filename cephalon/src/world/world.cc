@@ -7,14 +7,16 @@ using namespace cephalon;
 #include <glm/gtc/type_ptr.hpp>
 
 World::World(const char* save_path)
-    : thread_pool_(std::thread::hardware_concurrency()),
+    : load_thread_pool_(4), 
+      rebuild_thread_pool_(4),
       database_(save_path)
 {
 
 }
 
 World::~World() {
-    thread_pool_.join();
+    load_thread_pool_.join();
+    rebuild_thread_pool_.join();
 }
 
 void World::setSeed(unsigned seed) {
@@ -69,7 +71,7 @@ void World::update(glm::vec3 player_pos) {
                 auto [it, created] = chunks_.emplace(region, std::make_shared<Chunk>(*this, region));
                 if (created) {
                     auto chunk = it->second; 
-                    boost::asio::post(thread_pool_, [this, chunk = std::move(chunk)]() {
+                    boost::asio::post(load_thread_pool_, [this, chunk = std::move(chunk)]() {
                         generator_(*chunk);
                         database_.loadChunk(*chunk);
                     });
@@ -90,7 +92,7 @@ void World::render(PerspectiveCamera cam) {
                     chunk->rebuild();
                 } else {
                     auto new_chunk = chunk;
-                    boost::asio::post(thread_pool_, [chunk = std::move(new_chunk)]() {
+                    boost::asio::post(rebuild_thread_pool_, [chunk = std::move(new_chunk)]() {
                         chunk->rebuild();
                     });
                 }
