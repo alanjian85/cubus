@@ -27,8 +27,10 @@ Game::Game(int width, int height)
         camera_.pitch = info_["player"]["pitch"];
         camera_.yaw = info_["player"]["yaw"];
     } else {
+        info_["terrain"] = "normal";
         info_["seed"] = std::chrono::system_clock::now().time_since_epoch().count();
     }
+    world_.setTerrain(info_["terrain"]);
     world_.setSeed(info_["seed"]);
 }
 

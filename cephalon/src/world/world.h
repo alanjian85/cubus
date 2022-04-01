@@ -17,9 +17,10 @@
 #include "chunk.h"
 #include "database.h"
 #include "game/config.h"
-#include "terrain/terrain.h"
 
 namespace cephalon {
+    class Terrain;
+
     class World {
     public:
         static glm::ivec2 getRegion(glm::ivec3 pos) {
@@ -41,6 +42,8 @@ namespace cephalon {
 
         ~World();
 
+        void setTerrain(const std::string& name);
+
         void setSeed(unsigned seed);
 
         void setBlock(glm::ivec3 pos, const Block& block);
@@ -61,7 +64,7 @@ namespace cephalon {
         boost::asio::thread_pool load_thread_pool_;
         boost::asio::thread_pool rebuild_thread_pool_;
 
-        Terrain terrain_;
+        Terrain* terrain_;
 
         Database database_;
     };

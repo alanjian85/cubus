@@ -6,12 +6,14 @@ using namespace cephalon;
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+#include "terrains/terrain.h"
+
 World::World(const char* save_path)
     : load_thread_pool_(4), 
       rebuild_thread_pool_(4),
       database_(save_path)
 {
-
+    terrain_ = nullptr;
 }
 
 World::~World() {
@@ -19,8 +21,12 @@ World::~World() {
     rebuild_thread_pool_.join();
 }
 
+void World::setTerrain(const std::string& name) {
+    terrain_ = Terrain::getTerrain(name);
+}
+
 void World::setSeed(unsigned seed) {
-    terrain_.setSeed(seed);
+    terrain_->setSeed(seed);
 }
 
 void World::setBlock(glm::ivec3 pos, const Block& block) {
@@ -80,7 +86,7 @@ void World::update(glm::vec3 player_pos) {
                 if (created) {
                     auto chunk = it->second; 
                     boost::asio::post(load_thread_pool_, [this, chunk = std::move(chunk)]() {
-                        terrain_.genChunk(*chunk);
+                        terrain_->genChunk(*chunk);
                         database_.loadChunk(*chunk);
                         for (int x = -1; x <= 1; ++x) {
                             for (int y = -1; y <= 1; ++y) {

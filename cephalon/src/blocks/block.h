@@ -35,7 +35,7 @@ namespace cephalon {
             return atlas_->add(image);
         }
 
-        Block(const char* name) {
+        Block(const std::string& name) {
             blocks_[name] = this;
             name_ = name;
         }
