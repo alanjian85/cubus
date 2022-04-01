@@ -17,7 +17,7 @@
 #include "chunk.h"
 #include "database.h"
 #include "game/config.h"
-#include "generator.h"
+#include "terrain/terrain.h"
 
 namespace cephalon {
     class World {
@@ -61,7 +61,7 @@ namespace cephalon {
         boost::asio::thread_pool load_thread_pool_;
         boost::asio::thread_pool rebuild_thread_pool_;
 
-        Generator generator_;
+        Terrain terrain_;
 
         Database database_;
     };

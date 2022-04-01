@@ -1,17 +1,17 @@
-#include "generator.h"
+#include "terrain.h"
 using namespace cephalon;
 
 #include <cmath>
 
 #include <noise.h>
 
-#include "world.h"
+#include "world/world.h"
 
-void Generator::setSeed(unsigned seed) {
+void Terrain::setSeed(unsigned seed) {
     ::seed(seed);
 }
 
-void Generator::operator()(Chunk& chunk) const {
+void Terrain::genChunk(Chunk& chunk) const {
     for (int x = 0; x < Chunk::kVolume.x; ++x) {
         for (int z = 0; z < Chunk::kVolume.z; ++z) {
             auto pos = World::getPosition(chunk.getRegion(), glm::ivec3(x, 0, z));

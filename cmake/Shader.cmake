@@ -168,7 +168,7 @@ function( add_shader TARGET )
         if( NOT "${TYPE}" STREQUAL "" )
 			file( RELATIVE_PATH FILE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/shaders ${CMAKE_CURRENT_SOURCE_DIR}/${FILE} )
 			get_filename_component( FILE_DIR "${FILE_PATH}" DIRECTORY )
-            set( COMMON FILE ${CMAKE_CURRENT_SOURCE_DIR}/${FILE} ${TYPE} INCLUDES ${CMAKE_CURRENT_SOURCE_DIR}/shaders )
+            set( COMMON FILE ${CMAKE_CURRENT_SOURCE_DIR}/${FILE} ${TYPE} INCLUDES ${CMAKE_CURRENT_SOURCE_DIR}/src )
 			set( OUTPUTS "" )
             set( OUTPUTS_PRETTY "" )
 

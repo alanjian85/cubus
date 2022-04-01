@@ -20,7 +20,7 @@ World::~World() {
 }
 
 void World::setSeed(unsigned seed) {
-    generator_.setSeed(seed);
+    terrain_.setSeed(seed);
 }
 
 void World::setBlock(glm::ivec3 pos, const Block& block) {
@@ -80,7 +80,7 @@ void World::update(glm::vec3 player_pos) {
                 if (created) {
                     auto chunk = it->second; 
                     boost::asio::post(load_thread_pool_, [this, chunk = std::move(chunk)]() {
-                        generator_(*chunk);
+                        terrain_.genChunk(*chunk);
                         database_.loadChunk(*chunk);
                         for (int x = -1; x <= 1; ++x) {
                             for (int y = -1; y <= 1; ++y) {

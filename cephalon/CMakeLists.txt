@@ -11,6 +11,8 @@ set(CEPHALON_SRCS
     src/blocks/grass.h
     src/blocks/stone.h
     src/blocks/wood.h
+    src/terrain/terrain.h
+    src/terrain/terrain.cc
     src/utils/aabb.h
     src/utils/assets.h
     src/utils/assets.cc
@@ -20,8 +22,6 @@ set(CEPHALON_SRCS
     src/world/chunk.cc
     src/world/database.h
     src/world/database.cc
-    src/world/generator.h
-    src/world/generator.cc
     src/world/outline.h
     src/world/outline.cc
     src/world/world.cc
