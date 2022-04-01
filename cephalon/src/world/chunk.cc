@@ -140,7 +140,7 @@ void Chunk::rebuild() {
 
                     // right
                     auto right_block = world_.getBlock(pos + glm::ivec3(1, 0, 0));
-                    if (right_block && right_block->isAir()) {
+                    if (!right_block || right_block->isAir()) {
                         auto region = block.getRightRegion();
                         
                         glm::vec3 block_pos[] = {
@@ -190,7 +190,7 @@ void Chunk::rebuild() {
 
                     // left
                     auto left_block = world_.getBlock(pos + glm::ivec3(-1, 0, 0));
-                    if (left_block && left_block->isAir()) {
+                    if (!left_block || left_block->isAir()) {
                         auto region = block.getLeftRegion();
 
                         glm::vec3 block_pos[] = {
@@ -241,7 +241,7 @@ void Chunk::rebuild() {
                     // top
                     const Block* top_block;
                     top_block = world_.getBlock(pos + glm::ivec3(0, 1, 0));
-                    if (top_block && top_block->isAir()) {
+                    if (!top_block || top_block->isAir()) {
                         auto region = block.getTopRegion();
 
                         glm::vec3 block_pos[] = {
@@ -292,7 +292,7 @@ void Chunk::rebuild() {
                     // bottom
                     const Block* bottom_block;
                     bottom_block = world_.getBlock(pos + glm::ivec3(0, -1, 0));
-                    if (bottom_block && bottom_block->isAir()) {
+                    if (!bottom_block || bottom_block->isAir()) {
                         auto region = block.getBottomRegion();
 
                         glm::vec3 block_pos[] = {
@@ -342,7 +342,7 @@ void Chunk::rebuild() {
 
                     // back
                     auto back_block = world_.getBlock(pos + glm::ivec3(0, 0, 1));
-                    if (back_block && back_block->isAir()) {
+                    if (!back_block || back_block->isAir()) {
                         auto region = block.getBackRegion();
 
                         glm::vec3 block_pos[] = { 
@@ -392,7 +392,7 @@ void Chunk::rebuild() {
 
                     // front
                     auto front_block = world_.getBlock(pos + glm::ivec3(0, 0, -1));
-                    if (front_block && front_block->isAir()) {
+                    if (!front_block || front_block->isAir()) {
                         auto region = block.getFrontRegion();
 
                         glm::vec3 block_pos[] = {
