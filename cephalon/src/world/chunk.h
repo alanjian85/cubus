@@ -97,7 +97,7 @@ namespace cephalon {
         std::atomic_bool dirty_;
 
         mutable std::mutex mutex_;
-        const Block* blocks_[kVolume.x][kVolume.y][kVolume.z];
+        const Block* blocks_[kVolume.x * kVolume.y * kVolume.z];
         std::uint32_t num_vertices_;
         std::uint32_t num_indices_;
 

@@ -1,6 +1,7 @@
 #include "chunk.h"
 using namespace cephalon;
 
+#include <algorithm>
 #include <iterator>
 
 #include <glm/gtc/type_ptr.hpp>
@@ -48,13 +49,7 @@ Chunk::Chunk(World& world, glm::ivec2 region)
 {
     region_ = region;
     dirty_.store(false);
-    for (int x = 0; x < kVolume.x; ++x) {
-        for (int y = 0; y < kVolume.y; ++y) {
-            for (int z = 0; z < kVolume.z; ++z) {
-                blocks_[x][y][z] = &blocks::air;
-            }
-        }
-    }
+    std::fill(std::begin(blocks_), std::end(blocks_), &blocks::air);
     vertex_buffer_ = bgfx::createDynamicVertexBuffer(0u, layout_, BGFX_BUFFER_ALLOW_RESIZE);
     index_buffer_ = bgfx::createDynamicIndexBuffer(0u, BGFX_BUFFER_ALLOW_RESIZE);
     heightmap_ = bgfx::createTexture2D(
@@ -74,16 +69,15 @@ Chunk::~Chunk() noexcept {
 NeighborChunk Chunk::setBlock(glm::ivec3 offset, const Block& block) {
     assert(offset.x >= 0 && offset.x < kVolume.x);
     assert(offset.z >= 0 && offset.z < kVolume.z);
-
     if (offset.y < 0 || offset.y >= kVolume.y)
         return NeighborChunk::kNone;
-
+    auto index = offset.z * kVolume.y * kVolume.x + offset.y * kVolume.x + offset.x;
     NeighborChunk result = NeighborChunk::kNone;
-    if (blocks_[offset.x][offset.y][offset.z] != &block) {
+    if (blocks_[index] != &block) {
         {
             std::lock_guard lock(mutex_);
             dirty_.store(true);
-            blocks_[offset.x][offset.y][offset.z] = &block;
+            blocks_[index] = &block;
         }
 
         if (offset.x == 0)
@@ -111,8 +105,9 @@ const Block& Chunk::getBlock(glm::ivec3 offset) const {
     assert(offset.z >= 0 && offset.z < kVolume.z);
     if (offset.y < 0 || offset.y >= kVolume.y)
         return blocks::air;
+    auto index = offset.z * kVolume.y * kVolume.x + offset.y * kVolume.x + offset.x;
     std::lock_guard lock(mutex_);
-    return *blocks_[offset.x][offset.y][offset.z];
+    return *blocks_[index];
 }
 
 void Chunk::rebuild() {
