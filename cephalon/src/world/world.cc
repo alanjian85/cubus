@@ -23,21 +23,29 @@ void World::setSeed(unsigned seed) {
     generator_.setSeed(seed);
 }
 
-void World::setChunkDirty(glm::ivec2 region, bool dirty) {
-    std::shared_lock lock(mutex_);
-    auto it = chunks_.find(region);
-    if (it != chunks_.cend())
-        it->second->setDirty(dirty);
-}
-
 void World::setBlock(glm::ivec3 pos, const Block& block) {
     database_.insertBlock(pos, block.getName().c_str());
+    auto region = getRegion(pos);
     std::shared_lock lock(mutex_);
-    auto it = chunks_.find(getRegion(pos));
+    auto it = chunks_.find(region);
     if (it != chunks_.cend()) {
-        auto chunk = it->second;
-        lock.unlock();
-        chunk->setBlock(getOffset(pos), block);
+        auto flags = it->second->setBlock(getOffset(pos), block);
+        if ((flags & NeighborChunk::kLeft) != NeighborChunk::kNone)
+            setChunkDirty(region + glm::ivec2(-1,  0), true);
+        if ((flags & NeighborChunk::kRight) != NeighborChunk::kNone)
+            setChunkDirty(region + glm::ivec2( 1,  0), true);
+        if ((flags & NeighborChunk::kDown) != NeighborChunk::kNone)
+            setChunkDirty(region + glm::ivec2( 0, -1), true);
+        if ((flags & NeighborChunk::kUp) != NeighborChunk::kNone)
+            setChunkDirty(region + glm::ivec2( 0,  1), true);
+        if ((flags & NeighborChunk::kLowerLeft) != NeighborChunk::kNone)
+            setChunkDirty(region + glm::ivec2(-1, -1), true);
+        if ((flags & NeighborChunk::kUpperLeft) != NeighborChunk::kNone)
+            setChunkDirty(region + glm::ivec2(-1,  1), true);
+        if ((flags & NeighborChunk::kLowerRight) != NeighborChunk::kNone)
+            setChunkDirty(region + glm::ivec2( 1, -1), true);
+        if ((flags & NeighborChunk::kUpperRight) != NeighborChunk::kNone)
+            setChunkDirty(region + glm::ivec2( 1,  1), true);
     }
 }
 
@@ -74,6 +82,11 @@ void World::update(glm::vec3 player_pos) {
                     boost::asio::post(load_thread_pool_, [this, chunk = std::move(chunk)]() {
                         generator_(*chunk);
                         database_.loadChunk(*chunk);
+                        for (int x = -1; x <= 1; ++x) {
+                            for (int y = -1; y <= 1; ++y) {
+                                setChunkDirty(chunk->getRegion() + glm::ivec2(x, y), true);
+                            }
+                        }
                     });
                     ++load_count;
                 }
@@ -116,4 +129,10 @@ bool World::intersect(PerspectiveCamera cam, Direction& dir, glm::ivec3& pos) co
         }
     }
     return intersected;
+}
+
+void World::setChunkDirty(glm::ivec2 region, bool dirty) {
+    auto it = chunks_.find(region);
+    if (it != chunks_.cend())
+        it->second->setDirty(dirty);
 }

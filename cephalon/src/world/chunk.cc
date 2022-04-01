@@ -10,9 +10,18 @@ using namespace cephalon;
 
 bgfx::VertexLayout Chunk::layout_;
 bgfx::ProgramHandle Chunk::program_;
-bgfx::UniformHandle Chunk::u_fog_;
 bgfx::UniformHandle Chunk::s_atlas_;
+bgfx::UniformHandle Chunk::u_fog_;
 bgfx::UniformHandle Chunk::s_heightmap_;
+
+NeighborChunk& cephalon::operator|=(NeighborChunk& lhs, NeighborChunk rhs) {
+    lhs = static_cast<NeighborChunk>(static_cast<int>(lhs) | static_cast<int>(rhs));
+    return lhs;
+}
+
+NeighborChunk cephalon::operator&(NeighborChunk lhs, NeighborChunk rhs) {
+    return static_cast<NeighborChunk>(static_cast<int>(lhs) & static_cast<int>(rhs));
+}
 
 void Chunk::init() {
     layout_.begin()
@@ -62,13 +71,14 @@ Chunk::~Chunk() noexcept {
     bgfx::destroy(heightmap_);
 }
 
-void Chunk::setBlock(glm::ivec3 offset, const Block& block) {
+NeighborChunk Chunk::setBlock(glm::ivec3 offset, const Block& block) {
     assert(offset.x >= 0 && offset.x < kVolume.x);
     assert(offset.z >= 0 && offset.z < kVolume.z);
 
     if (offset.y < 0 || offset.y >= kVolume.y)
-        return;
+        return NeighborChunk::kNone;
 
+    NeighborChunk result = NeighborChunk::kNone;
     if (blocks_[offset.x][offset.y][offset.z] != &block) {
         {
             std::lock_guard lock(mutex_);
@@ -77,22 +87,23 @@ void Chunk::setBlock(glm::ivec3 offset, const Block& block) {
         }
 
         if (offset.x == 0)
-            world_.setChunkDirty(region_ + glm::ivec2(-1,  0), true);
+            result |= NeighborChunk::kLeft;
         if (offset.x == kVolume.x - 1)
-            world_.setChunkDirty(region_ + glm::ivec2( 1,  0), true);
+            result |= NeighborChunk::kRight;
         if (offset.z == 0)
-            world_.setChunkDirty(region_ + glm::ivec2( 0, -1), true);
+            result |= NeighborChunk::kDown;
         if (offset.z == kVolume.z - 1)
-            world_.setChunkDirty(region_ + glm::ivec2( 0,  1), true);
+            result |= NeighborChunk::kUp;
         if (offset.x == 0 && offset.z == 0)
-            world_.setChunkDirty(region_ + glm::ivec2(-1, -1), true);
+            result |= NeighborChunk::kLowerLeft;
         if (offset.x == 0 && offset.z == kVolume.z - 1)
-            world_.setChunkDirty(region_ + glm::ivec2(-1,  1), true);
+            result |= NeighborChunk::kUpperLeft;
         if (offset.x == kVolume.x - 1 && offset.z == 0)
-            world_.setChunkDirty(region_ + glm::ivec2( 1, -1), true);
+            result |= NeighborChunk::kLowerRight;
         if (offset.x == kVolume.x - 1 && offset.z == kVolume.z - 1)
-            world_.setChunkDirty(region_ + glm::ivec2( 1,  1), true);
+            result |= NeighborChunk::kUpperRight;
     }
+    return result;
 }
 
 const Block& Chunk::getBlock(glm::ivec3 offset) const {

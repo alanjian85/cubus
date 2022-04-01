@@ -13,7 +13,7 @@ namespace cephalon {
     public:
         void setSeed(unsigned seed);
 
-        void operator()(Chunk& world) const;
+        void operator()(Chunk& chunk) const;
     };
 }
 

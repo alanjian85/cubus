@@ -43,8 +43,6 @@ namespace cephalon {
 
         void setSeed(unsigned seed);
 
-        void setChunkDirty(glm::ivec2 region, bool dirty);
-
         void setBlock(glm::ivec3 pos, const Block& block);
 
         const Block* getBlock(glm::ivec3 pos) const;
@@ -55,6 +53,8 @@ namespace cephalon {
 
         bool intersect(PerspectiveCamera cam, Direction& dir, glm::ivec3& pos) const;
     private:
+        void setChunkDirty(glm::ivec2 region, bool dirty);
+
         mutable std::shared_mutex mutex_;
         std::unordered_map<glm::ivec2, std::shared_ptr<Chunk>> chunks_;
 
