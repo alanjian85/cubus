@@ -139,10 +139,10 @@ void Chunk::rebuild() {
                         auto region = block.getRightRegion();
                         
                         glm::vec3 block_pos[] = {
-                            glm::vec3(x + 0.5f, y - 0.5f, z - 0.5f),
                             glm::vec3(x + 0.5f, y - 0.5f, z + 0.5f),
+                            glm::vec3(x + 0.5f, y + 0.5f, z + 0.5f),
                             glm::vec3(x + 0.5f, y + 0.5f, z - 0.5f),
-                            glm::vec3(x + 0.5f, y + 0.5f, z + 0.5f)
+                            glm::vec3(x + 0.5f, y - 0.5f, z - 0.5f)
                         };
 
                         glm::vec3 block_normal[] = {
@@ -153,17 +153,17 @@ void Chunk::rebuild() {
                         };
 
                         float block_ao[] = {
-                            vertexAO(pos + glm::ivec3(1, 0, -1), pos + glm::ivec3(1, -1, 0), pos + glm::ivec3(1, -1, -1)),
                             vertexAO(pos + glm::ivec3(1, 0,  1), pos + glm::ivec3(1, -1, 0), pos + glm::ivec3(1, -1,  1)),
+                            vertexAO(pos + glm::ivec3(1, 0,  1), pos + glm::ivec3(1,  1, 0), pos + glm::ivec3(1,  1,  1)),
                             vertexAO(pos + glm::ivec3(1, 0, -1), pos + glm::ivec3(1,  1, 0), pos + glm::ivec3(1,  1, -1)),
-                            vertexAO(pos + glm::ivec3(1, 0,  1), pos + glm::ivec3(1,  1, 0), pos + glm::ivec3(1,  1,  1))
+                            vertexAO(pos + glm::ivec3(1, 0, -1), pos + glm::ivec3(1, -1, 0), pos + glm::ivec3(1, -1, -1))
                         };
 
                         glm::vec2 block_texcoord0[] = {
-                            glm::vec2(region.min.x, region.max.y),
                             glm::vec2(region.max.x, region.max.y),
+                            glm::vec2(region.max.x, region.min.y),
                             glm::vec2(region.min.x, region.min.y),
-                            glm::vec2(region.max.x, region.min.y)
+                            glm::vec2(region.min.x, region.max.y)
                         };
 
                         Vertex block_vertices[] = {
@@ -175,8 +175,8 @@ void Chunk::rebuild() {
 
                         auto index_base = static_cast<int>(vertices.size());
                         int block_indices[] = {
-                            index_base + 1, index_base + 3, index_base + 2,
-                            index_base + 1, index_base + 2, index_base + 0
+                            index_base + 0, index_base + 1, index_base + 2,
+                            index_base + 0, index_base + 2, index_base + 3
                         };
 
                         vertices.insert(vertices.cend(), std::cbegin(block_vertices), std::cend(block_vertices));
@@ -190,9 +190,9 @@ void Chunk::rebuild() {
 
                         glm::vec3 block_pos[] = {
                             glm::vec3(x - 0.5f, y - 0.5f, z - 0.5f),
-                            glm::vec3(x - 0.5f, y - 0.5f, z + 0.5f),
                             glm::vec3(x - 0.5f, y + 0.5f, z - 0.5f),
-                            glm::vec3(x - 0.5f, y + 0.5f, z + 0.5f)
+                            glm::vec3(x - 0.5f, y + 0.5f, z + 0.5f),
+                            glm::vec3(x - 0.5f, y - 0.5f, z + 0.5f)
                         };
 
                         glm::vec3 block_normal[] = {
@@ -204,16 +204,16 @@ void Chunk::rebuild() {
 
                         float block_ao[] = {
                             vertexAO(pos + glm::ivec3(-1, 0, -1), pos + glm::ivec3(-1, -1, 0), pos + glm::ivec3(-1, -1, -1)),
-                            vertexAO(pos + glm::ivec3(-1, 0,  1), pos + glm::ivec3(-1, -1, 0), pos + glm::ivec3(-1, -1,  1)),
                             vertexAO(pos + glm::ivec3(-1, 0, -1), pos + glm::ivec3(-1,  1, 0), pos + glm::ivec3(-1,  1, -1)),
                             vertexAO(pos + glm::ivec3(-1, 0,  1), pos + glm::ivec3(-1,  1, 0), pos + glm::ivec3(-1,  1,  1)),
+                            vertexAO(pos + glm::ivec3(-1, 0,  1), pos + glm::ivec3(-1, -1, 0), pos + glm::ivec3(-1, -1,  1)),
                         };
 
                         glm::vec2 block_texcoord0[] = {
                             glm::vec2(region.max.x, region.max.y),
-                            glm::vec2(region.min.x, region.max.y),
                             glm::vec2(region.max.x, region.min.y),
-                            glm::vec2(region.min.x, region.min.y)
+                            glm::vec2(region.min.x, region.min.y),
+                            glm::vec2(region.min.x, region.max.y)
                         };
 
                         Vertex block_vertices[] = {
@@ -225,8 +225,8 @@ void Chunk::rebuild() {
 
                         auto index_base = static_cast<int>(vertices.size());
                         int block_indices[] = {
+                            index_base + 0, index_base + 1, index_base + 2,
                             index_base + 0, index_base + 2, index_base + 3,
-                            index_base + 0, index_base + 3, index_base + 1,
                         };
 
                         vertices.insert(vertices.cend(), std::cbegin(block_vertices), std::cend(block_vertices));
@@ -240,10 +240,10 @@ void Chunk::rebuild() {
                         auto region = block.getTopRegion();
 
                         glm::vec3 block_pos[] = {
-                            glm::vec3(x - 0.5f, y + 0.5f, z - 0.5f),
-                            glm::vec3(x - 0.5f, y + 0.5f, z + 0.5f),
                             glm::vec3(x + 0.5f, y + 0.5f, z - 0.5f),
-                            glm::vec3(x + 0.5f, y + 0.5f, z + 0.5f)
+                            glm::vec3(x + 0.5f, y + 0.5f, z + 0.5f),
+                            glm::vec3(x - 0.5f, y + 0.5f, z + 0.5f),
+                            glm::vec3(x - 0.5f, y + 0.5f, z - 0.5f)
                         };
 
                         glm::vec3 block_normal[] = {
@@ -254,17 +254,17 @@ void Chunk::rebuild() {
                         };
 
                         float block_ao[] = {
-                            vertexAO(pos + glm::ivec3(0,  1, -1), pos + glm::ivec3(-1, 1, 0), pos + glm::ivec3(-1, 1, -1)),
-                            vertexAO(pos + glm::ivec3(0,  1,  1), pos + glm::ivec3(-1, 1, 0), pos + glm::ivec3(-1, 1,  1)),
                             vertexAO(pos + glm::ivec3(0,  1, -1), pos + glm::ivec3( 1, 1, 0), pos + glm::ivec3( 1, 1, -1)),
                             vertexAO(pos + glm::ivec3(0,  1,  1), pos + glm::ivec3( 1, 1, 0), pos + glm::ivec3( 1, 1,  1)),
+                            vertexAO(pos + glm::ivec3(0,  1,  1), pos + glm::ivec3(-1, 1, 0), pos + glm::ivec3(-1, 1,  1)),
+                            vertexAO(pos + glm::ivec3(0,  1, -1), pos + glm::ivec3(-1, 1, 0), pos + glm::ivec3(-1, 1, -1)),
                         };
 
                         glm::vec2 block_texcoord0[] = {
-                            glm::vec2(region.min.x, region.min.y),
-                            glm::vec2(region.min.x, region.max.y),
+                            glm::vec2(region.max.x, region.max.y),
                             glm::vec2(region.max.x, region.min.y),
-                            glm::vec2(region.max.x, region.max.y)
+                            glm::vec2(region.min.x, region.min.y),
+                            glm::vec2(region.min.x, region.max.y)
                         };
 
                         Vertex block_vertices[] = {
@@ -276,8 +276,8 @@ void Chunk::rebuild() {
 
                         auto index_base = static_cast<int>(vertices.size());
                         int block_indices[] = {
-                            index_base + 2, index_base + 3, index_base + 1,
-                            index_base + 2, index_base + 1, index_base + 0,
+                            index_base + 0, index_base + 1, index_base + 2,
+                            index_base + 0, index_base + 2, index_base + 3,
                         };
 
                         vertices.insert(vertices.cend(), std::cbegin(block_vertices), std::cend(block_vertices));
@@ -291,10 +291,10 @@ void Chunk::rebuild() {
                         auto region = block.getBottomRegion();
 
                         glm::vec3 block_pos[] = {
-                            glm::vec3(x - 0.5f, y - 0.5f, z - 0.5f),
-                            glm::vec3(x - 0.5f, y - 0.5f, z + 0.5f),
+                            glm::vec3(x + 0.5f, y - 0.5f, z + 0.5f),
                             glm::vec3(x + 0.5f, y - 0.5f, z - 0.5f),
-                            glm::vec3(x + 0.5f, y - 0.5f, z + 0.5f)
+                            glm::vec3(x - 0.5f, y - 0.5f, z - 0.5f),
+                            glm::vec3(x - 0.5f, y - 0.5f, z + 0.5f)
                         };
 
                         glm::vec3 block_normal[] = {
@@ -305,17 +305,17 @@ void Chunk::rebuild() {
                         };
 
                         float block_ao[] = {
+                            vertexAO(pos + glm::ivec3(0, -1,  1), pos + glm::ivec3( 1, -1, 0), pos + glm::ivec3( 1, -1,  1)),
+                            vertexAO(pos + glm::ivec3(0, -1, -1), pos + glm::ivec3( 1, -1, 0), pos + glm::ivec3( 1, -1, -1)),
                             vertexAO(pos + glm::ivec3(0, -1, -1), pos + glm::ivec3(-1, -1, 0), pos + glm::ivec3(-1, -1, -1)),
                             vertexAO(pos + glm::ivec3(0, -1,  1), pos + glm::ivec3(-1, -1, 0), pos + glm::ivec3(-1, -1,  1)),
-                            vertexAO(pos + glm::ivec3(0, -1, -1), pos + glm::ivec3( 1, -1, 0), pos + glm::ivec3( 1, -1, -1)),
-                            vertexAO(pos + glm::ivec3(0, -1,  1), pos + glm::ivec3( 1, -1, 0), pos + glm::ivec3( 1, -1,  1)),
                         };
 
                         glm::vec2 block_texcoord0[] = {
-                            glm::vec2(region.min.x, region.min.y),
-                            glm::vec2(region.min.x, region.max.y),
+                            glm::vec2(region.max.x, region.max.y),
                             glm::vec2(region.max.x, region.min.y),
-                            glm::vec2(region.max.x, region.max.y)
+                            glm::vec2(region.min.x, region.min.y),
+                            glm::vec2(region.min.x, region.max.y)
                         };
 
                         Vertex block_vertices[] = {
@@ -327,8 +327,8 @@ void Chunk::rebuild() {
 
                         auto index_base = static_cast<int>(vertices.size());
                         int block_indices[] = {
-                            index_base + 3, index_base + 2, index_base + 0,
-                            index_base + 3, index_base + 0, index_base + 1,
+                            index_base + 0, index_base + 1, index_base + 2,
+                            index_base + 0, index_base + 2, index_base + 3,
                         };
 
                         vertices.insert(vertices.cend(), std::cbegin(block_vertices), std::cend(block_vertices));
@@ -343,8 +343,8 @@ void Chunk::rebuild() {
                         glm::vec3 block_pos[] = { 
                             glm::vec3(x - 0.5f, y - 0.5f, z + 0.5f),
                             glm::vec3(x - 0.5f, y + 0.5f, z + 0.5f),
-                            glm::vec3(x + 0.5f, y - 0.5f, z + 0.5f),
-                            glm::vec3(x + 0.5f, y + 0.5f, z + 0.5f)
+                            glm::vec3(x + 0.5f, y + 0.5f, z + 0.5f),
+                            glm::vec3(x + 0.5f, y - 0.5f, z + 0.5f)
                         };
 
                         glm::vec3 block_normal[] = {
@@ -357,15 +357,15 @@ void Chunk::rebuild() {
                         float block_ao[] = {
                             vertexAO(pos + glm::ivec3(0, -1, 1), pos + glm::ivec3(-1, 0, 1), pos + glm::ivec3(-1, -1, 1)),
                             vertexAO(pos + glm::ivec3(0,  1, 1), pos + glm::ivec3(-1, 0, 1), pos + glm::ivec3(-1,  1, 1)),
-                            vertexAO(pos + glm::ivec3(0, -1, 1), pos + glm::ivec3( 1, 0, 1), pos + glm::ivec3( 1, -1, 1)),
                             vertexAO(pos + glm::ivec3(0,  1, 1), pos + glm::ivec3( 1, 0, 1), pos + glm::ivec3( 1,  1, 1)),
+                            vertexAO(pos + glm::ivec3(0, -1, 1), pos + glm::ivec3( 1, 0, 1), pos + glm::ivec3( 1, -1, 1)),
                         };
 
                         glm::vec2 block_texcoord0[] = {
                             glm::vec2(region.max.x, region.max.y),
                             glm::vec2(region.max.x, region.min.y),
-                            glm::vec2(region.min.x, region.max.y),
-                            glm::vec2(region.min.x, region.min.y)
+                            glm::vec2(region.min.x, region.min.y),
+                            glm::vec2(region.min.x, region.max.y)
                         };
 
                         Vertex block_vertices[] = {
@@ -377,8 +377,8 @@ void Chunk::rebuild() {
 
                         auto index_base = static_cast<int>(vertices.size());
                         int block_indices[] = {
-                            index_base + 1, index_base + 3, index_base + 2,
                             index_base + 0, index_base + 1, index_base + 2,
+                            index_base + 0, index_base + 2, index_base + 3,
                         };
 
                         vertices.insert(vertices.cend(), std::cbegin(block_vertices), std::cend(block_vertices));
@@ -391,10 +391,10 @@ void Chunk::rebuild() {
                         auto region = block.getFrontRegion();
 
                         glm::vec3 block_pos[] = {
-                            glm::vec3(x - 0.5f, y - 0.5f, z - 0.5f),
-                            glm::vec3(x - 0.5f, y + 0.5f, z - 0.5f),
                             glm::vec3(x + 0.5f, y - 0.5f, z - 0.5f),
-                            glm::vec3(x + 0.5f, y + 0.5f, z - 0.5f)
+                            glm::vec3(x + 0.5f, y + 0.5f, z - 0.5f),
+                            glm::vec3(x - 0.5f, y + 0.5f, z - 0.5f),
+                            glm::vec3(x - 0.5f, y - 0.5f, z - 0.5f)
                         };
 
                         glm::vec3 block_normal[] = {
@@ -405,17 +405,17 @@ void Chunk::rebuild() {
                         };
 
                         float block_ao[] = {
-                            vertexAO(pos + glm::ivec3(0, -1, -1), pos + glm::ivec3(-1, 0, -1), pos + glm::ivec3(-1, -1, -1)),
-                            vertexAO(pos + glm::ivec3(0,  1, -1), pos + glm::ivec3(-1, 0, -1), pos + glm::ivec3(-1,  1, -1)),
                             vertexAO(pos + glm::ivec3(0, -1, -1), pos + glm::ivec3( 1, 0, -1), pos + glm::ivec3( 1, -1, -1)),
-                            vertexAO(pos + glm::ivec3(0,  1, -1), pos + glm::ivec3( 1, 0, -1), pos + glm::ivec3( 1,  1, -1))
+                            vertexAO(pos + glm::ivec3(0,  1, -1), pos + glm::ivec3( 1, 0, -1), pos + glm::ivec3( 1,  1, -1)),
+                            vertexAO(pos + glm::ivec3(0,  1, -1), pos + glm::ivec3(-1, 0, -1), pos + glm::ivec3(-1,  1, -1)),
+                            vertexAO(pos + glm::ivec3(0, -1, -1), pos + glm::ivec3(-1, 0, -1), pos + glm::ivec3(-1, -1, -1))
                         };
 
                         glm::vec2 block_texcoord0[] = {
-                            glm::vec2(region.min.x, region.max.y),
-                            glm::vec2(region.min.x, region.min.y),
                             glm::vec2(region.max.x, region.max.y),
-                            glm::vec2(region.max.x, region.min.y)
+                            glm::vec2(region.max.x, region.min.y),
+                            glm::vec2(region.min.x, region.min.y),
+                            glm::vec2(region.min.x, region.max.y)
                         };
 
                         Vertex block_vertices[] = {
@@ -427,8 +427,8 @@ void Chunk::rebuild() {
 
                         auto index_base = static_cast<int>(vertices.size());
                         int block_indices[] = {
-                            index_base + 2, index_base + 3, index_base + 1,
-                            index_base + 2, index_base + 1, index_base + 0
+                            index_base + 0, index_base + 1, index_base + 2,
+                            index_base + 0, index_base + 2, index_base + 3
                         };
 
                         vertices.insert(vertices.cend(), std::cbegin(block_vertices), std::cend(block_vertices));

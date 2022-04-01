@@ -17,7 +17,7 @@ namespace cephalon {
         void genChunk(Chunk& chunk) const override {
             for (int x = 0; x < Chunk::kVolume.x; ++x) {
                 for (int z = 0; z < Chunk::kVolume.z; ++z) {
-                    auto s = std::sin(x) * std::sin(z) * 0.5f + 0.5f;
+                    auto s = std::sin(x / 4.0f) * std::sin(z / 4.0f) * 0.5f + 0.5f;
                     auto h = static_cast<int>(s * 10);
                     chunk.setBlock(glm::ivec3(x, 0, z), blocks::stone);
                     for (int y = 1; y < h; ++y) {
