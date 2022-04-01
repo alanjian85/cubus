@@ -4,6 +4,7 @@
 #include <map>
 #include <string>
 
+#include "blocks/block.h"
 #include "world/chunk.h"
 
 namespace cephalon {
@@ -30,11 +31,15 @@ namespace cephalon {
     };
 }
 
+#include "flat.h"
 #include "normal.h"
+#include "sine.h"
 
 namespace cephalon {
     namespace terrains {
+        extern Flat flat;
         extern Normal normal;
+        extern Sine sine;
     }
 }
 
