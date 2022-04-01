@@ -2,6 +2,7 @@
 using namespace cephalon;
 
 #include <algorithm>
+#include <array>
 #include <iterator>
 
 #include <glm/gtc/type_ptr.hpp>
@@ -174,10 +175,18 @@ void Chunk::rebuild() {
                         };
 
                         auto index_base = static_cast<int>(vertices.size());
-                        int block_indices[] = {
-                            index_base + 0, index_base + 1, index_base + 2,
-                            index_base + 0, index_base + 2, index_base + 3
-                        };
+                        std::array<int, 6> block_indices;
+                        if (block_ao[0] + block_ao[2] > block_ao[1] + block_ao[3]) {
+                            block_indices = {
+                                index_base + 0, index_base + 1, index_base + 2,
+                                index_base + 0, index_base + 2, index_base + 3
+                            };
+                        } else {
+                            block_indices = {
+                                index_base + 3, index_base + 2, index_base + 1,
+                                index_base + 3, index_base + 1, index_base + 0
+                            };
+                        }
 
                         vertices.insert(vertices.cend(), std::cbegin(block_vertices), std::cend(block_vertices));
                         indices.insert(indices.cend(), std::cbegin(block_indices), std::cend(block_indices));
@@ -224,10 +233,18 @@ void Chunk::rebuild() {
                         };
 
                         auto index_base = static_cast<int>(vertices.size());
-                        int block_indices[] = {
-                            index_base + 0, index_base + 1, index_base + 2,
-                            index_base + 0, index_base + 2, index_base + 3,
-                        };
+                        std::array<int, 6> block_indices;
+                        if (block_ao[0] + block_ao[2] > block_ao[1] + block_ao[3]) {
+                            block_indices = {
+                                index_base + 0, index_base + 1, index_base + 2,
+                                index_base + 0, index_base + 2, index_base + 3
+                            };
+                        } else {
+                            block_indices = {
+                                index_base + 3, index_base + 2, index_base + 1,
+                                index_base + 3, index_base + 1, index_base + 0
+                            };
+                        }
 
                         vertices.insert(vertices.cend(), std::cbegin(block_vertices), std::cend(block_vertices));
                         indices.insert(indices.cend(), std::cbegin(block_indices), std::cend(block_indices));
@@ -275,10 +292,18 @@ void Chunk::rebuild() {
                         };
 
                         auto index_base = static_cast<int>(vertices.size());
-                        int block_indices[] = {
-                            index_base + 0, index_base + 1, index_base + 2,
-                            index_base + 0, index_base + 2, index_base + 3,
-                        };
+                        std::array<int, 6> block_indices;
+                        if (block_ao[0] + block_ao[2] > block_ao[1] + block_ao[3]) {
+                            block_indices = {
+                                index_base + 0, index_base + 1, index_base + 2,
+                                index_base + 0, index_base + 2, index_base + 3
+                            };
+                        } else {
+                            block_indices = {
+                                index_base + 3, index_base + 2, index_base + 1,
+                                index_base + 3, index_base + 1, index_base + 0
+                            };
+                        }
 
                         vertices.insert(vertices.cend(), std::cbegin(block_vertices), std::cend(block_vertices));
                         indices.insert(indices.cend(), std::cbegin(block_indices), std::cend(block_indices));
@@ -326,10 +351,18 @@ void Chunk::rebuild() {
                         };
 
                         auto index_base = static_cast<int>(vertices.size());
-                        int block_indices[] = {
-                            index_base + 0, index_base + 1, index_base + 2,
-                            index_base + 0, index_base + 2, index_base + 3,
-                        };
+                        std::array<int, 6> block_indices;
+                        if (block_ao[0] + block_ao[2] > block_ao[1] + block_ao[3]) {
+                            block_indices = {
+                                index_base + 0, index_base + 1, index_base + 2,
+                                index_base + 0, index_base + 2, index_base + 3
+                            };
+                        } else {
+                            block_indices = {
+                                index_base + 3, index_base + 2, index_base + 1,
+                                index_base + 3, index_base + 1, index_base + 0
+                            };
+                        }
 
                         vertices.insert(vertices.cend(), std::cbegin(block_vertices), std::cend(block_vertices));
                         indices.insert(indices.cend(), std::cbegin(block_indices), std::cend(block_indices));
@@ -376,10 +409,18 @@ void Chunk::rebuild() {
                         };
 
                         auto index_base = static_cast<int>(vertices.size());
-                        int block_indices[] = {
-                            index_base + 0, index_base + 1, index_base + 2,
-                            index_base + 0, index_base + 2, index_base + 3,
-                        };
+                        std::array<int, 6> block_indices;
+                        if (block_ao[0] + block_ao[2] > block_ao[1] + block_ao[3]) {
+                            block_indices = {
+                                index_base + 0, index_base + 1, index_base + 2,
+                                index_base + 0, index_base + 2, index_base + 3
+                            };
+                        } else {
+                            block_indices = {
+                                index_base + 3, index_base + 2, index_base + 1,
+                                index_base + 3, index_base + 1, index_base + 0
+                            };
+                        }
 
                         vertices.insert(vertices.cend(), std::cbegin(block_vertices), std::cend(block_vertices));
                         indices.insert(indices.cend(), std::cbegin(block_indices), std::cend(block_indices));
@@ -426,10 +467,18 @@ void Chunk::rebuild() {
                         };
 
                         auto index_base = static_cast<int>(vertices.size());
-                        int block_indices[] = {
-                            index_base + 0, index_base + 1, index_base + 2,
-                            index_base + 0, index_base + 2, index_base + 3
-                        };
+                        std::array<int, 6> block_indices;
+                        if (block_ao[0] + block_ao[2] > block_ao[1] + block_ao[3]) {
+                            block_indices = {
+                                index_base + 0, index_base + 1, index_base + 2,
+                                index_base + 0, index_base + 2, index_base + 3
+                            };
+                        } else {
+                            block_indices = {
+                                index_base + 3, index_base + 2, index_base + 1,
+                                index_base + 3, index_base + 1, index_base + 0
+                            };
+                        }
 
                         vertices.insert(vertices.cend(), std::cbegin(block_vertices), std::cend(block_vertices));
                         indices.insert(indices.cend(), std::cbegin(block_indices), std::cend(block_indices));
@@ -466,7 +515,6 @@ void Chunk::render(PerspectiveCamera cam) const {
         BGFX_STATE_WRITE_RGB       |
         BGFX_STATE_WRITE_Z         | 
         BGFX_STATE_DEPTH_TEST_LESS |
-        BGFX_STATE_CULL_CW         |
         BGFX_STATE_BLEND_FUNC(BGFX_STATE_BLEND_SRC_ALPHA, BGFX_STATE_BLEND_INV_SRC_ALPHA)
     );
     {
