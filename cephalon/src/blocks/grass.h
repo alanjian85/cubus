@@ -11,38 +11,38 @@ namespace cephalon {
         }
 
         void init() {
-            side_region_ = loadTile("grass_side");
-            top_region_ = loadTile("grass_top");
-            bottom_region_ = loadTile("grass_bottom");
+            side_layer_ = loadTile("grass_side");
+            top_layer_ = loadTile("grass_top");
+            bottom_layer_ = loadTile("grass_bottom");
         }
 
-        virtual Region getRightRegion() const override {
-            return side_region_;;
+        virtual std::uint16_t getRightLayer() const override {
+            return side_layer_;
         }
 
-        virtual Region getLeftRegion() const override {
-            return side_region_;;
+        virtual std::uint16_t getLeftLayer() const override {
+            return side_layer_;
         }
 
-        virtual Region getTopRegion() const override {
-            return top_region_;;
+        virtual std::uint16_t getTopLayer() const override {
+            return top_layer_;
         }
 
-        virtual Region getBottomRegion() const override {
-            return bottom_region_;;
+        virtual std::uint16_t getBottomLayer() const override {
+            return bottom_layer_;
         }
 
-        virtual Region getBackRegion() const override {
-            return side_region_;;
+        virtual std::uint16_t getBackLayer() const override {
+            return side_layer_;
         }
 
-        virtual Region getFrontRegion() const override {
-            return side_region_;;
+        virtual std::uint16_t getFrontLayer() const override {
+            return side_layer_;
         }
     private:
-        Region side_region_;
-        Region top_region_;
-        Region bottom_region_;
+        std::uint16_t side_layer_;
+        std::uint16_t top_layer_;
+        std::uint16_t bottom_layer_;
     };
 }
 

@@ -4,13 +4,12 @@
 #include <limits>
 #include <map>
 #include <string>
+#include <vector>
 
 #include <glm/glm.hpp>
-#include <optional>
 
 #include "utils/aabb.h"
 #include "utils/assets.h"
-#include "utils/atlas.h"
 
 namespace cephalon {
     class Block {
@@ -26,14 +25,11 @@ namespace cephalon {
             return nullptr;
         }
 
-        static const Atlas& getAtlas() {
-            return *atlas_;
+        static bgfx::TextureHandle getTexture() {
+            return texture_;
         }
 
-        static Region loadTile(const char* name) {
-            bimg::ImageContainer* image = LoadImage((std::string("blocks/") + name).c_str(), static_cast<bimg::TextureFormat::Enum>(Atlas::kFormat));
-            return atlas_->add(image);
-        }
+        static std::uint16_t loadTile(const std::string& name);
 
         Block(const std::string& name) {
             blocks_[name] = this;
@@ -54,21 +50,22 @@ namespace cephalon {
             return name_;
         }
 
-        virtual Region getRightRegion() const = 0;
+        virtual std::uint16_t getRightLayer() const = 0;
 
-        virtual Region getLeftRegion() const = 0;
+        virtual std::uint16_t getLeftLayer() const = 0;
 
-        virtual Region getTopRegion() const = 0;
+        virtual std::uint16_t getTopLayer() const = 0;
 
-        virtual Region getBottomRegion() const = 0;
+        virtual std::uint16_t getBottomLayer() const = 0;
 
-        virtual Region getBackRegion() const = 0;
+        virtual std::uint16_t getBackLayer() const = 0;
 
-        virtual Region getFrontRegion() const = 0;
+        virtual std::uint16_t getFrontLayer() const = 0;
     private:
-        static std::optional<Atlas> atlas_;
         static std::map<std::string, const Block*> blocks_;
-    
+        static bgfx::TextureHandle texture_;
+        static std::vector<std::string> texture_names_;
+
         std::string name_;
     };
 }

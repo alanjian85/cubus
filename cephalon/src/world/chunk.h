@@ -80,14 +80,14 @@ namespace cephalon {
             glm::vec3 normal;
             float ao;
             float height;
-            glm::vec2 texcoord0;
+            glm::vec3 texcoord0;
             glm::vec2 texcoord1;
         };
 
         static bgfx::VertexLayout layout_;
         static bgfx::ProgramHandle program_;
-        static bgfx::UniformHandle s_atlas_;
         static bgfx::UniformHandle u_fog_;
+        static bgfx::UniformHandle s_texture_;
         static bgfx::UniformHandle s_heightmap_;
 
         float vertexAO(glm::ivec3 side1, glm::ivec3 side2, glm::ivec3 corner) const;

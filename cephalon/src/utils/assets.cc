@@ -91,23 +91,3 @@ bimg::ImageContainer* cephalon::LoadImage(const char* name, bimg::TextureFormat:
     }
     return image;
 }
-
-bgfx::TextureHandle cephalon::LoadTexture(const char* name, std::uint64_t flags) {
-    bimg::ImageContainer* image = LoadImage(name);
-    bgfx::TextureHandle handle = bgfx::createTexture2D(
-        image->m_width,
-        image->m_height,
-        1 < image->m_numMips,
-        image->m_numLayers, 
-        bgfx::TextureFormat::Enum(image->m_format),
-        flags,
-        bgfx::makeRef(image->m_data, image->m_size)
-    );
-
-    if (!bgfx::isValid(handle)) {
-        spdlog::error("Error creating texture {}", name);
-    } else {
-        spdlog::info("Texture {} loaded successfully", name);
-    }
-    return handle;
-}

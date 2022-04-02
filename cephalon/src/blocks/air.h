@@ -14,28 +14,28 @@ namespace cephalon {
             return true;
         }
 
-        virtual Region getRightRegion() const override {
-            return Region(glm::ivec2(0), glm::ivec2(0));
+        virtual std::uint16_t getRightLayer() const override {
+            return 0;
         }
 
-        virtual Region getLeftRegion() const override {
-            return Region(glm::ivec2(0), glm::ivec2(0));
+        virtual std::uint16_t getLeftLayer() const override {
+            return 0;
         }
 
-        virtual Region getTopRegion() const override {
-            return Region(glm::ivec2(0), glm::ivec2(0));
+        virtual std::uint16_t getTopLayer() const override {
+            return 0;
         }
 
-        virtual Region getBottomRegion() const override {
-            return Region(glm::ivec2(0), glm::ivec2(0));
+        virtual std::uint16_t getBottomLayer() const override {
+            return 0;
         }
 
-        virtual Region getBackRegion() const override {
-            return Region(glm::ivec2(0), glm::ivec2(0));
+        virtual std::uint16_t getBackLayer() const override {
+            return 0;
         }
 
-        virtual Region getFrontRegion() const override {
-            return Region(glm::ivec2(0), glm::ivec2(0));
+        virtual std::uint16_t getFrontLayer() const override {
+            return 0;
         }
     };
 }

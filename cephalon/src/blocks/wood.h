@@ -11,38 +11,36 @@ namespace cephalon {
         }
 
         void init() {
-            region_ = loadTile("wood");
-            side_region_ = loadTile("wood_side");
+            layer_ = loadTile("wood");
+            side_layer_ = loadTile("wood_side");
         }
 
-        virtual Region getRightRegion() const override {
-            return side_region_;
+        virtual std::uint16_t getRightLayer() const override {
+            return side_layer_;
         }
 
-        virtual Region getLeftRegion() const override {
-            return side_region_;
+        virtual std::uint16_t getLeftLayer() const override {
+            return side_layer_;
         }
-        
-        virtual Region getTopRegion() const override {
-            return region_;
+
+        virtual std::uint16_t getTopLayer() const override {
+            return layer_;
         }
-        
-        virtual Region getBottomRegion() const override {
-            return region_;
+
+        virtual std::uint16_t getBottomLayer() const override {
+            return layer_;
         }
-        
-        virtual Region getBackRegion() const override {
-            return side_region_;
+
+        virtual std::uint16_t getBackLayer() const override {
+            return side_layer_;
         }
-        
-        virtual Region getFrontRegion() const override {
-            return side_region_;
+
+        virtual std::uint16_t getFrontLayer() const override {
+            return side_layer_;
         }
     private:
-        static inline bimg::ImageContainer* image_;
-        static inline bimg::ImageContainer* side_image_;
-        static inline Region region_;
-        static inline Region side_region_;
+        std::uint16_t layer_;
+        std::uint16_t side_layer_;
     };
 }
 
