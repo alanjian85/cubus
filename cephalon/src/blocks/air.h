@@ -14,28 +14,28 @@ namespace cephalon {
             return true;
         }
 
-        virtual std::uint16_t getRightLayer() const override {
-            return 0;
+        virtual TextureInfo getRightTexture() const override {
+            return TextureInfo(0, glm::ivec2(0));
         }
 
-        virtual std::uint16_t getLeftLayer() const override {
-            return 0;
+        virtual TextureInfo getLeftTexture() const override {
+            return TextureInfo(0, glm::ivec2(0));
         }
 
-        virtual std::uint16_t getTopLayer() const override {
-            return 0;
+        virtual TextureInfo getTopTexture() const override {
+            return TextureInfo(0, glm::ivec2(0));
         }
 
-        virtual std::uint16_t getBottomLayer() const override {
-            return 0;
+        virtual TextureInfo getBottomTexture() const override {
+            return TextureInfo(0, glm::ivec2(0));
         }
 
-        virtual std::uint16_t getBackLayer() const override {
-            return 0;
+        virtual TextureInfo getBackTexture() const override {
+            return TextureInfo(0, glm::ivec2(0));
         }
 
-        virtual std::uint16_t getFrontLayer() const override {
-            return 0;
+        virtual TextureInfo getFrontTexture() const override {
+            return TextureInfo(0, glm::ivec2(0));
         }
     };
 }

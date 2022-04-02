@@ -11,36 +11,36 @@ namespace cephalon {
         }
 
         void init() {
-            layer_ = loadTile("wood");
-            side_layer_ = loadTile("wood_side");
+            texture_ = loadTexture("wood");
+            side_texture_ = loadTexture("wood_side");
         }
 
-        virtual std::uint16_t getRightLayer() const override {
-            return side_layer_;
+        virtual TextureInfo getRightTexture() const override {
+            return side_texture_;
         }
 
-        virtual std::uint16_t getLeftLayer() const override {
-            return side_layer_;
+        virtual TextureInfo getLeftTexture() const override {
+            return side_texture_;
         }
 
-        virtual std::uint16_t getTopLayer() const override {
-            return layer_;
+        virtual TextureInfo getTopTexture() const override {
+            return texture_;
         }
 
-        virtual std::uint16_t getBottomLayer() const override {
-            return layer_;
+        virtual TextureInfo getBottomTexture() const override {
+            return texture_;
         }
 
-        virtual std::uint16_t getBackLayer() const override {
-            return side_layer_;
+        virtual TextureInfo getBackTexture() const override {
+            return side_texture_;
         }
 
-        virtual std::uint16_t getFrontLayer() const override {
-            return side_layer_;
+        virtual TextureInfo getFrontTexture() const override {
+            return side_texture_;
         }
     private:
-        std::uint16_t layer_;
-        std::uint16_t side_layer_;
+        TextureInfo texture_;
+        TextureInfo side_texture_;
     };
 }
 

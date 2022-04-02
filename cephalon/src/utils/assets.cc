@@ -10,7 +10,7 @@
 #include <bx/string.h>
 #include <spdlog/spdlog.h>
 
-bgfx::ShaderHandle cephalon::LoadShader(const char* name) {
+bgfx::ShaderHandle cephalon::LoadShader(const std::string& name) {
     std::string path;
 
 	switch (bgfx::getRendererType() )
@@ -45,7 +45,7 @@ bgfx::ShaderHandle cephalon::LoadShader(const char* name) {
     memory->data[size - 1] = '\0';
 
 	bgfx::ShaderHandle handle = bgfx::createShader(memory);
-	bgfx::setName(handle, name);
+	bgfx::setName(handle, name.c_str());
     
     if (!bgfx::isValid(handle)) {
         spdlog::error("Error creating shader {}", name);
@@ -55,7 +55,7 @@ bgfx::ShaderHandle cephalon::LoadShader(const char* name) {
     return handle;
 }
 
-bgfx::ProgramHandle cephalon::LoadProgram(const char* vs, const char* fs) {
+bgfx::ProgramHandle cephalon::LoadProgram(const std::string& vs, const std::string& fs) {
     bgfx::ShaderHandle vsh = LoadShader(vs);
     bgfx::ShaderHandle fsh = LoadShader(fs);
     bgfx::ProgramHandle handle = bgfx::createProgram(vsh, fsh, true);
@@ -66,7 +66,7 @@ bgfx::ProgramHandle cephalon::LoadProgram(const char* vs, const char* fs) {
     return handle;
 }
 
-bimg::ImageContainer* cephalon::LoadImage(const char* name, bimg::TextureFormat::Enum dst_format) {
+bimg::ImageContainer* cephalon::LoadImage(const std::string& name, bimg::TextureFormat::Enum format) {
     std::string path = "assets/textures/";
     path += name;
     path += ".dds";
@@ -82,7 +82,7 @@ bimg::ImageContainer* cephalon::LoadImage(const char* name, bimg::TextureFormat:
     file.read(data.data(), size);
     bx::DefaultAllocator allocator;
     bx::Error error;
-    bimg::ImageContainer* image = bimg::imageParse(&allocator, data.data(), data.size(), dst_format, &error);
+    bimg::ImageContainer* image = bimg::imageParse(&allocator, data.data(), data.size(), format, &error);
     if (!error.isOk()) {
         auto message = error.getMessage();
         spdlog::error("Error parsing image: {}", std::string_view(message.getPtr(), message.getLength()));

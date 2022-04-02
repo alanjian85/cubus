@@ -18,8 +18,8 @@
 using namespace cephalon;
 
 int main(int argc, char **argv) {
-    int width = 800;
-    int height = 600;
+    int width = 1024;
+    int height = 720;
 
     if (SDL_Init(0) < 0) {
         spdlog::error("Failed to initialize SDL");

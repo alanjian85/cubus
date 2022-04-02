@@ -4,7 +4,7 @@ A Minecraft-like voxel game written in C++
 ## Feature
 * Infinite World
 * Block Destroy/Place
-* Atlas Texture
+* Block Texture Array
 * Different Types of Block
 * Face Culling
 * Frustum Culling

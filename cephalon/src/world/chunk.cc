@@ -139,7 +139,8 @@ void Chunk::rebuild() {
                     // right
                     auto right_block = world_.getBlock(pos + glm::ivec3(1, 0, 0));
                     if (!right_block || right_block->isAir()) {
-                        auto layer = block.getRightLayer();
+                        auto [layer, size] = block.getRightTexture();
+                        auto max = glm::vec2(size) / glm::vec2(Block::getTextureSize());
                         
                         glm::vec3 block_pos[] = {
                             glm::vec3(x + 0.5f, y - 0.5f, z + 0.5f),
@@ -163,10 +164,10 @@ void Chunk::rebuild() {
                         };
 
                         glm::vec3 block_texcoord0[] = {
-                            glm::vec3(1.0f, 1.0f, layer),
-                            glm::vec3(1.0f, 0.0f, layer),
-                            glm::vec3(0.0f, 0.0f, layer),
-                            glm::vec3(0.0f, 1.0f, layer)
+                            glm::vec3(max.x, max.y, layer),
+                            glm::vec3(max.x, 0.0f,  layer),
+                            glm::vec3( 0.0f, 0.0f,  layer),
+                            glm::vec3( 0.0f, max.y, layer)
                         };
 
                         Vertex block_vertices[] = {
@@ -197,7 +198,8 @@ void Chunk::rebuild() {
                     // left
                     auto left_block = world_.getBlock(pos + glm::ivec3(-1, 0, 0));
                     if (!left_block || left_block->isAir()) {
-                        auto layer = block.getLeftLayer();
+                        auto [layer, size] = block.getLeftTexture();
+                        auto max = glm::vec2(size) / glm::vec2(Block::getTextureSize());
 
                         glm::vec3 block_pos[] = {
                             glm::vec3(x - 0.5f, y - 0.5f, z - 0.5f),
@@ -221,10 +223,10 @@ void Chunk::rebuild() {
                         };
 
                         glm::vec3 block_texcoord0[] = {
-                            glm::vec3(1.0f, 1.0f, layer),
-                            glm::vec3(1.0f, 0.0f, layer),
-                            glm::vec3(0.0f, 0.0f, layer),
-                            glm::vec3(0.0f, 1.0f, layer)
+                            glm::vec3(max.x, max.y, layer),
+                            glm::vec3(max.x, 0.0f,  layer),
+                            glm::vec3( 0.0f, 0.0f,  layer),
+                            glm::vec3( 0.0f, max.y, layer)
                         };
 
                         Vertex block_vertices[] = {
@@ -256,7 +258,8 @@ void Chunk::rebuild() {
                     const Block* top_block;
                     top_block = world_.getBlock(pos + glm::ivec3(0, 1, 0));
                     if (!top_block || top_block->isAir()) {
-                        auto layer = block.getTopLayer();
+                        auto [layer, size] = block.getTopTexture();
+                        auto max = glm::vec2(size) / glm::vec2(Block::getTextureSize());
 
                         glm::vec3 block_pos[] = {
                             glm::vec3(x + 0.5f, y + 0.5f, z - 0.5f),
@@ -280,10 +283,10 @@ void Chunk::rebuild() {
                         };
 
                         glm::vec3 block_texcoord0[] = {
-                            glm::vec3(1.0f, 1.0f, layer),
-                            glm::vec3(1.0f, 0.0f, layer),
-                            glm::vec3(0.0f, 0.0f, layer),
-                            glm::vec3(0.0f, 1.0f, layer)
+                            glm::vec3(max.x, max.y, layer),
+                            glm::vec3(max.x, 0.0f,  layer),
+                            glm::vec3( 0.0f, 0.0f,  layer),
+                            glm::vec3( 0.0f, max.y, layer)
                         };
 
                         Vertex block_vertices[] = {
@@ -315,7 +318,8 @@ void Chunk::rebuild() {
                     const Block* bottom_block;
                     bottom_block = world_.getBlock(pos + glm::ivec3(0, -1, 0));
                     if (!bottom_block || bottom_block->isAir()) {
-                        auto layer = block.getBottomLayer();
+                        auto [layer, size] = block.getBottomTexture();
+                        auto max = glm::vec2(size) / glm::vec2(Block::getTextureSize());
 
                         glm::vec3 block_pos[] = {
                             glm::vec3(x + 0.5f, y - 0.5f, z + 0.5f),
@@ -339,10 +343,10 @@ void Chunk::rebuild() {
                         };
 
                         glm::vec3 block_texcoord0[] = {
-                            glm::vec3(1.0f, 1.0f, layer),
-                            glm::vec3(1.0f, 0.0f, layer),
-                            glm::vec3(0.0f, 0.0f, layer),
-                            glm::vec3(0.0f, 1.0f, layer)
+                            glm::vec3(max.x, max.y, layer),
+                            glm::vec3(max.x, 0.0f,  layer),
+                            glm::vec3( 0.0f, 0.0f,  layer),
+                            glm::vec3( 0.0f, max.y, layer)
                         };
 
                         Vertex block_vertices[] = {
@@ -373,7 +377,9 @@ void Chunk::rebuild() {
                     // back
                     auto back_block = world_.getBlock(pos + glm::ivec3(0, 0, 1));
                     if (!back_block || back_block->isAir()) {
-                        auto layer = block.getBackLayer();
+                        auto [layer, size] = block.getBackTexture();
+                        auto max = glm::vec2(size) / glm::vec2(Block::getTextureSize());
+
 
                         glm::vec3 block_pos[] = { 
                             glm::vec3(x - 0.5f, y - 0.5f, z + 0.5f),
@@ -397,10 +403,10 @@ void Chunk::rebuild() {
                         };
 
                         glm::vec3 block_texcoord0[] = {
-                            glm::vec3(1.0f, 1.0f, layer),
-                            glm::vec3(1.0f, 0.0f, layer),
-                            glm::vec3(0.0f, 0.0f, layer),
-                            glm::vec3(0.0f, 1.0f, layer)
+                            glm::vec3(max.x, max.y, layer),
+                            glm::vec3(max.x, 0.0f,  layer),
+                            glm::vec3( 0.0f, 0.0f,  layer),
+                            glm::vec3( 0.0f, max.y, layer)
                         };
 
                         Vertex block_vertices[] = {
@@ -431,7 +437,8 @@ void Chunk::rebuild() {
                     // front
                     auto front_block = world_.getBlock(pos + glm::ivec3(0, 0, -1));
                     if (!front_block || front_block->isAir()) {
-                        auto layer = block.getFrontLayer();
+                        auto [layer, size] = block.getFrontTexture();
+                        auto max = glm::vec2(size) / glm::vec2(Block::getTextureSize());
 
                         glm::vec3 block_pos[] = {
                             glm::vec3(x + 0.5f, y - 0.5f, z - 0.5f),
@@ -455,10 +462,10 @@ void Chunk::rebuild() {
                         };
 
                         glm::vec3 block_texcoord0[] = {
-                            glm::vec3(1.0f, 1.0f, layer),
-                            glm::vec3(1.0f, 0.0f, layer),
-                            glm::vec3(0.0f, 0.0f, layer),
-                            glm::vec3(0.0f, 1.0f, layer)
+                            glm::vec3(max.x, max.y, layer),
+                            glm::vec3(max.x, 0.0f,  layer),
+                            glm::vec3( 0.0f, 0.0f,  layer),
+                            glm::vec3( 0.0f, max.y, layer)
                         };
 
                         Vertex block_vertices[] = {

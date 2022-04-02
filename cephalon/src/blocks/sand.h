@@ -11,34 +11,34 @@ namespace cephalon {
         }
 
         void init() {
-            layer_ = loadTile("sand");
+            info_ = loadTexture("sand");
         }
 
-        virtual std::uint16_t getRightLayer() const override {
-            return layer_;
+        virtual TextureInfo getRightTexture() const override {
+            return info_;
         }
 
-        virtual std::uint16_t getLeftLayer() const override {
-            return layer_;
+        virtual TextureInfo getLeftTexture() const override {
+            return info_;
         }
 
-        virtual std::uint16_t getTopLayer() const override {
-            return layer_;
+        virtual TextureInfo getTopTexture() const override {
+            return info_;
         }
 
-        virtual std::uint16_t getBottomLayer() const override {
-            return layer_;
+        virtual TextureInfo getBottomTexture() const override {
+            return info_;
         }
 
-        virtual std::uint16_t getBackLayer() const override {
-            return layer_;
+        virtual TextureInfo getBackTexture() const override {
+            return info_;
         }
 
-        virtual std::uint16_t getFrontLayer() const override {
-            return layer_;
+        virtual TextureInfo getFrontTexture() const override {
+            return info_;
         }
     private:
-        std::uint16_t layer_;
+        TextureInfo info_;
     };
 }
 

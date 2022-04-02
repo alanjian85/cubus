@@ -12,6 +12,18 @@
 #include "utils/assets.h"
 
 namespace cephalon {
+    struct TextureInfo {
+        TextureInfo() = default;
+
+        TextureInfo(std::uint16_t layer_, glm::ivec2 size_) {
+            layer = layer_;
+            size = size_;
+        }
+
+        std::uint16_t layer;
+        glm::ivec2 size;
+    };
+
     class Block {
     public:
         static void init();
@@ -25,11 +37,15 @@ namespace cephalon {
             return nullptr;
         }
 
+        static TextureInfo loadTexture(const std::string& name);
+
         static bgfx::TextureHandle getTexture() {
             return texture_;
         }
 
-        static std::uint16_t loadTile(const std::string& name);
+        static glm::ivec2 getTextureSize() {
+            return texture_size_;
+        }
 
         Block(const std::string& name) {
             blocks_[name] = this;
@@ -50,21 +66,22 @@ namespace cephalon {
             return name_;
         }
 
-        virtual std::uint16_t getRightLayer() const = 0;
+        virtual TextureInfo getRightTexture() const = 0;
 
-        virtual std::uint16_t getLeftLayer() const = 0;
+        virtual TextureInfo getLeftTexture() const = 0;
 
-        virtual std::uint16_t getTopLayer() const = 0;
+        virtual TextureInfo getTopTexture() const = 0;
 
-        virtual std::uint16_t getBottomLayer() const = 0;
+        virtual TextureInfo getBottomTexture() const = 0;
 
-        virtual std::uint16_t getBackLayer() const = 0;
+        virtual TextureInfo getBackTexture() const = 0;
 
-        virtual std::uint16_t getFrontLayer() const = 0;
+        virtual TextureInfo getFrontTexture() const = 0;
     private:
         static std::map<std::string, const Block*> blocks_;
+        static std::vector<bimg::ImageContainer*> images_;
         static bgfx::TextureHandle texture_;
-        static std::vector<std::string> texture_names_;
+        static glm::ivec2 texture_size_;
 
         std::string name_;
     };
