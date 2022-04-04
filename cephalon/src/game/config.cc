@@ -5,7 +5,7 @@ using namespace cephalon;
 
 #include <nlohmann/json.hpp>
 
-int Config::viewDistance = 6;
+int Config::viewDistance = 12;
 int Config::destroyDistance = 5;
 int Config::chunkLoadLimit = 4;
 

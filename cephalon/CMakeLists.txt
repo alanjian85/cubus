@@ -23,8 +23,8 @@ set(CEPHALON_SRCS
     src/world/chunk.cc
     src/world/database.h
     src/world/database.cc
-    src/world/outline.h
-    src/world/outline.cc
+    src/world/highlight.h
+    src/world/highlight.cc
     src/world/world.cc
     src/world/world.h
     src/game/callback.h
@@ -42,8 +42,8 @@ add_executable(cephalon ${CEPHALON_SRCS})
 set(CEPHALON_SHADERS
     shaders/vs_chunks.sc
     shaders/fs_chunks.sc
-    shaders/vs_outline.sc
-    shaders/fs_outline.sc
+    shaders/vs_highlight.sc
+    shaders/fs_highlight.sc
 )
 add_shader(cephalon ${CEPHALON_SHADERS})
 

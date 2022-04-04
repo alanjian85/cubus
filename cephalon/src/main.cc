@@ -18,7 +18,7 @@
 using namespace cephalon;
 
 int main(int argc, char **argv) {
-    int width = 1024;
+    int width = 1280;
     int height = 720;
 
     if (SDL_Init(0) < 0) {
@@ -54,7 +54,7 @@ int main(int argc, char **argv) {
 #endif
     init.resolution.width = width;
     init.resolution.height = height;
-    init.resolution.reset = BGFX_RESET_VSYNC | BGFX_RESET_MSAA_X4;
+    init.resolution.reset = BGFX_RESET_VSYNC;
     init.callback = &callback;
     if (!bgfx::init(init)) {
         spdlog::error("Failed to initialize bgfx");
@@ -96,7 +96,7 @@ int main(int argc, char **argv) {
                             case SDL_WINDOWEVENT_RESIZED:
                                 width = event.window.data1;
                                 height = event.window.data2;
-                                bgfx::reset(width, height, BGFX_RESET_VSYNC);
+                                bgfx::reset(width, height, BGFX_RESET_VSYNC | BGFX_RESET_MSAA_X4);
                                 bgfx::setViewRect(0, 0, 0, width, height);
                                 break;
                         }

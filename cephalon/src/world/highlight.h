@@ -1,5 +1,5 @@
-#ifndef CEPHALON_WORLD_OUTLINE_H_
-#define CEPHALON_WORLD_OUTLINE_H_
+#ifndef CEPHALON_WORLD_HIGHLIGHT_H_
+#define CEPHALON_WORLD_HIGHLIGHT_H_
 
 #include <bgfx/bgfx.h>
 #include <glm/glm.hpp>
@@ -8,15 +8,15 @@
 #include "utils/camera.h"
 
 namespace cephalon {
-    class Outline {
+    class Highlight {
     public:
-        Outline();
+        Highlight();
 
-        Outline(const Outline&) = delete;
+        Highlight(const Highlight&) = delete;
 
-        Outline& operator=(const Outline&) = delete;
+        Highlight& operator=(const Highlight&) = delete;
 
-        ~Outline();
+        ~Highlight();
 
         void update(glm::ivec3 pos, Direction dir);
 
@@ -33,4 +33,4 @@ namespace cephalon {
     };
 }
 
-#endif // CEPHALON_WORLD_OUTLINE_H_
+#endif // CEPHALON_WORLD_HIGHLIGHT_H_

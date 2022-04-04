@@ -61,7 +61,7 @@ void Game::update(float delta) {
     intersected_ = world_.intersect(camera_, block_dir_, destroy_pos_);
     if (intersected_) {
         place_pos_ = destroy_pos_ + directionToVector(block_dir_);
-        outline_.update(destroy_pos_, block_dir_);
+        highlight_.update(destroy_pos_, block_dir_);
     }
 }
 
@@ -105,6 +105,6 @@ void Game::render() {
     world_.render(camera_);
 
     if (intersected_) {
-        outline_.render(camera_);
+        highlight_.render(camera_);
     }
 }

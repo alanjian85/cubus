@@ -8,7 +8,7 @@
 
 #include "utils/assets.h"
 #include "utils/camera.h"
-#include "world/outline.h"
+#include "world/highlight.h"
 #include "world/world.h"
 
 namespace cephalon {
@@ -34,7 +34,7 @@ namespace cephalon {
         glm::ivec3 destroy_pos_;
         glm::ivec3 place_pos_;
         Direction block_dir_;
-        Outline outline_;
+        Highlight highlight_;
 
         nlohmann::json info_;
         World world_;

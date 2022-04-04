@@ -1,4 +1,4 @@
-#include "outline.h"
+#include "highlight.h"
 using namespace cephalon;
 
 #include <glm/gtc/matrix_transform.hpp>
@@ -7,8 +7,8 @@ using namespace cephalon;
 #include "game/timer.h"
 #include "utils/assets.h"
 
-Outline::Outline() {
-    program_ = LoadProgram("vs_outline", "fs_outline");
+Highlight::Highlight() {
+    program_ = LoadProgram("vs_highlight", "fs_highlight");
 
     layout_.begin()
         .add(bgfx::Attrib::Position, 3, bgfx::AttribType::Float)
@@ -73,14 +73,14 @@ Outline::Outline() {
     first_index_ = 0;
 }
 
-Outline::~Outline() noexcept {
+Highlight::~Highlight() noexcept {
     bgfx::destroy(program_);
     bgfx::destroy(vertex_buffer_);
     bgfx::destroy(index_buffer_);
     bgfx::destroy(u_color_);
 }
 
-void Outline::update(glm::ivec3 pos, Direction dir) {
+void Highlight::update(glm::ivec3 pos, Direction dir) {
     switch (dir) {
         case Direction::kRight:
             first_index_ = 0;
@@ -105,7 +105,7 @@ void Outline::update(glm::ivec3 pos, Direction dir) {
     transform_ = glm::translate(glm::mat4(1.0f), glm::vec3(pos));
 }
 
-void Outline::render(PerspectiveCamera cam) {
+void Highlight::render(PerspectiveCamera cam) {
     bgfx::setViewTransform(0, glm::value_ptr(cam.view), glm::value_ptr(cam.proj));
 
     auto a = (std::sin(Timer::getTime() * 5) * 0.5f + 0.5f) * 0.5f + 0.25f;
