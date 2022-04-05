@@ -64,6 +64,7 @@ find_package(Boost COMPONENTS system REQUIRED)
 find_package(fmt REQUIRED)
 find_package(glm REQUIRED)
 find_package(nlohmann_json REQUIRED)
+find_package(OpenAL REQUIRED)
 find_package(SDL2 REQUIRED)
 find_package(spdlog REQUIRED)
 find_package(SQLite3 REQUIRED)
@@ -74,6 +75,7 @@ target_link_libraries(cephalon
     ${Boost_LIBRARIES}
     fmt::fmt
     glm::glm
+    ${OPENAL_LIBRARY}
     ${SDL2_LIBRARIES}
     ${SQLite3_LIBRARIES}
     spdlog::spdlog

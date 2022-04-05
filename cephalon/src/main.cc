@@ -5,6 +5,8 @@
 #include <bx/bx.h>
 #include <bx/math.h>
 #include <fmt/format.h>
+#include <AL/al.h>
+#include <AL/alc.h>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_syswm.h>
 #include <spdlog/spdlog.h>
@@ -33,6 +35,22 @@ int main(int argc, char **argv) {
     if (!window) {
         spdlog::error("Couldn't create window");
         SDL_Quit();
+        return EXIT_FAILURE;
+    }
+
+    ALCdevice* device = alcOpenDevice(nullptr);
+    ALCcontext* context = nullptr;
+    if (device) {
+        context = alcCreateContext(device, nullptr);
+    } else {
+        spdlog::error("Failed to open an OpenAL device");
+        return EXIT_FAILURE;
+    }
+
+    if (context) {
+        alcMakeContextCurrent(context);
+    } else {
+        spdlog::error("Failed to create OpenAL context");
         return EXIT_FAILURE;
     }
 
@@ -128,6 +146,8 @@ int main(int argc, char **argv) {
     Chunk::deinit();
     Config::deinit();
     bgfx::shutdown();
+    alcDestroyContext(context);
+    alcCloseDevice(device);
     SDL_DestroyWindow(window);
     SDL_Quit();
     return EXIT_SUCCESS;
