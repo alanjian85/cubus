@@ -59,6 +59,12 @@ set(CEPHALON_TEXTURES
 )
 add_texture(cephalon ${CEPHALON_TEXTURES})
 
+add_custom_target(sound_cephalon
+    COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/sounds ${CMAKE_CURRENT_BINARY_DIR}/sounds
+)
+add_dependencies(cephalon sound_cephalon)
+
+
 find_package(bgfx REQUIRED)
 find_package(Boost COMPONENTS system REQUIRED)
 find_package(fmt REQUIRED)
@@ -66,6 +72,7 @@ find_package(glm REQUIRED)
 find_package(nlohmann_json REQUIRED)
 find_package(OpenAL REQUIRED)
 find_package(SDL2 REQUIRED)
+find_package(SndFile REQUIRED)
 find_package(spdlog REQUIRED)
 find_package(SQLite3 REQUIRED)
 
@@ -77,6 +84,7 @@ target_link_libraries(cephalon
     glm::glm
     ${OPENAL_LIBRARY}
     ${SDL2_LIBRARIES}
+    SndFile::sndfile
     ${SQLite3_LIBRARIES}
     spdlog::spdlog
 )

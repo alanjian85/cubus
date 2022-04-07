@@ -3,6 +3,7 @@
 
 #include <memory>
 
+#include <AL/al.h>
 #include <glm/glm.hpp>
 #include <nlohmann/json.hpp>
 
@@ -37,6 +38,7 @@ namespace cephalon {
         Highlight highlight_;
 
         nlohmann::json info_;
+        ALuint audio_buffer_;
         World world_;
         PerspectiveCamera camera_;
     };

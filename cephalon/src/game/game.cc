@@ -3,9 +3,11 @@ using namespace cephalon;
 
 #include <chrono>
 #include <fstream>
+#include <vector>
 
 #include <glm/gtc/type_ptr.hpp>
 #include <nlohmann/json.hpp>
+#include <sndfile.h>
 #include <spdlog/spdlog.h>
 
 #include "input.h"
@@ -32,6 +34,24 @@ Game::Game(int width, int height)
     }
     world_.setTerrain(info_["terrain"]);
     world_.setSeed(info_["seed"]);
+
+    SF_INFO info;
+    SNDFILE* file = sf_open("sounds/sound.wav", SFM_READ, &info);
+    assert(file);
+
+    std::vector<std::uint16_t> data;
+    std::array<short, 4096> buffer;
+    std::size_t size;
+    while ((size = sf_read_short(file, buffer.data(), buffer.size())) != 0) {
+        data.insert(data.cend(), buffer.cbegin(), buffer.cbegin() + size);
+    }
+
+    alGenBuffers(1, &audio_buffer_);
+    alBufferData(audio_buffer_, 
+        info.channels == 1? AL_FORMAT_MONO16 : AL_FORMAT_STEREO16, 
+        data.data(), data.size() * sizeof(std::uint16_t), 
+        info.samplerate
+    );
 }
 
 Game::~Game() {
