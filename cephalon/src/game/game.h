@@ -2,6 +2,7 @@
 #define CEPHALON_GAME_GAME_H_
 
 #include <memory>
+#include <vector>
 
 #include <AL/al.h>
 #include <glm/glm.hpp>
@@ -38,7 +39,8 @@ namespace cephalon {
         Highlight highlight_;
 
         nlohmann::json info_;
-        ALuint audio_buffer_;
+        ALuint buffer_;
+        std::vector<ALuint> sources_;
         World world_;
         PerspectiveCamera camera_;
     };

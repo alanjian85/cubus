@@ -46,8 +46,8 @@ Game::Game(int width, int height)
         data.insert(data.cend(), buffer.cbegin(), buffer.cbegin() + size);
     }
 
-    alGenBuffers(1, &audio_buffer_);
-    alBufferData(audio_buffer_, 
+    alGenBuffers(1, &buffer_);
+    alBufferData(buffer_, 
         info.channels == 1? AL_FORMAT_MONO16 : AL_FORMAT_STEREO16, 
         data.data(), data.size() * sizeof(std::uint16_t), 
         info.samplerate
@@ -77,6 +77,18 @@ void Game::update(float delta) {
         camera_.pos = camera_.pos + camera_.right * camera_speed * delta;
 
     world_.update(camera_.pos);
+
+    alListener3f(AL_POSITION, camera_.pos.x, camera_.pos.y, camera_.pos.z);
+    std::remove_if(sources_.begin(), sources_.end(),
+        [](ALuint source) {
+            ALint state;
+            alGetSourcei(source, AL_SOURCE_STATE, &state);
+            if (state != AL_PLAYING) {
+                alDeleteSources(1, &source);
+                return true;
+            }
+            return false;
+        });
 
     intersected_ = world_.intersect(camera_, block_dir_, destroy_pos_);
     if (intersected_) {
@@ -112,6 +124,13 @@ void Game::onMouseRightClick() {
         auto& block = blocks::wood;
         world_.setBlock(place_pos_, block);
         spdlog::info("One {} block at {} is placed", block.getName(), fmt::format("({}, {}, {})", place_pos_.x, place_pos_.y, place_pos_.z));
+
+        ALuint source;
+        alGenSources(1, &source);
+        alSourcei(source, AL_BUFFER, buffer_);
+        alSource3f(source, AL_POSITION, place_pos_.x, place_pos_.y, place_pos_.z);
+        alSourcePlay(source);
+        sources_.push_back(source);
     }
 }
 
