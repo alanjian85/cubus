@@ -40,7 +40,7 @@ namespace cephalon {
 
         nlohmann::json info_;
         ALuint buffer_;
-        std::vector<ALuint> sources_;
+        ALuint source_;
         World world_;
         PerspectiveCamera camera_;
     };

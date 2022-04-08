@@ -1,12 +1,12 @@
-function( add_texture TARGET )
+function( add_sound TARGET )
     list( SUBLIST ARGV 1 -1 FILES )
-	set( OUTPUT_LIST "" )
+    set( OUTPUT_LIST "" )
     foreach( FILE ${FILES} )
         set( FILE ${CMAKE_CURRENT_SOURCE_DIR}/${FILE} )
-        get_filename_component( FILENAME "${FILE}" NAME_WE )
-        file( RELATIVE_PATH FILE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/textures "${FILE}" )
+        get_filename_component( FILENAME "${FILE}" NAME )
+        file( RELATIVE_PATH FILE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/sounds "${FILE}" )
         get_filename_component( FILE_DIR "${FILE_PATH}" DIRECTORY)
-        set( OUTPUT_FILE ${CMAKE_CURRENT_BINARY_DIR}/assets/textures/${FILE_DIR}/${FILENAME}.dds )
+        set( OUTPUT_FILE ${CMAKE_CURRENT_BINARY_DIR}/assets/sounds/${FILE_DIR}/${FILENAME} )
         get_filename_component( OUT_DIR "${OUTPUT_FILE}" DIRECTORY )
         file( MAKE_DIRECTORY ${OUT_DIR} )
         file( RELATIVE_PATH PRINT_NAME ${CMAKE_CURRENT_SOURCE_DIR} ${FILE} )
@@ -15,13 +15,13 @@ function( add_texture TARGET )
             ${FILE}
 			OUTPUT
 			${OUTPUT_FILE}
-            COMMAND texturec -f ${FILE} -o ${OUTPUT_FILE}
-            COMMENT "Compiling texture ${PRINT_NAME}"
+            COMMAND ${CMAKE_COMMAND} -E copy ${FILE} ${OUTPUT_FILE}
+            COMMENT "Copying sound file ${PRINT_NAME}"
         )
 
         list( APPEND OUTPUT_LIST ${OUTPUT_FILE} )
     endforeach()
 
-	add_custom_target( texture_${TARGET} ALL DEPENDS ${OUTPUT_LIST} )
-    add_dependencies( ${TARGET} texture_${TARGET} )
+    add_custom_target( sound_${TARGET} ALL DEPENDS ${OUTPUT_LIST} )
+    add_dependencies( cephalon sound_cephalon )
 endfunction()

@@ -1,4 +1,5 @@
 include(Shader)
+include(Sound)
 include(Texture)
 
 configure_file(cephalon_config.h.in cephalon_config.h)
@@ -59,11 +60,10 @@ set(CEPHALON_TEXTURES
 )
 add_texture(cephalon ${CEPHALON_TEXTURES})
 
-add_custom_target(sound_cephalon
-    COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/sounds ${CMAKE_CURRENT_BINARY_DIR}/sounds
+set(CEPHALON_SOUNDS
+    sounds/sound.wav
 )
-add_dependencies(cephalon sound_cephalon)
-
+add_sound(cephalon ${CEPHALON_SOUNDS})
 
 find_package(bgfx REQUIRED)
 find_package(Boost COMPONENTS system REQUIRED)
