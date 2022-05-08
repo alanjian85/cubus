@@ -61,7 +61,6 @@ namespace cephalon {
         mutable std::shared_mutex mutex_;
         std::unordered_map<glm::ivec2, std::shared_ptr<Chunk>> chunks_;
 
-        boost::asio::thread_pool load_thread_pool_;
         boost::asio::thread_pool rebuild_thread_pool_;
 
         Terrain* terrain_;

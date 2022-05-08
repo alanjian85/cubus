@@ -9,15 +9,13 @@ using namespace cephalon;
 #include "terrains/terrain.h"
 
 World::World(const char* save_path)
-    : load_thread_pool_(4), 
-      rebuild_thread_pool_(4),
+    : rebuild_thread_pool_(std::thread::hardware_concurrency()),
       database_(save_path)
 {
     terrain_ = nullptr;
 }
 
 World::~World() {
-    load_thread_pool_.join();
     rebuild_thread_pool_.join();
 }
 
@@ -85,15 +83,13 @@ void World::update(glm::vec3 player_pos) {
                 auto [it, created] = chunks_.emplace(region, std::make_shared<Chunk>(*this, region));
                 if (created) {
                     auto chunk = it->second; 
-                    boost::asio::post(load_thread_pool_, [this, chunk = std::move(chunk)]() {
-                        terrain_->genChunk(*chunk);
-                        database_.loadChunk(*chunk);
-                        for (int x = -1; x <= 1; ++x) {
-                            for (int y = -1; y <= 1; ++y) {
-                                setChunkDirty(chunk->getRegion() + glm::ivec2(x, y), true);
-                            }
+                    terrain_->genChunk(*chunk);
+                    database_.loadChunk(*chunk);
+                    for (int x = -1; x <= 1; ++x) {
+                        for (int y = -1; y <= 1; ++y) {
+                            setChunkDirty(chunk->getRegion() + glm::ivec2(x, y), true);
                         }
-                    });
+                    }
                     ++load_count;
                 }
             }
