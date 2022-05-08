@@ -30,7 +30,7 @@ int main(int argc, char **argv) {
         fmt::format("Cephalon {}.{}.{}", CEPHALON_VERSION_MAJOR, CEPHALON_VERSION_MINOR, CEPHALON_VERSION_PATCH).c_str(),
         SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 
         width, height,
-        SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE
+        SDL_WINDOW_SHOWN
     );
     if (!window) {
         spdlog::error("Couldn't create window");
@@ -74,7 +74,8 @@ int main(int argc, char **argv) {
     init.resolution.height = height;
     init.resolution.reset = BGFX_RESET_VSYNC;
     init.callback = &callback;
-    if (!bgfx::init(init)) {
+	init.type = bgfx::RendererType::OpenGL;
+	if (!bgfx::init(init)) {
         spdlog::error("Failed to initialize bgfx");
         SDL_Quit();
         return EXIT_FAILURE;

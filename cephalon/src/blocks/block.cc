@@ -35,7 +35,7 @@ void Block::init() {
             texture_size_.x, texture_size_.y, false, 
             static_cast<std::uint16_t>(images_.size()), 
             bgfx::TextureFormat::RGBA8, 
-            BGFX_SAMPLER_MIN_POINT | BGFX_SAMPLER_MAG_POINT
+            BGFX_SAMPLER_MIP_POINT | BGFX_SAMPLER_MAG_POINT
         );
         for (std::uint16_t i = 0; i < images_.size(); ++i) {
             auto image = images_[i];

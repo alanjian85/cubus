@@ -81,7 +81,7 @@ target_link_libraries(cephalon
     bgfx::bgfx
     ${Boost_LIBRARIES}
     fmt::fmt
-    glm::glm
+    glm
     ${OPENAL_LIBRARY}
     ${SDL2_LIBRARIES}
     SndFile::sndfile

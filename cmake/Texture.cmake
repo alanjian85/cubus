@@ -15,7 +15,7 @@ function( add_texture TARGET )
             ${FILE}
 			OUTPUT
 			${OUTPUT_FILE}
-            COMMAND texturec -f ${FILE} -o ${OUTPUT_FILE}
+            COMMAND texturec -f ${FILE} -o ${OUTPUT_FILE} --mips
             COMMENT "Compiling texture ${PRINT_NAME}"
         )
 
