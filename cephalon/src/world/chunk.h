@@ -61,6 +61,15 @@ namespace cephalon {
 
         bool isDirty() const {
             return dirty_.load();
+
+        }
+
+        void setRebuilding(bool rebuilding) {
+            rebuilding_.store(rebuilding);
+        }
+
+        bool isRebuilding() const {
+            return rebuilding_.load();
         }
 
         NeighborChunk setBlock(glm::ivec3 offset, const Block& block);
@@ -95,6 +104,10 @@ namespace cephalon {
         World& world_;
         glm::ivec2 region_;
         std::atomic_bool dirty_;
+        std::atomic_bool rebuilding_;
+        std::vector<Vertex> vertices_;
+        std::vector<std::uint16_t> indices_;
+        std::uint8_t heightmap_data_[kVolume.x][kVolume.z];
 
         mutable std::mutex mutex_;
         const Block* blocks_[kVolume.x * kVolume.y * kVolume.z];

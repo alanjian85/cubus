@@ -105,8 +105,9 @@ void World::render(PerspectiveCamera cam) {
     std::shared_lock lock(mutex_);
     for (auto& [region, chunk] : chunks_) {
         if (chunk->inbound(cam)) {
-            if (chunk->isDirty()) {
+            if (chunk->isDirty() && !chunk->isRebuilding()) {
                 auto diff = getRegion(cam.pos) - region;
+                chunk->setRebuilding(true);
                 if (diff.x >= -1 && diff.x <= 1 && diff.y >= -1 && diff.y <= 1) {
                     chunk->rebuild();
                 } else {
@@ -115,7 +116,6 @@ void World::render(PerspectiveCamera cam) {
                         chunk->rebuild();
                     });
                 }
-                chunk->setDirty(false);
             }
 
             chunk->render(cam);

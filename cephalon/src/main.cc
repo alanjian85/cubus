@@ -72,7 +72,7 @@ int main(int argc, char **argv) {
 #endif
     init.resolution.width = width;
     init.resolution.height = height;
-    init.resolution.reset = BGFX_RESET_VSYNC;
+    init.resolution.reset = BGFX_RESET_VSYNC | BGFX_RESET_MSAA_X4;
     init.callback = &callback;
 	init.type = bgfx::RendererType::OpenGL;
 	if (!bgfx::init(init)) {

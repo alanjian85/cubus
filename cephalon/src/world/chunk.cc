@@ -52,6 +52,7 @@ Chunk::Chunk(World& world, glm::ivec2 region)
 {
     region_ = region;
     dirty_.store(false);
+    rebuilding_.store(false);
     std::fill(std::begin(blocks_), std::end(blocks_), &blocks::air);
     vertex_buffer_ = bgfx::createDynamicVertexBuffer(0u, layout_, BGFX_BUFFER_ALLOW_RESIZE);
     index_buffer_ = bgfx::createDynamicIndexBuffer(0u, BGFX_BUFFER_ALLOW_RESIZE);
@@ -114,9 +115,15 @@ const Block& Chunk::getBlock(glm::ivec3 offset) const {
 }
 
 void Chunk::rebuild() {
-    std::vector<Vertex> vertices;
-    std::vector<std::uint16_t> indices;
-    std::uint8_t heightmap_data[kVolume.x][kVolume.z] = {};
+    vertices_.clear();
+    indices_.clear();
+    for (int x = 0; x < kVolume.x; ++x) {
+        for (int z = 0; z < kVolume.z; ++z) {
+            heightmap_data_[x][z] = 0;
+        }
+    }
+
+    dirty_.store(false);
     for (int x = 0; x < kVolume.x; ++x) {
         for (int y = 0; y < kVolume.y; ++y) {
             for (int z = 0; z < kVolume.z; ++z) {
@@ -132,8 +139,8 @@ void Chunk::rebuild() {
                     );
                     auto height = static_cast<float>(y) / kVolume.y;
                     auto iheight = static_cast<std::uint8_t>(height * 255);
-                    if (iheight > heightmap_data[x][z]) {
-                        heightmap_data[x][z] = iheight;
+                    if (iheight > heightmap_data_[x][z]) {
+                        heightmap_data_[x][z] = iheight;
                     }
 
                     // right
@@ -177,7 +184,7 @@ void Chunk::rebuild() {
                             { block_pos[3], block_normal[3], block_ao[3], 1.0f, block_texcoord0[3], block_texcoord1 }
                         };
 
-                        auto index_base = static_cast<int>(vertices.size());
+                        auto index_base = static_cast<int>(vertices_.size());
                         std::array<int, 6> block_indices;
                         if (block_ao[0] + block_ao[2] > block_ao[1] + block_ao[3]) {
                             block_indices = {
@@ -191,8 +198,8 @@ void Chunk::rebuild() {
                             };
                         }
 
-                        vertices.insert(vertices.cend(), std::cbegin(block_vertices), std::cend(block_vertices));
-                        indices.insert(indices.cend(), std::cbegin(block_indices), std::cend(block_indices));
+                        vertices_.insert(vertices_.cend(), std::cbegin(block_vertices), std::cend(block_vertices));
+                        indices_.insert(indices_.cend(), std::cbegin(block_indices), std::cend(block_indices));
                     }
 
                     // left
@@ -236,7 +243,7 @@ void Chunk::rebuild() {
                             { block_pos[3], block_normal[3], block_ao[3], 1.0f, block_texcoord0[3], block_texcoord1 }
                         };
 
-                        auto index_base = static_cast<int>(vertices.size());
+                        auto index_base = static_cast<int>(vertices_.size());
                         std::array<int, 6> block_indices;
                         if (block_ao[0] + block_ao[2] > block_ao[1] + block_ao[3]) {
                             block_indices = {
@@ -250,8 +257,8 @@ void Chunk::rebuild() {
                             };
                         }
 
-                        vertices.insert(vertices.cend(), std::cbegin(block_vertices), std::cend(block_vertices));
-                        indices.insert(indices.cend(), std::cbegin(block_indices), std::cend(block_indices));
+                        vertices_.insert(vertices_.cend(), std::cbegin(block_vertices), std::cend(block_vertices));
+                        indices_.insert(indices_.cend(), std::cbegin(block_indices), std::cend(block_indices));
                     }
 
                     // top
@@ -296,7 +303,7 @@ void Chunk::rebuild() {
                             { block_pos[3], block_normal[3], block_ao[3], height, block_texcoord0[3], block_texcoord1 }
                         };
 
-                        auto index_base = static_cast<int>(vertices.size());
+                        auto index_base = static_cast<int>(vertices_.size());
                         std::array<int, 6> block_indices;
                         if (block_ao[0] + block_ao[2] > block_ao[1] + block_ao[3]) {
                             block_indices = {
@@ -310,8 +317,8 @@ void Chunk::rebuild() {
                             };
                         }
 
-                        vertices.insert(vertices.cend(), std::cbegin(block_vertices), std::cend(block_vertices));
-                        indices.insert(indices.cend(), std::cbegin(block_indices), std::cend(block_indices));
+                        vertices_.insert(vertices_.cend(), std::cbegin(block_vertices), std::cend(block_vertices));
+                        indices_.insert(indices_.cend(), std::cbegin(block_indices), std::cend(block_indices));
                     }
 
                     // bottom
@@ -356,7 +363,7 @@ void Chunk::rebuild() {
                             { block_pos[3], block_normal[3], block_ao[3], 1.0f, block_texcoord0[3], block_texcoord1 }
                         };
 
-                        auto index_base = static_cast<int>(vertices.size());
+                        auto index_base = static_cast<int>(vertices_.size());
                         std::array<int, 6> block_indices;
                         if (block_ao[0] + block_ao[2] > block_ao[1] + block_ao[3]) {
                             block_indices = {
@@ -370,8 +377,8 @@ void Chunk::rebuild() {
                             };
                         }
 
-                        vertices.insert(vertices.cend(), std::cbegin(block_vertices), std::cend(block_vertices));
-                        indices.insert(indices.cend(), std::cbegin(block_indices), std::cend(block_indices));
+                        vertices_.insert(vertices_.cend(), std::cbegin(block_vertices), std::cend(block_vertices));
+                        indices_.insert(indices_.cend(), std::cbegin(block_indices), std::cend(block_indices));
                     }
 
                     // back
@@ -416,7 +423,7 @@ void Chunk::rebuild() {
                             { block_pos[3], block_normal[3], block_ao[3], 1.0f, block_texcoord0[3], block_texcoord1 }
                         };
 
-                        auto index_base = static_cast<int>(vertices.size());
+                        auto index_base = static_cast<int>(vertices_.size());
                         std::array<int, 6> block_indices;
                         if (block_ao[0] + block_ao[2] > block_ao[1] + block_ao[3]) {
                             block_indices = {
@@ -430,8 +437,8 @@ void Chunk::rebuild() {
                             };
                         }
 
-                        vertices.insert(vertices.cend(), std::cbegin(block_vertices), std::cend(block_vertices));
-                        indices.insert(indices.cend(), std::cbegin(block_indices), std::cend(block_indices));
+                        vertices_.insert(vertices_.cend(), std::cbegin(block_vertices), std::cend(block_vertices));
+                        indices_.insert(indices_.cend(), std::cbegin(block_indices), std::cend(block_indices));
                     }
 
                     // front
@@ -475,7 +482,7 @@ void Chunk::rebuild() {
                             { block_pos[3], block_normal[3], block_ao[3], 1.0f, block_texcoord0[3], block_texcoord1 }
                         };
 
-                        auto index_base = static_cast<int>(vertices.size());
+                        auto index_base = static_cast<int>(vertices_.size());
                         std::array<int, 6> block_indices;
                         if (block_ao[0] + block_ao[2] > block_ao[1] + block_ao[3]) {
                             block_indices = {
@@ -489,22 +496,23 @@ void Chunk::rebuild() {
                             };
                         }
 
-                        vertices.insert(vertices.cend(), std::cbegin(block_vertices), std::cend(block_vertices));
-                        indices.insert(indices.cend(), std::cbegin(block_indices), std::cend(block_indices));
+                        vertices_.insert(vertices_.cend(), std::cbegin(block_vertices), std::cend(block_vertices));
+                        indices_.insert(indices_.cend(), std::cbegin(block_indices), std::cend(block_indices));
                     }
                 }
             }
         }
     }
+    rebuilding_.store(false);
 
-    if (!vertices.empty() && !indices.empty()) {
-        bgfx::update(vertex_buffer_, 0, bgfx::copy(vertices.data(), vertices.size() * sizeof(Vertex)));
-        bgfx::update(index_buffer_, 0, bgfx::copy(indices.data(), indices.size() * sizeof(std::uint16_t)));
+    if (!vertices_.empty() && !indices_.empty()) {
+        bgfx::update(vertex_buffer_, 0, bgfx::copy(vertices_.data(), vertices_.size() * sizeof(Vertex)));
+        bgfx::update(index_buffer_, 0, bgfx::copy(indices_.data(), indices_.size() * sizeof(std::uint16_t)));
         std::lock_guard lock(mutex_);
-        num_vertices_ = vertices.size();
-        num_indices_ = indices.size();
+        num_vertices_ = vertices_.size();
+        num_indices_ = indices_.size();
     }
-    bgfx::updateTexture2D(heightmap_, 0, 0, 0, 0, kVolume.x, kVolume.z, bgfx::copy(heightmap_data, sizeof(heightmap_data)));
+    bgfx::updateTexture2D(heightmap_, 0, 0, 0, 0, kVolume.x, kVolume.z, bgfx::copy(heightmap_data_, sizeof(heightmap_data_)));
 }
 
 void Chunk::render(PerspectiveCamera cam) const {
@@ -522,7 +530,8 @@ void Chunk::render(PerspectiveCamera cam) const {
     bgfx::setViewTransform(0, glm::value_ptr(cam.view), glm::value_ptr(cam.proj));
     bgfx::setState(
         BGFX_STATE_WRITE_RGB       |
-        BGFX_STATE_WRITE_Z         | 
+        BGFX_STATE_WRITE_Z         |
+        BGFX_STATE_MSAA            |
         BGFX_STATE_DEPTH_TEST_LESS |
         BGFX_STATE_BLEND_FUNC(BGFX_STATE_BLEND_SRC_ALPHA, BGFX_STATE_BLEND_INV_SRC_ALPHA)
     );
