@@ -1,5 +1,4 @@
 include(Shader)
-include(Sound)
 include(Texture)
 
 configure_file(cephalon_config.h.in cephalon_config.h)
@@ -60,19 +59,12 @@ set(CEPHALON_TEXTURES
 )
 add_texture(cephalon ${CEPHALON_TEXTURES})
 
-set(CEPHALON_SOUNDS
-    sounds/sound.wav
-)
-add_sound(cephalon ${CEPHALON_SOUNDS})
-
 find_package(bgfx REQUIRED)
 find_package(Boost COMPONENTS system REQUIRED)
 find_package(fmt REQUIRED)
 find_package(glm REQUIRED)
 find_package(nlohmann_json REQUIRED)
-find_package(OpenAL REQUIRED)
 find_package(SDL2 REQUIRED)
-find_package(SndFile REQUIRED)
 find_package(spdlog REQUIRED)
 find_package(SQLite3 REQUIRED)
 
@@ -82,9 +74,7 @@ target_link_libraries(cephalon
     ${Boost_LIBRARIES}
     fmt::fmt
     glm
-    ${OPENAL_LIBRARY}
     ${SDL2_LIBRARIES}
-    SndFile::sndfile
     ${SQLite3_LIBRARIES}
     spdlog::spdlog
 )

@@ -7,7 +7,6 @@ using namespace cephalon;
 
 #include <glm/gtc/type_ptr.hpp>
 #include <nlohmann/json.hpp>
-#include <sndfile.h>
 #include <spdlog/spdlog.h>
 
 #include "input.h"
@@ -33,29 +32,7 @@ Game::Game(int width, int height)
         info_["seed"] = std::chrono::system_clock::now().time_since_epoch().count();
     }
     world_.setTerrain(info_["terrain"]);
-    world_.setSeed(info_["seed"]);
-
-    SF_INFO info;
-    SNDFILE* file = sf_open("assets/sounds/sound.wav", SFM_READ, &info);
-    assert(file);
-
-    std::vector<std::uint16_t> data;
-    std::array<short, 4096> buffer;
-    std::size_t size;
-    while ((size = sf_read_short(file, buffer.data(), buffer.size())) != 0) {
-        data.insert(data.cend(), buffer.cbegin(), buffer.cbegin() + size);
-    }
-
-    alGenBuffers(1, &buffer_);
-    alBufferData(buffer_, 
-        info.channels == 1? AL_FORMAT_MONO16 : AL_FORMAT_STEREO16, 
-        data.data(), data.size() * sizeof(std::uint16_t), 
-        info.samplerate
-    );
-
-
-    alGenSources(1, &source_);
-    alSourcei(source_, AL_BUFFER, buffer_);
+    world_.setSeed(info_["seed"]); 
 }
 
 Game::~Game() {
@@ -81,8 +58,6 @@ void Game::update(float delta) {
         camera_.pos = camera_.pos + camera_.right * camera_speed * delta;
 
     world_.update(camera_.pos);
-
-    alListener3f(AL_POSITION, camera_.pos.x, camera_.pos.y, camera_.pos.z);
 
     intersected_ = world_.intersect(camera_, block_dir_, destroy_pos_);
     if (intersected_) {
@@ -118,10 +93,7 @@ void Game::onMouseRightClick() {
         auto& block = blocks::wood;
         world_.setBlock(place_pos_, block);
         spdlog::info("One {} block at {} is placed", block.getName(), fmt::format("({}, {}, {})", place_pos_.x, place_pos_.y, place_pos_.z));
-
-        alSource3f(source_, AL_POSITION, place_pos_.x, place_pos_.y, place_pos_.z);
-        alSourcePlay(source_);
-    }
+   }
 }
 
 void Game::screenShot() {
