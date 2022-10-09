@@ -63,8 +63,8 @@ void Database::loadChunk(Chunk& chunk) const {
         auto oy = sqlite3_column_int(load_stmt_, 1);
         auto oz = sqlite3_column_int(load_stmt_, 2);
         glm::ivec3 offset(ox, oy, oz);
-        auto name = sqlite3_column_text(load_stmt_, 3);
-        auto block = Block::getBlock(reinterpret_cast<const char*>(name));
+        auto name = reinterpret_cast<const char*>(sqlite3_column_text(load_stmt_, 3));
+        auto block = Block::getBlock(name);
         if (!block) {
             spdlog::warn("Unknown block name {}", name);
             continue;
