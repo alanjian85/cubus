@@ -71,6 +71,7 @@ find_package(SQLite3 REQUIRED)
 target_link_libraries(cephalon
     external
     bgfx::bgfx
+    bgfx::bimg
     ${Boost_LIBRARIES}
     fmt::fmt
     glm

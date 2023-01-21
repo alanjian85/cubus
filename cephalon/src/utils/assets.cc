@@ -66,7 +66,7 @@ bgfx::ProgramHandle cephalon::LoadProgram(const std::string& vs, const std::stri
     return handle;
 }
 
-bimg::ImageContainer* cephalon::LoadImage(const std::string& name, bimg::TextureFormat::Enum format) {
+bimg::ImageContainer* cephalon::LoadImage(const std::string& name) {
     std::string path = "assets/textures/";
     path += name;
     path += ".dds";
@@ -82,7 +82,7 @@ bimg::ImageContainer* cephalon::LoadImage(const std::string& name, bimg::Texture
     file.read(data.data(), size);
     bx::DefaultAllocator allocator;
     bx::Error error;
-    bimg::ImageContainer* image = bimg::imageParse(&allocator, data.data(), data.size(), format, &error);
+    bimg::ImageContainer* image = bimg::imageParseDds(&allocator, data.data(), data.size(), &error);
     if (!error.isOk()) {
         auto message = error.getMessage();
         spdlog::error("Error parsing image: {}", std::string_view(message.getPtr(), message.getLength()));
