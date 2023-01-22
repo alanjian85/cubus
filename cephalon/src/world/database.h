@@ -3,6 +3,7 @@
 
 #include <mutex>
 #include <unordered_map>
+#include <string>
 
 #include <glm/glm.hpp>
 #include <sqlite3.h>
@@ -27,13 +28,21 @@ namespace cephalon {
 
         void insertBlock(glm::ivec3 pos, const char* name);    
     private:
-        sqlite3* db_;
+        static int loadIdCallback(void* self, int, char** texts, char**);
+        
+        int getBlockIndex(const std::string& name);
 
-        mutable std::mutex load_mutex_;
-        sqlite3_stmt* load_stmt_;
+        sqlite3* db_;
+        std::unordered_map<std::string, int> blocks_id_;
+
+        mutable std::mutex insert_id_mutex_;
+        sqlite3_stmt* insert_id_stmt_;
         
         mutable std::mutex insert_mutex_;
         sqlite3_stmt* insert_stmt_;
+
+        mutable std::mutex load_mutex_;
+        sqlite3_stmt* load_stmt_;
     };
 }
 
