@@ -30,10 +30,11 @@ namespace cephalon {
     private:
         static int loadIdCallback(void* self, int, char** texts, char**);
         
-        int getBlockIndex(const std::string& name);
+        int getBlockId(const char* name);
 
         sqlite3* db_;
         std::unordered_map<std::string, int> blocks_id_;
+        std::unordered_map<int, std::string> blocks_name_;
 
         mutable std::mutex insert_id_mutex_;
         sqlite3_stmt* insert_id_stmt_;

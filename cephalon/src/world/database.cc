@@ -9,7 +9,9 @@ using namespace cephalon;
 
 int Database::loadIdCallback(void* self, int, char** texts, char**) {
     auto ptr = static_cast<Database*>(self);
-    ptr->blocks_id_[texts[0]] = std::atoi(texts[1]);    
+    auto id = std::atoi(texts[0]);
+    ptr->blocks_id_[texts[1]] = id;    
+    ptr->blocks_name_[id] = texts[1];
     return 0; 
 }
 
@@ -29,7 +31,7 @@ Database::Database(const char* path) {
         "ox INT NOT NULL,"
         "oy INT NOT NULL,"
         "oz INT NOT NULL,"
-        "name TEXT NOT NULL"
+        "id INT NOT NULL"
         ");"
         "CREATE UNIQUE INDEX IF NOT EXISTS blocks_position ON blocks (rx, ry, ox, oy, oz);"
         "CREATE TABLE IF NOT EXISTS blocks_id ("
@@ -37,8 +39,8 @@ Database::Database(const char* path) {
         "name TEXT NOT NULL);";
     const char* insert_id_query = "INSERT INTO blocks_id (name) VALUES (?);";
     const char* load_id_query = "SELECT id, name FROM blocks_id;";
-    const char* insert_query = "REPLACE INTO blocks (rx, ry, ox, oy, oz, name) VALUES (?, ?, ?, ?, ?, ?);";
-    const char* load_query = "SELECT ox, oy, oz, name FROM blocks WHERE rx = ? AND ry = ?;";
+    const char* insert_query = "REPLACE INTO blocks (rx, ry, ox, oy, oz, id) VALUES (?, ?, ?, ?, ?, ?);";
+    const char* load_query = "SELECT ox, oy, oz, id FROM blocks WHERE rx = ? AND ry = ?;";
     rc = sqlite3_exec(db_, create_query, nullptr, nullptr, nullptr);
     if (rc) spdlog::error("Failed to execute table create query");
     else spdlog::info("Table created successfully");
@@ -83,8 +85,8 @@ void Database::loadChunk(Chunk& chunk) const {
         auto oy = sqlite3_column_int(load_stmt_, 1);
         auto oz = sqlite3_column_int(load_stmt_, 2);
        
- glm::ivec3 offset(ox, oy, oz);
-        auto name = reinterpret_cast<const char*>(sqlite3_column_text(load_stmt_, 3));
+        glm::ivec3 offset(ox, oy, oz);
+        const auto& name = blocks_name_.at(sqlite3_column_int(load_stmt_, 3));
         auto block = Block::getBlock(name);
         if (!block) {
             spdlog::warn("Unknown block name {}", name);
@@ -104,21 +106,24 @@ void Database::insertBlock(glm::ivec3 pos, const char* name) {
     sqlite3_bind_int(insert_stmt_, 3, offset.x);
     sqlite3_bind_int(insert_stmt_, 4, offset.y);
     sqlite3_bind_int(insert_stmt_, 5, offset.z);
-    sqlite3_bind_text(insert_stmt_, 6, name, -1, nullptr);
+    sqlite3_bind_int(insert_stmt_, 6, getBlockId(name));
     int rc = sqlite3_step(insert_stmt_);
     if (rc != SQLITE_DONE) spdlog::critical("Failed to execute block insert statement");
     else spdlog::debug("Block inserted successfully");
 }
 
-int Database::getBlockIndex(const std::string& name) {
+int Database::getBlockId(const char* name) {
     auto it = blocks_id_.find(name);
     if (it != blocks_id_.cend())
         return it->second;
-    sqlite3_bind_text(insert_id_stmt_, 1, name.c_str(), -1, nullptr);
+    std::lock_guard lock(insert_id_mutex_);
+    sqlite3_reset(insert_id_stmt_);
+    sqlite3_bind_text(insert_id_stmt_, 1, name, -1, nullptr);
     int rc = sqlite3_step(insert_id_stmt_);
     if (rc != SQLITE_DONE) spdlog::critical("Failed to insert block ID of {}", name);
     else spdlog::debug("Block ID of {} inserted successfully", name);
     auto id = sqlite3_last_insert_rowid(db_);
     blocks_id_[name] = id;
+    blocks_name_[id] = name;
     return id;
 }
