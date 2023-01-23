@@ -33,15 +33,15 @@ namespace cephalon {
                         w = 2;
                     }
 
-                    chunk.setBlock(glm::ivec3(x, 0, z), blocks::stone);
+                    chunk.setTerrainBlock(glm::ivec3(x, 0, z), blocks::stone);
                     for (int y = 1; y < h; ++y) {
                         if (w == 1)
-                            chunk.setBlock(glm::ivec3(x, y, z), blocks::dirt);
+                            chunk.setTerrainBlock(glm::ivec3(x, y, z), blocks::dirt);
                         else
-                            chunk.setBlock(glm::ivec3(x, y, z), blocks::sand);
+                            chunk.setTerrainBlock(glm::ivec3(x, y, z), blocks::sand);
                     }
                     if (w == 1) {
-                        chunk.setBlock(glm::ivec3(x, h, z), blocks::grass);
+                        chunk.setTerrainBlock(glm::ivec3(x, h, z), blocks::grass);
                     }
                 }
             }

@@ -74,7 +74,11 @@ namespace cephalon {
 
         NeighborChunk setBlock(glm::ivec3 offset, const Block& block);
 
+        void setTerrainBlock(glm::ivec3 offset, const Block& block);
+
         const Block& getBlock(glm::ivec3 offset) const;
+        
+        const Block& getTerrainBlock(glm::ivec3 offset) const;
 
         void rebuild();
 
@@ -111,6 +115,7 @@ namespace cephalon {
 
         mutable std::mutex mutex_;
         const Block* blocks_[kVolume.x * kVolume.y * kVolume.z];
+        const Block* terrain_[kVolume.x * kVolume.y * kVolume.z];
         std::uint32_t num_vertices_;
         std::uint32_t num_indices_;
 

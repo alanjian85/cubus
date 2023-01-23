@@ -27,12 +27,15 @@ namespace cephalon {
         void loadChunk(Chunk& chunk) const;
 
         void insertBlock(glm::ivec3 pos, const char* name);    
+        void deleteBlock(glm::ivec3 pos);
     private:
         static int loadIdCallback(void* self, int, char** texts, char**);
         
         int getBlockId(const char* name);
 
         sqlite3* db_;
+
+        mutable std::mutex blocks_id_mutex_;
         std::unordered_map<std::string, int> blocks_id_;
         std::unordered_map<int, std::string> blocks_name_;
 
@@ -44,6 +47,9 @@ namespace cephalon {
 
         mutable std::mutex load_mutex_;
         sqlite3_stmt* load_stmt_;
+
+        mutable std::mutex delete_mutex_;
+        sqlite3_stmt* delete_stmt_;
     };
 }
 

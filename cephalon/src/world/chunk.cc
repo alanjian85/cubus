@@ -54,6 +54,7 @@ Chunk::Chunk(World& world, glm::ivec2 region)
     dirty_.store(false);
     rebuilding_.store(false);
     std::fill(std::begin(blocks_), std::end(blocks_), &blocks::air);
+    std::fill(std::begin(terrain_), std::end(terrain_), &blocks::air);
     vertex_buffer_ = bgfx::createDynamicVertexBuffer(0u, layout_, BGFX_BUFFER_ALLOW_RESIZE);
     index_buffer_ = bgfx::createDynamicIndexBuffer(0u, BGFX_BUFFER_ALLOW_RESIZE);
     heightmap_ = bgfx::createTexture2D(
@@ -104,6 +105,16 @@ NeighborChunk Chunk::setBlock(glm::ivec3 offset, const Block& block) {
     return result;
 }
 
+void Chunk::setTerrainBlock(glm::ivec3 offset, const Block& block) {
+    assert(offset.x >= 0 && offset.x < kVolume.x);
+    assert(offset.z >= 0 && offset.z < kVolume.z);
+    if (offset.y < 0 || offset.y >= kVolume.y)
+        return; 
+    auto index = offset.z * kVolume.y * kVolume.x + offset.y * kVolume.x + offset.x;
+    blocks_[index] = &block;
+    terrain_[index] = &block;
+}
+
 const Block& Chunk::getBlock(glm::ivec3 offset) const {
     assert(offset.x >= 0 && offset.x < kVolume.x);
     assert(offset.z >= 0 && offset.z < kVolume.z);
@@ -112,6 +123,15 @@ const Block& Chunk::getBlock(glm::ivec3 offset) const {
     auto index = offset.z * kVolume.y * kVolume.x + offset.y * kVolume.x + offset.x;
     std::lock_guard lock(mutex_);
     return *blocks_[index];
+}
+
+const Block& Chunk::getTerrainBlock(glm::ivec3 offset) const {
+    assert(offset.x >= 0 && offset.x < kVolume.x);
+    assert(offset.z >= 0 && offset.z < kVolume.z);
+    if (offset.y < 0 || offset.y >= kVolume.y)
+        return blocks::air; 
+    auto index = offset.z * kVolume.y * kVolume.x + offset.y * kVolume.x + offset.x;
+    return *terrain_[index];
 }
 
 void Chunk::rebuild() {

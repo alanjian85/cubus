@@ -19,11 +19,11 @@ namespace cephalon {
                 for (int z = 0; z < Chunk::kVolume.z; ++z) {
                     auto s = std::sin(x / 4.0f) * std::sin(z / 4.0f) * 0.5f + 0.5f;
                     auto h = static_cast<int>(s * 10);
-                    chunk.setBlock(glm::ivec3(x, 0, z), blocks::stone);
+                    chunk.setTerrainBlock(glm::ivec3(x, 0, z), blocks::stone);
                     for (int y = 1; y < h; ++y) {
-                        chunk.setBlock(glm::ivec3(x, y, z), blocks::dirt);
+                        chunk.setTerrainBlock(glm::ivec3(x, y, z), blocks::dirt);
                     }
-                    chunk.setBlock(glm::ivec3(x, h, z), blocks::grass);
+                    chunk.setTerrainBlock(glm::ivec3(x, h, z), blocks::grass);
                 }
             }
         }

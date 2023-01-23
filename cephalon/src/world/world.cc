@@ -5,6 +5,7 @@ using namespace cephalon;
 
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <spdlog/spdlog.h>
 
 #include "terrains/terrain.h"
 
@@ -28,12 +29,16 @@ void World::setSeed(unsigned seed) {
 }
 
 void World::setBlock(glm::ivec3 pos, const Block& block) {
-    database_.insertBlock(pos, block.getName().c_str());
     auto region = getRegion(pos);
     std::shared_lock lock(mutex_);
     auto it = chunks_.find(region);
     if (it != chunks_.cend()) {
         auto flags = it->second->setBlock(getOffset(pos), block);
+        if (&block == &it->second->getTerrainBlock(getOffset(pos)))
+            database_.deleteBlock(pos);
+        else
+            database_.insertBlock(pos, block.getName().c_str());
+
         if ((flags & NeighborChunk::kLeft) != NeighborChunk::kNone)
             setChunkDirty(region + glm::ivec2(-1,  0), true);
         if ((flags & NeighborChunk::kRight) != NeighborChunk::kNone)
@@ -51,6 +56,8 @@ void World::setBlock(glm::ivec3 pos, const Block& block) {
         if ((flags & NeighborChunk::kUpperRight) != NeighborChunk::kNone)
             setChunkDirty(region + glm::ivec2( 1,  1), true);
     }
+    else
+        spdlog::error("World::setBlock() out of bound");
 }
 
 const Block* World::getBlock(glm::ivec3 pos) const {

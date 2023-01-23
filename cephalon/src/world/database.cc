@@ -41,6 +41,7 @@ Database::Database(const char* path) {
     const char* load_id_query = "SELECT id, name FROM blocks_id;";
     const char* insert_query = "REPLACE INTO blocks (rx, ry, ox, oy, oz, id) VALUES (?, ?, ?, ?, ?, ?);";
     const char* load_query = "SELECT ox, oy, oz, id FROM blocks WHERE rx = ? AND ry = ?;";
+    const char* delete_query = "DELETE FROM blocks WHERE rx = ? AND ry = ? AND ox = ? AND oy = ? AND oz = ?;";
     rc = sqlite3_exec(db_, create_query, nullptr, nullptr, nullptr);
     if (rc) spdlog::error("Failed to execute table create query");
     else spdlog::info("Table created successfully");
@@ -56,10 +57,16 @@ Database::Database(const char* path) {
     rc = sqlite3_prepare(db_, load_query, -1, &load_stmt_, nullptr);
     if (rc) spdlog::error("Failed to prepare chunk load statement");
     else spdlog::info("Chunk load statement compiled successfully");
+    rc = sqlite3_prepare(db_, delete_query, -1, &delete_stmt_, nullptr);
+    if (rc) spdlog::error("Failed to prepare block delete statement");
+    else spdlog::info("Block delete statement compiled successfully");
 }
 
 Database::~Database() {
-    int rc;
+    int rc; 
+    rc = sqlite3_finalize(delete_stmt_);
+    if (rc) spdlog::critical("Failed to finalized block delete statement");
+    else spdlog::info("Block delete statement finalized");
     rc = sqlite3_finalize(load_stmt_);
     if (rc) spdlog::critical("Failed to finalize chunk load statement");
     else spdlog::info("Chunk load statement finalized");
@@ -86,6 +93,7 @@ void Database::loadChunk(Chunk& chunk) const {
         auto oz = sqlite3_column_int(load_stmt_, 2);
        
         glm::ivec3 offset(ox, oy, oz);
+        std::lock_guard id_lock(blocks_id_mutex_);
         const auto& name = blocks_name_.at(sqlite3_column_int(load_stmt_, 3));
         auto block = Block::getBlock(name);
         if (!block) {
@@ -112,6 +120,21 @@ void Database::insertBlock(glm::ivec3 pos, const char* name) {
     else spdlog::debug("Block inserted successfully");
 }
 
+void Database::deleteBlock(glm::ivec3 pos) {
+    auto region = World::getRegion(pos);
+    auto offset = World::getOffset(pos);
+    std::lock_guard lock(delete_mutex_);
+    sqlite3_reset(delete_stmt_);
+    sqlite3_bind_int(delete_stmt_, 1, region.x);
+    sqlite3_bind_int(delete_stmt_, 2, region.y);
+    sqlite3_bind_int(delete_stmt_, 3, offset.x);
+    sqlite3_bind_int(delete_stmt_, 4, offset.y);
+    sqlite3_bind_int(delete_stmt_, 5, offset.z);
+    int rc = sqlite3_step(delete_stmt_);
+    if (rc != SQLITE_DONE) spdlog::critical("Failed to execute block delete statment");
+    else spdlog::debug("Block deleted successfully");
+}
+
 int Database::getBlockId(const char* name) {
     auto it = blocks_id_.find(name);
     if (it != blocks_id_.cend())
@@ -123,6 +146,7 @@ int Database::getBlockId(const char* name) {
     if (rc != SQLITE_DONE) spdlog::critical("Failed to insert block ID of {}", name);
     else spdlog::debug("Block ID of {} inserted successfully", name);
     auto id = sqlite3_last_insert_rowid(db_);
+    std::lock_guard id_lock(blocks_id_mutex_);
     blocks_id_[name] = id;
     blocks_name_[id] = name;
     return id;
