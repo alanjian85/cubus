@@ -1,7 +1,7 @@
 # Cephalon
 Cephalon is a C++17 voxel game that is similar to [Minecraft](https://www.minecraft.net/en-us). It simulates an infinite world using a procedural terrain generator that supports various types of terrain and includes a random seed parameter. The renderer used by cephalon is efficient through the use of optimal algorithms and multithreading. Additionally, it is designed in a way that new blocks and textures can be added without modifying unrelated code.
 
-Cephalon is a ready-to-play game in which players can freely create and destroy blocks in a way similar to the [creative mode](https://minecraft.fandom.com/wiki/Creative) in Minecraft. It also has a database subsystem that saves play records automatically when the game is closed and allows you to take screenshots by pressing F2 while playing.
+Cephalon is a out-of-the-box game in which players can freely create and destroy blocks in a way similar to the [creative mode](https://minecraft.fandom.com/wiki/Creative) in Minecraft. It also has a database subsystem that saves play records automatically when the game is closed and allows you to take screenshots by pressing F2 while playing.
 
 ![Cephalon GIF](docs/assets/cephalon.gif)
 
