@@ -16,7 +16,7 @@ bgfx::ShaderHandle cephalon::LoadShader(const std::string& name) {
 	switch (bgfx::getRendererType() )
 	{
 	    case bgfx::RendererType::Noop:
-	    case bgfx::RendererType::Direct3D9:  path += "assets/shaders/dx9/";   break;
+//	    case bgfx::RendererType::Direct3D9:  path += "assets/shaders/dx9/";   break;
 	    case bgfx::RendererType::Direct3D11:
 	    case bgfx::RendererType::Direct3D12: path += "assets/shaders/dx11/";  break;
 	    case bgfx::RendererType::Agc:
@@ -26,7 +26,7 @@ bgfx::ShaderHandle cephalon::LoadShader(const std::string& name) {
 	    case bgfx::RendererType::OpenGL:     path += "assets/shaders/glsl/";  break;
 	    case bgfx::RendererType::OpenGLES:   path += "assets/shaders/essl/";  break;
 	    case bgfx::RendererType::Vulkan:     path += "assets/shaders/spirv/"; break;
-	    case bgfx::RendererType::WebGPU:     path += "assets/shaders/spirv/"; break;
+//	    case bgfx::RendererType::WebGPU:     path += "assets/shaders/spirv/"; break;
 	}
 
     path += name;

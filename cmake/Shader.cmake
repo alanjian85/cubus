@@ -200,14 +200,6 @@ function( add_shader TARGET )
                 set( OUTPUTS_PRETTY "${OUTPUTS_PRETTY}Metal, " )
             endif()
 
-            # essl
-            if( NOT "${TYPE}" STREQUAL "COMPUTE" )
-                set( ESSL_OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/assets/shaders/essl/${FILE_DIR}/${FILENAME}.bin )
-                shaderc_parse( ESSL ${COMMON} ANDROID OUTPUT ${ESSL_OUTPUT} )
-                list( APPEND OUTPUTS "ESSL" )
-                set( OUTPUTS_PRETTY "${OUTPUTS_PRETTY}ESSL, " )
-            endif()
-
             # glsl
             set( GLSL_OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/assets/shaders/glsl/${FILE_DIR}/${FILENAME}.bin )
             if( NOT "${TYPE}" STREQUAL "COMPUTE" )
