@@ -71,7 +71,6 @@ target_link_libraries(cubus
     bgfx::bimg
     ${Boost_LIBRARIES}
     fmt::fmt
-    glm
     ${SDL2_LIBRARIES}
     ${SQLite3_LIBRARIES}
     spdlog::spdlog
