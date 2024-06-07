@@ -1,5 +1,5 @@
 # Cubus
-Cubus (/ˈku.bus/, a Latin word meaning "cube") is a voxel game resembling Minecraft. Featuring an expansive open-world sandbox environment, it simulates an infinite world full of cubes using a configurable procedural terrain generator. Cubus employs an efficient renderer, leveraging the chunk meshing algorithm and the potential of multithreading. Moreover, its design allows for seamless integration of new game elements like blocks and textures through the creation of corresponding classes.
+Cubus ([ˈkʊbʊs̠], a Latin word meaning "cube") is a voxel game resembling Minecraft. Featuring an expansive open-world sandbox environment, it simulates an infinite world full of cubes using a configurable procedural terrain generator. Cubus employs an efficient renderer, leveraging the chunk meshing algorithm and the potential of multithreading. Moreover, its design allows for seamless integration of new game elements like blocks and textures through the creation of corresponding classes.
 
 In Cubus, players have the freedom to create and destroy blocks in the dynamically generated world. The game automatically saves progress upon exiting, and players can take screenshots by pressing F2.
 
